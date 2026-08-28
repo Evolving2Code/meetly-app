@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #0f172a;
+  --navy-light: #1e293b;
+  --lime: #84cc16;
+  --lime-dark: #65a30d;
+  --surface: #f8fafc;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-navy-light: var(--navy-light);
+  --color-lime: var(--lime);
+  --color-lime-dark: var(--lime-dark);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-lime px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-lime-dark;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-surface;
+}
+
+.card {
+  @apply rounded-2xl border border-border bg-white p-6 shadow-sm;
+}
+
+.input {
+  @apply w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition focus:border-lime focus:ring-2 focus:ring-lime/20;
+}
+
+.label {
+  @apply mb-1.5 block text-sm font-medium text-navy;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;
+}
+
+.badge-lime {
+  @apply inline-flex items-center rounded-full bg-lime/15 px-2.5 py-1 text-xs font-semibold text-lime-dark;
+}
+
+.badge-navy {
+  @apply inline-flex items-center rounded-full bg-navy px-2.5 py-1 text-xs font-semibold text-white;
+}
