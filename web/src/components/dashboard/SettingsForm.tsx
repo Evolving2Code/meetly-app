@@ -88,7 +88,7 @@ export function SettingsForm({
       <section className="card">
         <h2 className="text-xl font-black">Google Calendar</h2>
         <p className="mt-2 text-sm text-muted">
-          MeetLime uses your Google account to read busy times and create events when guests
+          Meetly uses your Google account to read busy times and create events when guests
           book.
         </p>
 

@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   const host = await prisma.user.upsert({
-    where: { email: "demo@meetlime.app" },
+    where: { email: "demo@meetly.app" },
     update: {},
     create: {
-      email: "demo@meetlime.app",
+      email: "demo@meetly.app",
       name: "Alex Rivera",
       username: "alex",
       timezone: "America/New_York",

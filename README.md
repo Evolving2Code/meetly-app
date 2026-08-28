@@ -1,4 +1,4 @@
-# MeetLime
+# Meetly
 
 Calendly-style scheduling app with Option 5 branding (navy + lime).
 

@@ -1,4 +1,4 @@
-# MeetLime
+# Meetly
 
 A Calendly-style scheduling app with **Option 5** branding (navy + lime), Google login, and Google Calendar sync.
 

@@ -130,7 +130,7 @@ export function BookingFlow({
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
             M
           </div>
-          <span className="text-lg font-bold">MeetLime</span>
+          <span className="text-lg font-bold">Meetly</span>
         </div>
 
         <div className="flex items-center gap-4">

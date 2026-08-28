@@ -11,7 +11,7 @@ export default async function HomePage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
             M
           </div>
-          <span className="text-xl font-bold tracking-tight">MeetLime</span>
+          <span className="text-xl font-bold tracking-tight">Meetly</span>
         </div>
         <div className="flex items-center gap-3">
           {session ? (
@@ -37,7 +37,7 @@ export default async function HomePage() {
             Fill your calendar.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-slate-300">
-            MeetLime gives hosts a powerful dashboard and guests a frictionless booking
+            Meetly gives hosts a powerful dashboard and guests a frictionless booking
             experience — with Google sign-in and Google Calendar sync built in.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">

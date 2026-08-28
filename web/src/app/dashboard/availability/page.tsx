@@ -17,7 +17,7 @@ export default async function AvailabilityPage() {
         </p>
         <h1 className="mt-2 text-4xl font-black text-navy">Availability</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Set your weekly hours. MeetLime only offers slots inside these windows.
+          Set your weekly hours. Meetly only offers slots inside these windows.
         </p>
       </div>
 

@@ -16,7 +16,7 @@ export default async function LoginPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
               M
             </div>
-            <span className="text-xl font-bold">MeetLime</span>
+            <span className="text-xl font-bold">Meetly</span>
           </Link>
         </div>
         <div>
@@ -30,7 +30,7 @@ export default async function LoginPage() {
             minutes.
           </p>
         </div>
-        <p className="text-sm text-slate-500">© 2026 MeetLime</p>
+        <p className="text-sm text-slate-500">© 2026 Meetly</p>
       </div>
 
       <div className="flex items-center justify-center bg-surface p-10">
@@ -52,7 +52,7 @@ export default async function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted">
-            Google Calendar access is requested so MeetLime can check conflicts and create
+            Google Calendar access is requested so Meetly can check conflicts and create
             events.
           </p>
         </div>

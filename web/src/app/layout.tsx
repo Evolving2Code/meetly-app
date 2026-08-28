@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MeetLime — Scheduling that stands out",
+  title: "Meetly — Scheduling that stands out",
   description: "Share your link, let guests book time, and sync with Google Calendar.",
 };
 

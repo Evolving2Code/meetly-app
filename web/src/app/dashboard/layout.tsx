@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
               M
             </div>
             <div>
-              <p className="text-lg font-bold">MeetLime</p>
+              <p className="text-lg font-bold">Meetly</p>
               <p className="text-xs text-slate-400">Host dashboard</p>
             </div>
           </Link>
