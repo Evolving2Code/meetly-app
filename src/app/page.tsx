@@ -25,7 +25,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/login"
-                className="btn-secondary hidden border-slate-600 bg-transparent text-white hover:bg-navy-light sm:inline-flex"
+                className="btn-secondary border-slate-600 bg-transparent text-white hover:bg-navy-light"
               >
                 Sign in
               </Link>
@@ -46,7 +46,8 @@ export default async function HomePage() {
           </h1>
           <p className="mt-6 max-w-xl text-lg text-slate-300">
             Meetly gives hosts a powerful dashboard and guests a frictionless booking
-            experience — with Google sign-in and Google Calendar sync built in.
+            experience. Sign up with email or Google — connect Google Calendar when
+            you&apos;re ready.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
@@ -99,8 +100,8 @@ export default async function HomePage() {
           <h2 className="text-3xl font-black">MVP features included</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
-              "Google login",
-              "Google Calendar sync",
+              "Email or Google login",
+              "Optional Google Calendar sync",
               "Event types & booking links",
               "Weekly availability",
               "Guest booking flow",
