@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth/session";
 
 export default async function HomePage() {
-  const session = await auth();
+  const user = await getSessionUser();
 
   return (
     <div className="min-h-screen bg-navy text-white">
@@ -14,7 +14,7 @@ export default async function HomePage() {
           <span className="text-xl font-bold tracking-tight">Meetly</span>
         </div>
         <div className="flex items-center gap-3">
-          {session ? (
+          {user ? (
             <Link href="/dashboard" className="btn-primary">
               Open dashboard
             </Link>
@@ -41,10 +41,16 @@ export default async function HomePage() {
             experience — with Google sign-in and Google Calendar sync built in.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
-            <Link href={session ? "/dashboard" : "/login"} className="btn-primary px-8 py-3 text-base">
-              {session ? "Go to dashboard" : "Get started free"}
+            <Link
+              href={user ? "/dashboard" : "/login"}
+              className="btn-primary px-8 py-3 text-base"
+            >
+              {user ? "Go to dashboard" : "Get started free"}
             </Link>
-            <a href="#features" className="btn-secondary border-slate-600 bg-transparent text-white hover:bg-navy-light">
+            <a
+              href="#features"
+              className="btn-secondary border-slate-600 bg-transparent text-white hover:bg-navy-light"
+            >
               See features
             </a>
           </div>

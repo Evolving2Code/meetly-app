@@ -1,18 +1,18 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
 import { EventTypesManager } from "@/components/dashboard/EventTypesManager";
 
 export default async function EventTypesPage() {
-  const session = await auth();
-  const [eventTypes, user] = await Promise.all([
-    prisma.eventType.findMany({
-      where: { userId: session!.user.id },
-      orderBy: { createdAt: "asc" },
-    }),
-    prisma.user.findUnique({
-      where: { id: session!.user.id },
-      select: { username: true },
-    }),
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  const [{ data: eventTypes }, { data: profile }] = await Promise.all([
+    supabase
+      .from("event_types")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    supabase.from("profiles").select("username").eq("id", user.id).single(),
   ]);
 
   return (
@@ -28,8 +28,8 @@ export default async function EventTypesPage() {
       </div>
 
       <EventTypesManager
-        initialEventTypes={eventTypes}
-        username={user?.username ?? null}
+        initialEventTypes={eventTypes ?? []}
+        username={profile?.username ?? null}
       />
     </div>
   );

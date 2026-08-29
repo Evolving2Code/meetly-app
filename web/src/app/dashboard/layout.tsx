@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { auth, signOut } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 const navItems = [
   { href: "/dashboard", label: "Overview" },
@@ -11,11 +12,17 @@ const navItems = [
 ];
 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
-  const session = await auth();
+  const user = await requireUser();
+  const supabase = await createClient();
 
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name, avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  const displayName = profile?.name ?? user.email ?? "User";
+  const avatarUrl = profile?.avatar_url ?? user.user_metadata?.avatar_url;
 
   return (
     <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[260px_1fr]">
@@ -35,37 +42,22 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
 
           <div className="mt-auto rounded-2xl bg-navy-light p-4">
             <div className="flex items-center gap-3">
-              {session.user.image ? (
+              {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={session.user.image}
-                  alt={session.user.name ?? "User"}
-                  className="h-10 w-10 rounded-full"
-                />
+                <img src={avatarUrl} alt={displayName} className="h-10 w-10 rounded-full" />
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lime font-bold text-navy">
-                  {(session.user.name ?? "U").slice(0, 1)}
+                  {displayName.slice(0, 1)}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{session.user.name}</p>
-                <p className="truncate text-xs text-slate-400">{session.user.email}</p>
+                <p className="truncate text-sm font-semibold">{displayName}</p>
+                <p className="truncate text-xs text-slate-400">{user.email}</p>
               </div>
             </div>
-            <form
-              className="mt-4"
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
-              <button
-                type="submit"
-                className="w-full rounded-lg border border-slate-600 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-navy"
-              >
-                Sign out
-              </button>
-            </form>
+            <div className="mt-4">
+              <SignOutButton />
+            </div>
           </div>
         </div>
       </aside>

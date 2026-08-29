@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addDays, startOfDay } from "date-fns";
-import { prisma } from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { groupSlotsByDate } from "@/lib/scheduling/format";
-import { getAvailableSlots } from "@/lib/scheduling/slots";
+import { getAvailableSlots as computeSlots } from "@/lib/scheduling/slots";
 
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.searchParams.get("username");
@@ -13,25 +13,34 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing username or slug" }, { status: 400 });
   }
 
-  const host = await prisma.user.findUnique({
-    where: { username },
-    include: {
-      eventTypes: {
-        where: { slug, active: true },
-      },
-    },
-  });
+  const admin = createAdminClient();
 
-  const eventType = host?.eventTypes[0];
+  const { data: host } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
+    .single();
 
-  if (!host || !eventType) {
+  if (!host) {
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+  }
+
+  const { data: eventType } = await admin
+    .from("event_types")
+    .select("*")
+    .eq("user_id", host.id)
+    .eq("slug", slug)
+    .eq("active", true)
+    .single();
+
+  if (!eventType) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
   const fromDate = startOfDay(new Date());
-  const toDate = addDays(fromDate, eventType.maxDaysAhead);
+  const toDate = addDays(fromDate, eventType.max_days_ahead);
 
-  const slots = await getAvailableSlots({
+  const slots = await computeSlots({
     hostId: host.id,
     hostTimezone: host.timezone,
     eventType,
@@ -46,9 +55,16 @@ export async function GET(request: NextRequest) {
       name: host.name,
       username: host.username,
       timezone: host.timezone,
-      image: host.image,
+      image: host.avatar_url,
     },
-    eventType,
+    eventType: {
+      id: eventType.id,
+      title: eventType.title,
+      slug: eventType.slug,
+      description: eventType.description,
+      duration: eventType.duration,
+      location: eventType.location,
+    },
     slots: grouped,
   });
 }

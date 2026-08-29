@@ -2,20 +2,7 @@
 
 import { useState } from "react";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
-
-type EventType = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string | null;
-  duration: number;
-  bufferBefore: number;
-  bufferAfter: number;
-  minNotice: number;
-  maxDaysAhead: number;
-  location: string | null;
-  active: boolean;
-};
+import type { EventType } from "@/lib/supabase/types";
 
 const emptyForm = {
   title: "",
@@ -95,8 +82,8 @@ export function EventTypesManager({
                 <div>
                   <p className="text-lg font-bold text-navy">{eventType.title}</p>
                   <p className="mt-1 text-sm text-muted">
-                    {eventType.duration} min · {eventType.bufferAfter} min buffer ·{" "}
-                    {eventType.minNotice} min notice
+                    {eventType.duration} min · {eventType.buffer_after} min buffer ·{" "}
+                    {eventType.min_notice} min notice
                   </p>
                 </div>
                 <button
