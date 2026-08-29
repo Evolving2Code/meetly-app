@@ -16,16 +16,14 @@ Complete these steps from your Android browser, then paste the values back to Cu
 
 4. Open **Authentication → Providers → Google**:
    - Enable Google
-   - Leave Client ID/Secret empty until step 2 below
+   - Paste Google Client ID + Secret (from step 2 below)
 5. Open **Authentication → URL Configuration**:
-   - Site URL: `https://YOUR-APP.vercel.app` (update after Vercel step)
+   - Site URL: `https://meetly-evolving.vercel.app` (no trailing slash)
    - Redirect URLs (add all):
-     - `https://YOUR-APP.vercel.app/**`
+     - `https://meetly-evolving.vercel.app/**`
      - `https://*.vercel.app/**`
-     - `http://localhost:3000/**` (optional fallback)
-
-6. Open **SQL Editor** → run the migration file:
-   - Copy contents of `web/supabase/migrations/001_initial.sql`
+6. Open **SQL Editor** → run the migration:
+   - Copy all of `supabase/migrations/001_initial.sql` from this repo
    - Click **Run**
 
 ## 2. Google Cloud
@@ -37,49 +35,41 @@ Complete these steps from your Android browser, then paste the values back to Cu
    - `.../auth/calendar.readonly`
 4. **Credentials → Create OAuth client → Web application**
 5. Authorized redirect URIs — add **only**:
-   - `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback`
-   - (Find exact URL in Supabase → Auth → Providers → Google)
+   - `https://xrahnomkkduqkupltnop.supabase.co/auth/v1/callback`
+   - (Always use the callback URL shown in Supabase → Auth → Google)
 6. Copy **Client ID** and **Client Secret** into Supabase Google provider settings
 
 ## 3. Vercel
 
-1. Go to [vercel.com/new](https://vercel.com/new) → import `meetly-app` from GitHub
-2. **Root Directory:** `web`
-3. **Environment Variables** (Production + Preview):
+1. Go to [vercel.com](https://vercel.com) → your **meetly-evolving** project
+2. **Settings → General → Root Directory** must be **empty** (repo root) — not `web`
+3. **Settings → Environment Variables** (Production + Preview):
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-NEXT_PUBLIC_SITE_URL=https://YOUR-APP.vercel.app
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+NEXT_PUBLIC_SUPABASE_URL=https://xrahnomkkduqkupltnop.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SITE_URL=https://meetly-evolving.vercel.app
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
-4. Deploy
-5. Copy your live URL (e.g. `https://meetly-app.vercel.app`)
-6. Go back to Supabase → **Authentication → URL Configuration**:
-   - Set Site URL to your Vercel URL
-   - Confirm redirect URLs include `https://*.vercel.app/**`
+**Important:** `NEXT_PUBLIC_SITE_URL` must NOT have a trailing slash.
 
-## 4. Paste back to Cursor
+4. **Deployments → Redeploy** the latest production deployment
 
-Reply with:
+## 4. Verify on Android
 
-```
-SUPABASE_URL: ...
-SUPABASE_ANON_KEY: ...
-SUPABASE_SERVICE_ROLE_KEY: ...
-VERCEL_URL: https://....vercel.app
-GOOGLE_CLIENT_ID: ...
-GOOGLE_CLIENT_SECRET: ...
-```
-
-(Cursor Cloud env can store these so agents don't need local `.env` files.)
-
-## 5. Verify on Android
-
-1. Open your Vercel URL on your phone
+1. Open https://meetly-evolving.vercel.app
 2. Tap **Sign in with Google**
 3. Land on dashboard with default event type
 4. Copy booking link and test a guest booking
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Vercel 404 | Root Directory must be empty (app is at repo root). Redeploy after merge. |
+| Auth redirect error | Check Supabase Site URL + Redirect URLs match Vercel domain |
+| Google sign-in fails | Client ID/Secret must be in Supabase Google provider, not just Vercel |
+| Booking fails | Confirm SQL migration was run in Supabase SQL Editor |
