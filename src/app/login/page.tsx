@@ -12,7 +12,7 @@ export default async function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="flex flex-col justify-between bg-navy p-10 text-white">
+      <div className="flex flex-col justify-between bg-navy p-6 text-white sm:p-10">
         <div>
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
@@ -35,9 +35,9 @@ export default async function LoginPage() {
         <p className="text-sm text-slate-500">© 2026 Meetly</p>
       </div>
 
-      <div className="flex items-center justify-center bg-surface p-10">
+      <div className="flex items-center justify-center bg-surface p-6 sm:p-10">
         <div className="w-full max-w-md">
-          <h2 className="text-3xl font-black text-navy">Welcome back</h2>
+          <h2 className="text-2xl font-black text-navy sm:text-3xl">Welcome back</h2>
           <p className="mt-2 text-muted">Sign in to manage your schedule and booking links.</p>
 
           <div className="mt-8">

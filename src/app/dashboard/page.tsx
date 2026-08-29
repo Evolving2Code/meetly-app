@@ -53,13 +53,13 @@ export default async function DashboardPage() {
   const availabilityHeatmap = await buildHeatmap(supabase, user.id);
 
   return (
-    <div className="p-6 lg:p-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="p-4 sm:p-6 lg:p-10">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-lime-dark">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lime-dark sm:text-sm">
             Overview
           </p>
-          <h1 className="mt-2 text-4xl font-black text-navy">Dashboard</h1>
+          <h1 className="mt-1 text-3xl font-black text-navy sm:mt-2 sm:text-4xl">Dashboard</h1>
         </div>
         {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
       </div>

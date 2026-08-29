@@ -124,9 +124,9 @@ export function BookingFlow({
   }
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[420px_1fr]">
-      <aside className="bg-navy p-8 text-white lg:p-10">
-        <div className="mb-10 flex items-center gap-3">
+    <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,420px)_1fr]">
+      <aside className="bg-navy p-5 text-white sm:p-8 lg:p-10">
+        <div className="mb-6 flex items-center gap-3 lg:mb-10">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
             M
           </div>
@@ -139,50 +139,50 @@ export function BookingFlow({
             <img
               src={host.image}
               alt={host.name ?? host.username}
-              className="h-16 w-16 rounded-full border-2 border-lime"
+              className="h-14 w-14 rounded-full border-2 border-lime sm:h-16 sm:w-16"
             />
           ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-lime text-2xl font-black text-navy">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-lime text-xl font-black text-navy sm:h-16 sm:w-16 sm:text-2xl">
               {(host.name ?? host.username).slice(0, 1)}
             </div>
           )}
           <div>
             <p className="text-sm text-slate-400">Book with</p>
-            <p className="text-2xl font-black">{host.name ?? host.username}</p>
+            <p className="text-xl font-black sm:text-2xl">{host.name ?? host.username}</p>
           </div>
         </div>
 
-        <div className="mt-10 space-y-5">
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:mt-10 sm:space-y-0 lg:grid-cols-1 lg:gap-0 lg:space-y-5">
           <InfoBlock label="Meeting" value={eventType.title} />
-          <InfoBlock label="Duration" value={`${eventType.duration} minutes`} />
+          <InfoBlock label="Duration" value={`${eventType.duration} min`} />
           <InfoBlock label="Location" value={eventType.location ?? "Video call"} />
-          <InfoBlock label="Host timezone" value={host.timezone} />
+          <InfoBlock label="Timezone" value={host.timezone} />
         </div>
 
         {eventType.description && (
-          <p className="mt-8 text-sm leading-6 text-slate-300">{eventType.description}</p>
+          <p className="mt-6 hidden text-sm leading-6 text-slate-300 sm:block">{eventType.description}</p>
         )}
 
-        <div className="mt-10 rounded-2xl bg-navy-light p-5">
+        <div className="mt-6 rounded-2xl bg-navy-light p-4 sm:mt-10 sm:p-5">
           <StepIndicator step={step} />
         </div>
       </aside>
 
-      <main className="bg-white p-6 lg:p-10">
+      <main className="flex-1 bg-white p-4 sm:p-6 lg:p-10">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-lime-dark">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lime-dark sm:text-sm">
                 Guest booking
               </p>
-              <h1 className="mt-2 text-3xl font-black text-navy">
+              <h1 className="mt-1 text-2xl font-black text-navy sm:mt-2 sm:text-3xl">
                 {step === "confirmed" ? "You’re booked" : "Pick a time"}
               </h1>
             </div>
-            <label className="block">
+            <label className="block w-full sm:w-auto">
               <span className="label">Your timezone</span>
               <select
-                className="input w-auto min-w-56"
+                className="input sm:min-w-56"
                 value={timezone}
                 onChange={(event) => setTimezone(event.target.value)}
               >
@@ -217,12 +217,12 @@ export function BookingFlow({
               {availableDates.length === 0 ? (
                 <p className="mt-4 text-muted">No available dates right now.</p>
               ) : (
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <div className="mt-6 grid gap-3">
                   {availableDates.map((dateKey) => (
                     <button
                       key={dateKey}
                       type="button"
-                      className="rounded-2xl border border-border px-4 py-4 text-left transition hover:border-lime hover:bg-lime/5"
+                      className="min-h-[56px] rounded-2xl border border-border px-4 py-4 text-left transition active:scale-[0.99] hover:border-lime hover:bg-lime/5"
                       onClick={() => {
                         setSelectedDate(dateKey);
                         setStep("time");
@@ -243,7 +243,7 @@ export function BookingFlow({
             <section className="card">
               <button
                 type="button"
-                className="mb-4 text-sm font-semibold text-lime-dark hover:underline"
+                className="mb-4 min-h-[44px] text-sm font-semibold text-lime-dark hover:underline"
                 onClick={() => setStep("date")}
               >
                 ← Back to dates
@@ -253,12 +253,12 @@ export function BookingFlow({
                   ? formatDateLabel(parseISO(selectedDate), timezone)
                   : "Select a time"}
               </h2>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {timesForSelectedDate.map((slot) => (
                   <button
                     key={slot.start}
                     type="button"
-                    className="rounded-xl border border-border px-4 py-3 text-sm font-bold text-navy transition hover:border-lime hover:bg-lime hover:text-navy"
+                    className="min-h-[48px] rounded-xl border border-border px-3 py-3 text-sm font-bold text-navy transition active:scale-[0.98] hover:border-lime hover:bg-lime hover:text-navy"
                     onClick={() => {
                       setSelectedSlot(slot);
                       setStep("details");

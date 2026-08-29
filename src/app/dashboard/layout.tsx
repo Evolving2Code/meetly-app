@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { DashboardNav, type NavItem } from "@/components/dashboard/DashboardNav";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/event-types", label: "Event Types" },
-  { href: "/dashboard/availability", label: "Availability" },
-  { href: "/dashboard/settings", label: "Settings" },
+const navItems: NavItem[] = [
+  { href: "/dashboard", label: "Overview", shortLabel: "Home", icon: "overview" },
+  { href: "/dashboard/event-types", label: "Event Types", shortLabel: "Events", icon: "events" },
+  { href: "/dashboard/availability", label: "Availability", shortLabel: "Hours", icon: "availability" },
+  { href: "/dashboard/settings", label: "Settings", shortLabel: "Settings", icon: "settings" },
 ];
 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
@@ -26,7 +26,8 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
 
   return (
     <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[260px_1fr]">
-      <aside className="bg-navy text-white">
+      {/* Desktop sidebar */}
+      <aside className="hidden bg-navy text-white lg:block">
         <div className="flex h-full flex-col p-6">
           <Link href="/dashboard" className="mb-10 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
@@ -38,7 +39,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
             </div>
           </Link>
 
-          <DashboardNav items={navItems} />
+          <DashboardNav items={navItems} variant="sidebar" />
 
           <div className="mt-auto rounded-2xl bg-navy-light p-4">
             <div className="flex items-center gap-3">
@@ -62,7 +63,31 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
         </div>
       </aside>
 
-      <main className="min-w-0">{children}</main>
+      {/* Mobile shell */}
+      <div className="flex min-h-screen min-w-0 flex-col">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-white px-4 py-3 lg:hidden">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime text-sm font-black text-navy">
+              M
+            </div>
+            <span className="text-base font-bold text-navy">Meetly</span>
+          </Link>
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt={displayName} className="h-9 w-9 rounded-full" />
+          ) : (
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+              {displayName.slice(0, 1)}
+            </div>
+          )}
+        </header>
+
+        <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+          {children}
+        </main>
+
+        <DashboardNav items={navItems} variant="bottom" />
+      </div>
     </div>
   );
 }

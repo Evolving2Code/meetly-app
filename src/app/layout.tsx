@@ -17,6 +17,12 @@ export const metadata: Metadata = {
   description: "Share your link, let guests book time, and sync with Google Calendar.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html

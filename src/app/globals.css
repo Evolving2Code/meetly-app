@@ -37,19 +37,19 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-lg bg-lime px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-lime-dark;
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-xl bg-lime px-5 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] hover:bg-lime-dark;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-surface;
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-white px-5 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] hover:bg-surface;
 }
 
 .card {
-  @apply rounded-2xl border border-border bg-white p-6 shadow-sm;
+  @apply rounded-2xl border border-border bg-white p-4 shadow-sm sm:p-6;
 }
 
 .input {
-  @apply w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition focus:border-lime focus:ring-2 focus:ring-lime/20;
+  @apply w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-navy outline-none transition focus:border-lime focus:ring-2 focus:ring-lime/20;
 }
 
 .label {

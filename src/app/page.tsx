@@ -6,7 +6,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-navy text-white">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 sm:py-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
             M
@@ -26,12 +26,12 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-2 lg:items-center">
+      <main className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:gap-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:items-center">
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-lime">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-lime sm:mb-4 sm:text-sm">
             Bold scheduling
           </p>
-          <h1 className="text-5xl font-black leading-tight tracking-tight lg:text-6xl">
+          <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
             Share your link.
             <br />
             Fill your calendar.
