@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
+import { ensureUserOnboarded } from "@/lib/auth/onboarding";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardNav, type NavItem } from "@/components/dashboard/DashboardNav";
 import { SignOutButton } from "@/components/auth/SignOutButton";
@@ -13,6 +14,7 @@ const navItems: NavItem[] = [
 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
   const user = await requireUser();
+  await ensureUserOnboarded(user.id, user.email!, user.user_metadata);
   const supabase = await createClient();
 
   const { data: profile } = await supabase

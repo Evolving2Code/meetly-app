@@ -9,6 +9,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/login",
+    "/signup",
     "/auth/callback",
   ],
 };

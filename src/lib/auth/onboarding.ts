@@ -29,23 +29,41 @@ async function ensureUniqueUsername(base: string) {
   }
 }
 
-export async function ensureUserOnboarded(userId: string, email: string) {
+export async function ensureUserOnboarded(
+  userId: string,
+  email: string,
+  metadata?: Record<string, unknown>,
+) {
   const admin = createAdminClient();
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("username")
+    .select("username, name")
     .eq("id", userId)
     .single();
 
+  const displayName =
+    (typeof metadata?.full_name === "string" && metadata.full_name) ||
+    (typeof metadata?.name === "string" && metadata.name) ||
+    null;
+
   if (profile?.username) {
+    if (displayName && !profile.name) {
+      await admin.from("profiles").update({ name: displayName }).eq("id", userId);
+    }
     return profile.username;
   }
 
   const emailPrefix = email.split("@")[0] ?? "user";
   const username = await ensureUniqueUsername(slugify(emailPrefix));
 
-  await admin.from("profiles").update({ username }).eq("id", userId);
+  await admin
+    .from("profiles")
+    .update({
+      username,
+      ...(displayName ? { name: displayName } : {}),
+    })
+    .eq("id", userId);
 
   const { count } = await admin
     .from("event_types")
@@ -84,35 +102,4 @@ export async function ensureUserOnboarded(userId: string, email: string) {
   }
 
   return username;
-}
-
-export async function saveGoogleTokens(
-  userId: string,
-  tokens: {
-    access_token?: string | null;
-    refresh_token?: string | null;
-    expires_at?: number | null;
-    scope?: string | null;
-  },
-) {
-  if (!tokens.access_token && !tokens.refresh_token) {
-    return;
-  }
-
-  const admin = createAdminClient();
-
-  const { data: existing } = await admin
-    .from("google_tokens")
-    .select("refresh_token")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  await admin.from("google_tokens").upsert({
-    user_id: userId,
-    access_token: tokens.access_token ?? null,
-    refresh_token: tokens.refresh_token ?? existing?.refresh_token ?? null,
-    expires_at: tokens.expires_at ?? null,
-    scope: tokens.scope ?? null,
-    updated_at: new Date().toISOString(),
-  });
 }

@@ -14,9 +14,9 @@ Complete these steps from your Android browser, then paste the values back to Cu
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public key |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (keep secret) |
 
-4. Open **Authentication → Providers → Google**:
-   - Enable Google
-   - Paste Google Client ID + Secret (from step 2 below)
+4. Open **Authentication → Providers**:
+   - **Email**: enable (email + password signup)
+   - **Google**: enable with Client ID + Secret (profile/email login only — no Calendar scopes here)
 5. Open **Authentication → URL Configuration**:
    - Site URL: `https://meetly-evolving.vercel.app` (no trailing slash)
    - Redirect URLs (add all):
@@ -34,15 +34,17 @@ Complete these steps from your Android browser, then paste the values back to Cu
    - `.../auth/calendar.events`
    - `.../auth/calendar.readonly`
 4. **Credentials → Create OAuth client → Web application**
-5. Authorized redirect URIs — add **only**:
-   - `https://xrahnomkkduqkupltnop.supabase.co/auth/v1/callback`
-   - (Always use the callback URL shown in Supabase → Auth → Google)
-6. Copy **Client ID** and **Client Secret** into Supabase Google provider settings
+5. Authorized redirect URIs — add **both**:
+   - `https://xrahnomkkduqkupltnop.supabase.co/auth/v1/callback` (Supabase login)
+   - `https://meetly-evolving.vercel.app/auth/callback/google-calendar` (Calendar integration)
+6. Copy **Client ID** and **Client Secret** into:
+   - Supabase → Auth → Google provider
+   - Vercel environment variables (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
 
 ## 3. Vercel
 
 1. Go to [vercel.com](https://vercel.com) → your **meetly-evolving** project
-2. **Settings → General → Root Directory** must be **empty** (repo root) — not `web`
+2. **Settings → General → Root Directory** must be **empty** (repo root)
 3. **Settings → Environment Variables** (Production + Preview):
 
 ```env
@@ -60,10 +62,11 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 ## 4. Verify on Android
 
-1. Open https://meetly-evolving.vercel.app
-2. Tap **Sign in with Google**
+1. Open https://meetly-evolving.vercel.app/signup
+2. Create an account with **email + password** OR **Google** (basic login)
 3. Land on dashboard with default event type
-4. Copy booking link and test a guest booking
+4. Go to **Settings → Connect Google Calendar** (optional integration step)
+5. Copy booking link and test a guest booking
 
 ## Troubleshooting
 
@@ -71,5 +74,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 |---------|-----|
 | Vercel 404 | Root Directory must be empty (app is at repo root). Redeploy after merge. |
 | Auth redirect error | Check Supabase Site URL + Redirect URLs match Vercel domain |
-| Google sign-in fails | Client ID/Secret must be in Supabase Google provider, not just Vercel |
+| Google sign-in fails | Client ID/Secret in Supabase Google provider; add yourself as test user in Google Cloud |
+| Google Calendar connect fails | Add `/auth/callback/google-calendar` redirect URI in Google Cloud |
+| Email signup fails | Enable Email provider in Supabase Auth settings |
 | Booking fails | Confirm SQL migration was run in Supabase SQL Editor |

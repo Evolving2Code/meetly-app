@@ -19,9 +19,17 @@ export default async function HomePage() {
               Open dashboard
             </Link>
           ) : (
-            <Link href="/login" className="btn-primary">
-              Sign in with Google
-            </Link>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link href="/signup" className="btn-primary">
+                Get started
+              </Link>
+              <Link
+                href="/login"
+                className="btn-secondary hidden border-slate-600 bg-transparent text-white hover:bg-navy-light sm:inline-flex"
+              >
+                Sign in
+              </Link>
+            </div>
           )}
         </div>
       </header>
@@ -42,7 +50,7 @@ export default async function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href={user ? "/dashboard" : "/login"}
+              href={user ? "/dashboard" : "/signup"}
               className="btn-primary px-8 py-3 text-base"
             >
               {user ? "Go to dashboard" : "Get started free"}

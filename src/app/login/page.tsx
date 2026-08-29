@@ -1,55 +1,45 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
+import { AuthShell } from "@/components/auth/AuthShell";
+import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { AuthDivider } from "@/components/auth/AuthDivider";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: PageProps<"/login">) {
   const user = await getSessionUser();
+  const params = await searchParams;
 
   if (user) {
     redirect("/dashboard");
   }
 
+  const error = typeof params.error === "string" ? params.error : null;
+
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="flex flex-col justify-between bg-navy p-6 text-white sm:p-10">
-        <div>
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
-              M
-            </div>
-            <span className="text-xl font-bold">Meetly</span>
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in with email or Google to manage your schedule."
+      footer={
+        <>
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-semibold text-lime-dark hover:underline">
+            Sign up
           </Link>
+        </>
+      }
+    >
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Sign in failed. Please try again.
         </div>
-        <div>
-          <h1 className="text-4xl font-black leading-tight">
-            Your calendar,
-            <br />
-            your brand.
-          </h1>
-          <p className="mt-4 max-w-md text-slate-300">
-            Sign in with Google to connect your calendar and start accepting bookings in
-            minutes.
-          </p>
-        </div>
-        <p className="text-sm text-slate-500">© 2026 Meetly</p>
-      </div>
+      )}
 
-      <div className="flex items-center justify-center bg-surface p-6 sm:p-10">
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-black text-navy sm:text-3xl">Welcome back</h2>
-          <p className="mt-2 text-muted">Sign in to manage your schedule and booking links.</p>
-
-          <div className="mt-8">
-            <GoogleSignInButton />
-          </div>
-
-          <p className="mt-6 text-center text-sm text-muted">
-            Google Calendar access is requested so Meetly can check conflicts and create
-            events.
-          </p>
-        </div>
-      </div>
-    </div>
+      <EmailAuthForm mode="login" />
+      <AuthDivider />
+      <GoogleSignInButton label="Continue with Google" />
+    </AuthShell>
   );
 }

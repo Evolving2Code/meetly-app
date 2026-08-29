@@ -4,9 +4,14 @@ import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { SettingsForm } from "@/components/dashboard/SettingsForm";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: PageProps<"/dashboard/settings">) {
   const user = await requireUser();
   const supabase = await createClient();
+  const params = await searchParams;
+  const calendarStatus =
+    typeof params.calendar === "string" ? params.calendar : null;
 
   const [{ data: profile }, calendarConnected] = await Promise.all([
     supabase
@@ -37,6 +42,7 @@ export default async function SettingsPage() {
           name: profile?.name ?? null,
         }}
         calendarConnected={calendarConnected}
+        calendarStatus={calendarStatus}
       />
 
       <section className="card mt-6 lg:hidden">

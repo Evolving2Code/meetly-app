@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({ label = "Continue with Google" }: { label?: string }) {
   async function signInWithGoogle() {
     const supabase = createClient();
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
@@ -11,20 +11,18 @@ export function GoogleSignInButton() {
       provider: "google",
       options: {
         redirectTo: `${siteUrl}/auth/callback`,
-        scopes:
-          "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly",
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
       },
     });
   }
 
   return (
-    <button type="button" className="btn-primary w-full gap-3 py-3 text-base" onClick={signInWithGoogle}>
+    <button
+      type="button"
+      className="btn-secondary w-full gap-3 border-border py-3 text-base"
+      onClick={signInWithGoogle}
+    >
       <GoogleIcon />
-      Continue with Google
+      {label}
     </button>
   );
 }
