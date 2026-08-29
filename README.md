@@ -53,9 +53,10 @@ No local database. No SQLite.
 ## Usage
 
 1. Open your Vercel URL on your phone
-2. Sign in with Google
-3. Copy your booking link from the dashboard
-4. Share `/book/{username}/{slug}` with guests
+2. **Sign up** with email/password or Google (basic login — no Calendar scopes)
+3. Optionally **Connect Google Calendar** in Settings
+4. Copy your booking link from the dashboard
+5. Share `/book/{username}/{slug}` with guests
 
 ## Project structure
 
