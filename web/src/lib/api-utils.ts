@@ -1,14 +1,22 @@
-import { auth } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function requireAuth() {
-  const session = await auth();
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!session?.user?.id) {
-    return { session: null, response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  if (error || !user) {
+    return {
+      user: null,
+      supabase,
+      response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
   }
 
-  return { session, response: null };
+  return { user, supabase, response: null };
 }
 
 export function slugify(value: string) {

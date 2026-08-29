@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addMinutes, isBefore } from "date-fns";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api-utils";
-import { createGoogleCalendarEvent } from "@/lib/google-calendar";
-import { getAvailableSlots } from "@/lib/scheduling/slots";
+import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "@/lib/google-calendar";
+import { isSlotAvailable } from "@/lib/scheduling/slots";
 
 const bookingSchema = z.object({
   username: z.string(),
@@ -17,26 +17,30 @@ const bookingSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const { session, response } = await requireAuth();
+  const { user, supabase, response } = await requireAuth();
   if (response) return response;
 
   const status = request.nextUrl.searchParams.get("status") ?? "upcoming";
-  const now = new Date();
+  const now = new Date().toISOString();
 
-  const bookings = await prisma.booking.findMany({
-    where: {
-      hostId: session!.user.id,
-      status: "confirmed",
-      ...(status === "upcoming"
-        ? { startTime: { gte: now } }
-        : { startTime: { lt: now } }),
-    },
-    include: {
-      eventType: true,
-    },
-    orderBy: { startTime: status === "upcoming" ? "asc" : "desc" },
-    take: 50,
-  });
+  let query = supabase
+    .from("bookings")
+    .select("*, event_types(*)")
+    .eq("host_id", user!.id)
+    .eq("status", "confirmed")
+    .order("start_time", { ascending: status === "upcoming" })
+    .limit(50);
+
+  query =
+    status === "upcoming"
+      ? query.gte("start_time", now)
+      : query.lt("start_time", now);
+
+  const { data: bookings, error } = await query;
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   return NextResponse.json(bookings);
 }
@@ -56,34 +60,38 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid start time" }, { status: 400 });
   }
 
-  const host = await prisma.user.findUnique({
-    where: { username: data.username },
-    include: {
-      eventTypes: {
-        where: { slug: data.slug, active: true },
-      },
-    },
-  });
+  const admin = createAdminClient();
 
-  const eventType = host?.eventTypes[0];
+  const { data: host } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("username", data.username)
+    .single();
 
-  if (!host || !eventType) {
+  if (!host) {
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+  }
+
+  const { data: eventType } = await admin
+    .from("event_types")
+    .select("*")
+    .eq("user_id", host.id)
+    .eq("slug", data.slug)
+    .eq("active", true)
+    .single();
+
+  if (!eventType) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
   const endTime = addMinutes(startTime, eventType.duration);
 
-  const availableSlots = await getAvailableSlots({
+  const slotIsAvailable = await isSlotAvailable({
     hostId: host.id,
     hostTimezone: host.timezone,
     eventType,
-    fromDate: startTime,
-    toDate: endTime,
+    startTime,
   });
-
-  const slotIsAvailable = availableSlots.some(
-    (slot) => slot.start.getTime() === startTime.getTime(),
-  );
 
   if (!slotIsAvailable) {
     return NextResponse.json({ error: "Selected time is no longer available" }, { status: 409 });
@@ -107,25 +115,25 @@ export async function POST(request: NextRequest) {
     location: eventType.location,
   });
 
-  const booking = await prisma.booking.create({
-    data: {
-      eventTypeId: eventType.id,
-      hostId: host.id,
-      guestName: data.guestName,
-      guestEmail: data.guestEmail,
-      guestNotes: data.guestNotes,
-      startTime,
-      endTime,
+  const { data: booking, error } = await admin
+    .from("bookings")
+    .insert({
+      event_type_id: eventType.id,
+      host_id: host.id,
+      guest_name: data.guestName,
+      guest_email: data.guestEmail,
+      guest_notes: data.guestNotes ?? null,
+      start_time: startTime.toISOString(),
+      end_time: endTime.toISOString(),
       timezone: data.timezone,
-      googleEventId,
-    },
-    include: {
-      eventType: true,
-      host: {
-        select: { name: true, username: true },
-      },
-    },
-  });
+      google_event_id: googleEventId,
+    })
+    .select("*, event_types(*)")
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   return NextResponse.json(booking, { status: 201 });
 }
@@ -137,9 +145,13 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing cancel token" }, { status: 400 });
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: { cancelToken: token },
-  });
+  const admin = createAdminClient();
+
+  const { data: booking } = await admin
+    .from("bookings")
+    .select("*")
+    .eq("cancel_token", token)
+    .single();
 
   if (!booking) {
     return NextResponse.json({ error: "Booking not found" }, { status: 404 });
@@ -149,19 +161,15 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  if (isBefore(booking.startTime, new Date())) {
+  if (isBefore(new Date(booking.start_time), new Date())) {
     return NextResponse.json({ error: "Past bookings cannot be cancelled" }, { status: 400 });
   }
 
-  if (booking.googleEventId) {
-    const { deleteGoogleCalendarEvent } = await import("@/lib/google-calendar");
-    await deleteGoogleCalendarEvent(booking.hostId, booking.googleEventId);
+  if (booking.google_event_id) {
+    await deleteGoogleCalendarEvent(booking.host_id, booking.google_event_id);
   }
 
-  await prisma.booking.update({
-    where: { id: booking.id },
-    data: { status: "cancelled" },
-  });
+  await admin.from("bookings").update({ status: "cancelled" }).eq("id", booking.id);
 
   return NextResponse.json({ success: true });
 }

@@ -1,19 +1,21 @@
 import { google } from "googleapis";
-import { prisma } from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function getGoogleAccount(userId: string) {
-  return prisma.account.findFirst({
-    where: {
-      userId,
-      provider: "google",
-    },
-  });
+export async function getGoogleTokens(userId: string) {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("google_tokens")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return data;
 }
 
 export async function getGoogleCalendarClient(userId: string) {
-  const account = await getGoogleAccount(userId);
+  const tokens = await getGoogleTokens(userId);
 
-  if (!account?.access_token) {
+  if (!tokens?.access_token && !tokens?.refresh_token) {
     return null;
   }
 
@@ -23,26 +25,28 @@ export async function getGoogleCalendarClient(userId: string) {
   );
 
   auth.setCredentials({
-    access_token: account.access_token,
-    refresh_token: account.refresh_token ?? undefined,
-    expiry_date: account.expires_at ? account.expires_at * 1000 : undefined,
+    access_token: tokens.access_token ?? undefined,
+    refresh_token: tokens.refresh_token ?? undefined,
+    expiry_date: tokens.expires_at ? tokens.expires_at * 1000 : undefined,
   });
 
-  auth.on("tokens", async (tokens) => {
-    if (!tokens.access_token) {
+  auth.on("tokens", async (newTokens) => {
+    if (!newTokens.access_token) {
       return;
     }
 
-    await prisma.account.update({
-      where: { id: account.id },
-      data: {
-        access_token: tokens.access_token,
-        expires_at: tokens.expiry_date
-          ? Math.floor(tokens.expiry_date / 1000)
-          : account.expires_at,
-        refresh_token: tokens.refresh_token ?? account.refresh_token,
-      },
-    });
+    const admin = createAdminClient();
+    await admin
+      .from("google_tokens")
+      .update({
+        access_token: newTokens.access_token,
+        expires_at: newTokens.expiry_date
+          ? Math.floor(newTokens.expiry_date / 1000)
+          : tokens.expires_at,
+        refresh_token: newTokens.refresh_token ?? tokens.refresh_token,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
   });
 
   return google.calendar({ version: "v3", auth });
@@ -155,6 +159,6 @@ export async function deleteGoogleCalendarEvent(
 }
 
 export async function isGoogleCalendarConnected(userId: string) {
-  const account = await getGoogleAccount(userId);
-  return Boolean(account?.access_token);
+  const tokens = await getGoogleTokens(userId);
+  return Boolean(tokens?.refresh_token || tokens?.access_token);
 }

@@ -1,18 +1,13 @@
 # Meetly
 
-Calendly-style scheduling app with Option 5 branding (navy + lime).
+Calendly-style scheduling app — cloud-first, built for mobile development via Cursor + Vercel + Supabase.
 
-The application lives in the [`web/`](./web) directory.
+The application lives in [`web/`](./web).
 
-## Quick start
+## Setup
 
-```bash
-cd web
-cp .env.example .env
-# Add Google OAuth credentials and AUTH_SECRET (see web/README.md)
-npm install
-npx prisma migrate dev
-npm run dev
-```
+See [`docs/PHASE-0-SETUP.md`](./docs/PHASE-0-SETUP.md) for the full checklist (Supabase, Google Cloud, Vercel).
 
-See [web/README.md](./web/README.md) for full setup instructions.
+## Stack
+
+Next.js · TypeScript · Tailwind CSS · Supabase · Vercel

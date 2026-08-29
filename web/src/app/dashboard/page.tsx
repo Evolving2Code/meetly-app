@@ -1,54 +1,56 @@
 import Link from "next/link";
 import { format, startOfWeek, endOfWeek } from "date-fns";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
 
 export default async function DashboardPage() {
-  const session = await auth();
-  const userId = session!.user.id;
+  const user = await requireUser();
+  const supabase = await createClient();
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
 
-  const [user, upcomingBookings, weekBookings, eventTypes, calendarConnected] =
-    await Promise.all([
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: { username: true, timezone: true },
-      }),
-      prisma.booking.findMany({
-        where: {
-          hostId: userId,
-          status: "confirmed",
-          startTime: { gte: now },
-        },
-        include: { eventType: true },
-        orderBy: { startTime: "asc" },
-        take: 5,
-      }),
-      prisma.booking.count({
-        where: {
-          hostId: userId,
-          status: "confirmed",
-          startTime: { gte: weekStart, lte: weekEnd },
-        },
-      }),
-      prisma.eventType.findMany({
-        where: { userId, active: true },
-        orderBy: { createdAt: "asc" },
-      }),
-      isGoogleCalendarConnected(userId),
-    ]);
+  const [
+    { data: profile },
+    { data: upcomingBookings },
+    { count: weekBookings },
+    { data: eventTypes },
+    calendarConnected,
+  ] = await Promise.all([
+    supabase.from("profiles").select("username, timezone").eq("id", user.id).single(),
+    supabase
+      .from("bookings")
+      .select("*, event_types(*)")
+      .eq("host_id", user.id)
+      .eq("status", "confirmed")
+      .gte("start_time", now.toISOString())
+      .order("start_time", { ascending: true })
+      .limit(5),
+    supabase
+      .from("bookings")
+      .select("*", { count: "exact", head: true })
+      .eq("host_id", user.id)
+      .eq("status", "confirmed")
+      .gte("start_time", weekStart.toISOString())
+      .lte("start_time", weekEnd.toISOString()),
+    supabase
+      .from("event_types")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("active", true)
+      .order("created_at", { ascending: true }),
+    isGoogleCalendarConnected(user.id),
+  ]);
 
   const bookingLink =
-    user?.username && eventTypes[0]
-      ? `/book/${user.username}/${eventTypes[0].slug}`
+    profile?.username && eventTypes?.[0]
+      ? `/book/${profile.username}/${eventTypes[0].slug}`
       : null;
 
-  const availabilityHeatmap = await buildHeatmap(userId);
+  const availabilityHeatmap = await buildHeatmap(supabase, user.id);
 
   return (
     <div className="p-6 lg:p-10">
@@ -59,32 +61,27 @@ export default async function DashboardPage() {
           </p>
           <h1 className="mt-2 text-4xl font-black text-navy">Dashboard</h1>
         </div>
-        {bookingLink && (
-          <CopyLinkButton
-            path={bookingLink}
-            label="Copy booking link"
-          />
-        )}
+        {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Meetings this week" value={String(weekBookings)} accent />
-        <StatCard label="Active event types" value={String(eventTypes.length)} />
+        <StatCard label="Meetings this week" value={String(weekBookings ?? 0)} accent />
+        <StatCard label="Active event types" value={String(eventTypes?.length ?? 0)} />
         <StatCard
           label="Google Calendar"
           value={calendarConnected ? "Connected" : "Not connected"}
         />
-        <StatCard label="Timezone" value={user?.timezone ?? "America/New_York"} small />
+        <StatCard label="Timezone" value={profile?.timezone ?? "America/New_York"} small />
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <section className="card">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-black">Upcoming meetings</h2>
-            <span className="badge-lime">{upcomingBookings.length} scheduled</span>
+            <span className="badge-lime">{upcomingBookings?.length ?? 0} scheduled</span>
           </div>
 
-          {upcomingBookings.length === 0 ? (
+          {!upcomingBookings?.length ? (
             <div className="rounded-2xl bg-surface p-8 text-center">
               <p className="font-semibold text-navy">No upcoming meetings yet</p>
               <p className="mt-2 text-sm text-muted">
@@ -99,15 +96,16 @@ export default async function DashboardPage() {
                   className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border px-4 py-4"
                 >
                   <div>
-                    <p className="font-semibold text-navy">{booking.guestName}</p>
-                    <p className="text-sm text-muted">{booking.eventType.title}</p>
+                    <p className="font-semibold text-navy">{booking.guest_name}</p>
+                    <p className="text-sm text-muted">{booking.event_types?.title}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-navy">
-                      {format(booking.startTime, "EEE, MMM d")}
+                      {format(new Date(booking.start_time), "EEE, MMM d")}
                     </p>
                     <p className="text-sm text-muted">
-                      {format(booking.startTime, "h:mm a")} – {format(booking.endTime, "h:mm a")}
+                      {format(new Date(booking.start_time), "h:mm a")} –{" "}
+                      {format(new Date(booking.end_time), "h:mm a")}
                     </p>
                   </div>
                 </div>
@@ -143,12 +141,15 @@ export default async function DashboardPage() {
       <section className="card mt-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-black">Event types</h2>
-          <Link href="/dashboard/event-types" className="text-sm font-semibold text-lime-dark hover:underline">
+          <Link
+            href="/dashboard/event-types"
+            className="text-sm font-semibold text-lime-dark hover:underline"
+          >
             Manage all
           </Link>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {eventTypes.map((eventType) => (
+          {eventTypes?.map((eventType) => (
             <div
               key={eventType.id}
               className="rounded-2xl border border-border bg-surface p-5"
@@ -160,9 +161,9 @@ export default async function DashboardPage() {
                 </div>
                 <span className="badge-navy">{eventType.slug}</span>
               </div>
-              {user?.username && (
+              {profile?.username && (
                 <p className="mt-4 truncate text-sm text-muted">
-                  /book/{user.username}/{eventType.slug}
+                  /book/{profile.username}/{eventType.slug}
                 </p>
               )}
             </div>
@@ -198,18 +199,22 @@ function StatCard({
   );
 }
 
-async function buildHeatmap(userId: string) {
-  const availability = await prisma.availabilitySlot.findMany({
-    where: { userId },
-  });
+async function buildHeatmap(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+) {
+  const { data: availability } = await supabase
+    .from("availability_slots")
+    .select("*")
+    .eq("user_id", userId);
 
   const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return labels.map((label, index) => {
-    const daySlots = availability.filter((slot) => slot.dayOfWeek === index);
+    const daySlots = (availability ?? []).filter((slot) => slot.day_of_week === index);
     const hours = daySlots.reduce((total, slot) => {
-      const [startHour, startMin] = slot.startTime.split(":").map(Number);
-      const [endHour, endMin] = slot.endTime.split(":").map(Number);
+      const [startHour, startMin] = slot.start_time.split(":").map(Number);
+      const [endHour, endMin] = slot.end_time.split(":").map(Number);
       return total + (endHour + endMin / 60) - (startHour + startMin / 60);
     }, 0);
 

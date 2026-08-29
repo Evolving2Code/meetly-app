@@ -1,21 +1,19 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { SettingsForm } from "@/components/dashboard/SettingsForm";
 
 export default async function SettingsPage() {
-  const session = await auth();
-  const [user, calendarConnected] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: session!.user.id },
-      select: {
-        username: true,
-        timezone: true,
-        email: true,
-        name: true,
-      },
-    }),
-    isGoogleCalendarConnected(session!.user.id),
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  const [{ data: profile }, calendarConnected] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("username, timezone, name")
+      .eq("id", user.id)
+      .single(),
+    isGoogleCalendarConnected(user.id),
   ]);
 
   return (
@@ -31,7 +29,12 @@ export default async function SettingsPage() {
       </div>
 
       <SettingsForm
-        user={user}
+        user={{
+          username: profile?.username ?? null,
+          timezone: profile?.timezone ?? "America/New_York",
+          email: user.email ?? "",
+          name: profile?.name ?? null,
+        }}
         calendarConnected={calendarConnected}
       />
     </div>

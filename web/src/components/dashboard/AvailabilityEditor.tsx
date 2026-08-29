@@ -2,27 +2,32 @@
 
 import { useMemo, useState } from "react";
 import { DAY_NAMES } from "@/lib/scheduling/constants";
+import type { AvailabilitySlot } from "@/lib/supabase/types";
 
-type AvailabilitySlot = {
-  id?: string;
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
-};
-
-const defaultSlots: AvailabilitySlot[] = [1, 2, 3, 4, 5].map((dayOfWeek) => ({
-  dayOfWeek,
-  startTime: "09:00",
-  endTime: "17:00",
-}));
+const defaultSlots: Array<Pick<AvailabilitySlot, "day_of_week" | "start_time" | "end_time">> =
+  [1, 2, 3, 4, 5].map((day_of_week) => ({
+    day_of_week,
+    start_time: "09:00",
+    end_time: "17:00",
+  }));
 
 export function AvailabilityEditor({
   initialSlots,
 }: {
   initialSlots: AvailabilitySlot[];
 }) {
-  const [slots, setSlots] = useState<AvailabilitySlot[]>(
-    initialSlots.length > 0 ? initialSlots : defaultSlots,
+  const [slots, setSlots] = useState(
+    initialSlots.length > 0
+      ? initialSlots.map(({ day_of_week, start_time, end_time }) => ({
+          dayOfWeek: day_of_week,
+          startTime: start_time,
+          endTime: end_time,
+        }))
+      : defaultSlots.map((slot) => ({
+          dayOfWeek: slot.day_of_week,
+          startTime: slot.start_time,
+          endTime: slot.end_time,
+        })),
   );
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -73,7 +78,13 @@ export function AvailabilityEditor({
     }
 
     const saved = await response.json();
-    setSlots(saved);
+    setSlots(
+      saved.map((slot: AvailabilitySlot) => ({
+        dayOfWeek: slot.day_of_week,
+        startTime: slot.start_time,
+        endTime: slot.end_time,
+      })),
+    );
     setMessage("Availability saved.");
   }
 

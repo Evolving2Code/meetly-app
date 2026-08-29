@@ -1,47 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-utils";
 
 export async function GET() {
-  const { session, response } = await requireAuth();
+  const { user, supabase, response } = await requireAuth();
   if (response) return response;
 
-  const user = await prisma.user.findUnique({
-    where: { id: session!.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      username: true,
-      timezone: true,
-      image: true,
-    },
-  });
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("id, name, username, timezone, avatar_url")
+    .eq("id", user!.id)
+    .single();
 
-  return NextResponse.json(user);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    ...profile,
+    email: user!.email,
+  });
 }
 
 export async function PATCH(request: NextRequest) {
-  const { session, response } = await requireAuth();
+  const { user, supabase, response } = await requireAuth();
   if (response) return response;
 
   const body = await request.json();
 
-  const user = await prisma.user.update({
-    where: { id: session!.user.id },
-    data: {
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .update({
       timezone: body.timezone ? String(body.timezone) : undefined,
       username: body.username ? String(body.username) : undefined,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      username: true,
-      timezone: true,
-      image: true,
-    },
-  });
+    })
+    .eq("id", user!.id)
+    .select("id, name, username, timezone, avatar_url")
+    .single();
 
-  return NextResponse.json(user);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    ...profile,
+    email: user!.email,
+  });
 }

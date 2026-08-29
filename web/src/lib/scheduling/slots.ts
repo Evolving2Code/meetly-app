@@ -1,6 +1,7 @@
 import {
   addDays,
   addMinutes,
+  endOfDay,
   format,
   isAfter,
   isBefore,
@@ -8,15 +9,19 @@ import {
   startOfDay,
 } from "date-fns";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
-import { prisma } from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getBusyIntervals } from "@/lib/google-calendar";
+import type { Booking, DateOverride, EventType } from "@/lib/supabase/types";
 
-type EventTypeConfig = {
-  duration: number;
-  bufferBefore: number;
-  bufferAfter: number;
-  minNotice: number;
-  maxDaysAhead: number;
+type EventTypeConfig = Pick<
+  EventType,
+  "duration" | "buffer_before" | "buffer_after" | "min_notice" | "max_days_ahead"
+>;
+
+type AvailabilityRow = {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
 };
 
 function parseTimeOnDate(date: Date, time: string, timezone: string) {
@@ -36,33 +41,30 @@ export async function getAvailableSlots(params: {
   toDate: Date;
 }) {
   const { hostId, hostTimezone, eventType, fromDate, toDate } = params;
+  const admin = createAdminClient();
   const now = new Date();
-  const minBookingTime = addMinutes(now, eventType.minNotice);
-  const maxBookingDate = addDays(now, eventType.maxDaysAhead);
+  const minBookingTime = addMinutes(now, eventType.min_notice);
+  const maxBookingDate = addDays(now, eventType.max_days_ahead);
 
-  const [availability, overrides, bookings, busyIntervals] = await Promise.all([
-    prisma.availabilitySlot.findMany({
-      where: { userId: hostId },
-    }),
-    prisma.dateOverride.findMany({
-      where: {
-        userId: hostId,
-        date: {
-          gte: startOfDay(fromDate),
-          lte: startOfDay(toDate),
-        },
-      },
-    }),
-    prisma.booking.findMany({
-      where: {
-        hostId,
-        status: "confirmed",
-        startTime: { lt: toDate },
-        endTime: { gt: fromDate },
-      },
-    }),
-    getBusyIntervals(hostId, fromDate, toDate),
-  ]);
+  const [{ data: availability }, { data: overrides }, { data: bookings }] =
+    await Promise.all([
+      admin.from("availability_slots").select("*").eq("user_id", hostId),
+      admin
+        .from("date_overrides")
+        .select("*")
+        .eq("user_id", hostId)
+        .gte("date", format(startOfDay(fromDate), "yyyy-MM-dd"))
+        .lte("date", format(startOfDay(toDate), "yyyy-MM-dd")),
+      admin
+        .from("bookings")
+        .select("*")
+        .eq("host_id", hostId)
+        .eq("status", "confirmed")
+        .lt("start_time", toDate.toISOString())
+        .gt("end_time", fromDate.toISOString()),
+    ]);
+
+  const busyIntervals = await getBusyIntervals(hostId, fromDate, toDate);
 
   const slots: Array<{ start: Date; end: Date }> = [];
   let cursor = startOfDay(fromDate);
@@ -72,33 +74,33 @@ export async function getAvailableSlots(params: {
     const dayOfWeek = hostDate.getDay();
     const dateKey = format(hostDate, "yyyy-MM-dd");
 
-    const override = overrides.find(
-      (item) => format(toZonedTime(item.date, hostTimezone), "yyyy-MM-dd") === dateKey,
+    const override = (overrides as DateOverride[] | null)?.find(
+      (item) => item.date === dateKey,
     );
 
     const windows = override
-      ? override.available && override.startTime && override.endTime
+      ? override.available && override.start_time && override.end_time
         ? [
             {
-              start: parseTimeOnDate(hostDate, override.startTime, hostTimezone),
-              end: parseTimeOnDate(hostDate, override.endTime, hostTimezone),
+              start: parseTimeOnDate(hostDate, override.start_time, hostTimezone),
+              end: parseTimeOnDate(hostDate, override.end_time, hostTimezone),
             },
           ]
         : []
-      : availability
-          .filter((slot) => slot.dayOfWeek === dayOfWeek)
+      : ((availability as AvailabilityRow[] | null) ?? [])
+          .filter((slot) => slot.day_of_week === dayOfWeek)
           .map((slot) => ({
-            start: parseTimeOnDate(hostDate, slot.startTime, hostTimezone),
-            end: parseTimeOnDate(hostDate, slot.endTime, hostTimezone),
+            start: parseTimeOnDate(hostDate, slot.start_time, hostTimezone),
+            end: parseTimeOnDate(hostDate, slot.end_time, hostTimezone),
           }));
 
     for (const window of windows) {
       let slotStart = window.start;
 
       while (true) {
-        const meetingStart = addMinutes(slotStart, eventType.bufferBefore);
+        const meetingStart = addMinutes(slotStart, eventType.buffer_before);
         const meetingEnd = addMinutes(meetingStart, eventType.duration);
-        const slotEnd = addMinutes(meetingEnd, eventType.bufferAfter);
+        const slotEnd = addMinutes(meetingEnd, eventType.buffer_after);
 
         if (slotEnd > window.end) {
           break;
@@ -112,9 +114,15 @@ export async function getAvailableSlots(params: {
         const meetsNotice = !isBefore(meetingStart, minBookingTime);
 
         if (isWithinRange && meetsNotice) {
+          const confirmedBookings = (bookings as Booking[] | null) ?? [];
           const hasConflict =
-            bookings.some((booking) =>
-              overlaps(meetingStart, meetingEnd, booking.startTime, booking.endTime),
+            confirmedBookings.some((booking) =>
+              overlaps(
+                meetingStart,
+                meetingEnd,
+                new Date(booking.start_time),
+                new Date(booking.end_time),
+              ),
             ) ||
             busyIntervals.some((busy) =>
               overlaps(meetingStart, meetingEnd, busy.start, busy.end),
@@ -125,7 +133,7 @@ export async function getAvailableSlots(params: {
           }
         }
 
-        slotStart = addMinutes(slotStart, eventType.duration + eventType.bufferAfter);
+        slotStart = addMinutes(slotStart, eventType.duration + eventType.buffer_after);
       }
     }
 
@@ -133,4 +141,20 @@ export async function getAvailableSlots(params: {
   }
 
   return slots;
+}
+
+export async function isSlotAvailable(params: {
+  hostId: string;
+  hostTimezone: string;
+  eventType: EventTypeConfig;
+  startTime: Date;
+}) {
+  const { startTime } = params;
+  const slots = await getAvailableSlots({
+    ...params,
+    fromDate: startOfDay(startTime),
+    toDate: endOfDay(startTime),
+  });
+
+  return slots.some((slot) => slot.start.getTime() === startTime.getTime());
 }

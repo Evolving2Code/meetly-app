@@ -1,11 +1,18 @@
 # Meetly
 
-A Calendly-style scheduling app with **Option 5** branding (navy + lime), Google login, and Google Calendar sync.
+Calendly-style scheduling app with **Option 5** branding (navy + lime), built for cloud-first development from any device.
+
+## Stack
+
+- **Next.js** (App Router) + TypeScript + Tailwind CSS
+- **Supabase** (Postgres + Auth + RLS)
+- **Vercel** (hosting + preview deploys)
+- **Google Calendar API** (busy-time blocking + event creation)
 
 ## MVP features
 
-- Google OAuth sign-in
-- Google Calendar busy-time blocking and event creation
+- Google OAuth sign-in (via Supabase Auth)
+- Google Calendar sync
 - Event types with booking links
 - Weekly availability editor
 - Guest booking flow (date → time → details → confirmation)
@@ -14,74 +21,53 @@ A Calendly-style scheduling app with **Option 5** branding (navy + lime), Google
 - Booking cancellation
 - Host dashboard
 
-## Setup
+## First-time setup (Option A)
 
-1. Install dependencies:
+Follow the step-by-step guide: [`docs/PHASE-0-SETUP.md`](../docs/PHASE-0-SETUP.md)
 
-```bash
-cd web
-npm install
-```
+Quick summary:
 
-2. Copy environment variables:
-
-```bash
-cp .env.example .env
-```
-
-3. Configure Google OAuth in [Google Cloud Console](https://console.cloud.google.com/):
-
-- Create an OAuth 2.0 Client ID (Web application)
-- Authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
-- Enable the **Google Calendar API**
-- Add scopes used by the app:
-  - `openid`
-  - `email`
-  - `profile`
-  - `https://www.googleapis.com/auth/calendar.events`
-  - `https://www.googleapis.com/auth/calendar.readonly`
-
-4. Set these values in `.env`:
+1. Create a **Supabase** project and run `supabase/migrations/001_initial.sql` in the SQL Editor
+2. Enable **Google provider** in Supabase Auth
+3. Create **Google OAuth** credentials (Calendar API enabled)
+4. Import this repo to **Vercel** with root directory `web/`
+5. Add environment variables in Vercel (Production + Preview):
 
 ```env
-DATABASE_URL="file:./dev.db"
-AUTH_SECRET="your-random-secret"
-AUTH_URL="http://localhost:3000"
-GOOGLE_CLIENT_ID="..."
-GOOGLE_CLIENT_SECRET="..."
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ```
 
-Generate `AUTH_SECRET` with:
+## Daily workflow (Android-friendly)
 
-```bash
-openssl rand -base64 32
+```
+Push branch → Vercel preview deploy → test on your phone → merge → production
 ```
 
-5. Initialize the database:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-6. Start the app:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
+No local database. No SQLite. No `prisma migrate`.
 
 ## Usage
 
-1. Sign in with Google.
-2. Review your default event type and availability in the dashboard.
-3. Copy your booking link from the dashboard or event types page.
-4. Share `/book/{username}/{slug}` with guests.
+1. Open your Vercel URL on your phone
+2. Sign in with Google
+3. Copy your booking link from the dashboard
+4. Share `/book/{username}/{slug}` with guests
 
-## Tech stack
+## Project structure
 
-- Next.js App Router
-- NextAuth.js (Google provider)
-- Prisma + SQLite
-- Google Calendar API
-- Tailwind CSS
+```
+web/
+  src/app/           # Pages and API routes
+  src/components/    # UI components
+  src/lib/supabase/  # Supabase clients (browser, server, admin)
+  src/lib/scheduling/# Slot calculation logic
+  supabase/migrations/  # SQL schema (run in Supabase dashboard)
+```
+
+## Phase 5 (upcoming)
+
+Mobile-first UI redesign: bottom nav dashboard, stacked booking layout, touch-optimized controls.

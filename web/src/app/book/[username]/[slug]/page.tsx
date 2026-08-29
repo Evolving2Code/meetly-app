@@ -1,24 +1,32 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 
 export default async function BookingPage({
   params,
 }: PageProps<"/book/[username]/[slug]">) {
   const { username, slug } = await params;
+  const admin = createAdminClient();
 
-  const host = await prisma.user.findUnique({
-    where: { username },
-    include: {
-      eventTypes: {
-        where: { slug, active: true },
-      },
-    },
-  });
+  const { data: host } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
+    .single();
 
-  const eventType = host?.eventTypes[0];
+  if (!host) {
+    notFound();
+  }
 
-  if (!host || !eventType) {
+  const { data: eventType } = await admin
+    .from("event_types")
+    .select("*")
+    .eq("user_id", host.id)
+    .eq("slug", slug)
+    .eq("active", true)
+    .single();
+
+  if (!eventType) {
     notFound();
   }
 
@@ -27,7 +35,7 @@ export default async function BookingPage({
       host={{
         name: host.name,
         username: host.username!,
-        image: host.image,
+        image: host.avatar_url,
         timezone: host.timezone,
       }}
       eventType={{
