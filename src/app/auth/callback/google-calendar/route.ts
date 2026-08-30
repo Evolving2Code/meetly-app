@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api-utils";
 import { exchangeCalendarCode } from "@/lib/google-oauth";
 
 export async function GET(request: Request) {

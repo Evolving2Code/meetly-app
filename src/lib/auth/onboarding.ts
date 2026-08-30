@@ -10,7 +10,7 @@ function slugify(value: string) {
 
 async function ensureUniqueUsername(base: string) {
   const admin = createAdminClient();
-  let username = base || "user";
+  const username = base || "user";
   let suffix = 0;
 
   while (true) {

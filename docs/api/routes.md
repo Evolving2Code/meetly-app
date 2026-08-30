@@ -56,7 +56,22 @@ Public (guest). Creates a confirmed booking.
 }
 ```
 
-**Response `201`:** booking row with nested `event_types`
+**Response `201`:** normalized booking object:
+
+```json
+{
+  "id": "uuid",
+  "startTime": "2026-08-30T14:00:00.000Z",
+  "endTime": "2026-08-30T14:30:00.000Z",
+  "cancelToken": "uuid",
+  "guestName": "Alex",
+  "guestEmail": "alex@example.com",
+  "guestNotes": null,
+  "timezone": "America/New_York",
+  "status": "confirmed",
+  "eventType": { "...": "..." }
+}
+```
 
 **Errors:** `400` invalid data, `404` not found, `409` slot no longer available
 
