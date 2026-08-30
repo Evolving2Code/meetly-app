@@ -22,6 +22,7 @@ Complete these steps to configure Supabase, Google Cloud, and Vercel for Meetly.
 3. **Authentication → Providers**
    - **Email:** enable (email + password signup)
    - **Google:** enable with Client ID + Secret (profile/email login only — no Calendar scopes here)
+   - **Azure (Microsoft):** enable with Application (client) ID + Secret from Azure Portal (see below)
 
 4. **Authentication → URL Configuration**
    - Site URL: your production URL, e.g. `https://meetly-evolving.vercel.app` (no trailing slash)
@@ -82,10 +83,18 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 3. **Deployments → Redeploy** after env changes
 
-## 4. Verify
+## 4. Microsoft sign-in (Azure)
 
-1. Open `{SITE_URL}/signup`
-2. Create account with email **or** Google
+1. Go to [portal.azure.com](https://portal.azure.com) → **Microsoft Entra ID** → **App registrations** → **New registration**
+2. Name: `Meetly`, supported account types: personal + work/school
+3. Redirect URI (Web): `https://{project-ref}.supabase.co/auth/v1/callback`
+4. Copy **Application (client) ID** and create a **client secret**
+5. Supabase → **Authentication → Providers → Azure** → enable and paste credentials
+
+## 5. Verify
+
+1. Open `{SITE_URL}` (landing page) or `{SITE_URL}/signup`
+2. Create account with email, Google, **or Microsoft**
 3. Land on dashboard with default event type
 4. **Settings → Connect Google Calendar** (optional)
 5. Copy booking link and test guest booking

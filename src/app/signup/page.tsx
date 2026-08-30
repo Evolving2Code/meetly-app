@@ -5,6 +5,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { AuthDivider } from "@/components/auth/AuthDivider";
+import { MicrosoftSignInButton } from "@/components/auth/MicrosoftSignInButton";
 
 export default async function SignupPage() {
   const user = await getSessionUser();
@@ -16,11 +17,11 @@ export default async function SignupPage() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Sign up with email or Google. Connect Google Calendar later in Settings."
+      subtitle="Sign up with email, Google, or Microsoft. Connect Google Calendar later in Settings."
       footer={
         <>
           Already have an account?{" "}
-          <Link href="/login" className="font-semibold text-lime-dark hover:underline">
+          <Link href="/login" className="font-semibold text-primary hover:underline">
             Sign in
           </Link>
         </>
@@ -28,7 +29,10 @@ export default async function SignupPage() {
     >
       <EmailAuthForm mode="signup" />
       <AuthDivider />
-      <GoogleSignInButton label="Sign up with Google" />
+      <div className="space-y-3">
+        <GoogleSignInButton label="Sign up with Google" />
+        <MicrosoftSignInButton label="Sign up with Microsoft" />
+      </div>
     </AuthShell>
   );
 }
