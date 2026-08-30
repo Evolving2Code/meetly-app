@@ -14,8 +14,8 @@ export function AuthShell({
   footer: ReactNode;
 }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="marketing-gradient flex flex-col justify-between p-6 sm:p-10 lg:border-r lg:border-border">
+    <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-2">
+      <div className="marketing-gradient order-2 flex flex-col justify-between p-6 sm:p-10 lg:order-1 lg:border-r lg:border-border">
         <Link href="/">
           <MeetlyLogo />
         </Link>
@@ -36,7 +36,7 @@ export function AuthShell({
         <p className="text-sm text-muted">© {new Date().getFullYear()} Meetly</p>
       </div>
 
-      <div className="flex items-center justify-center bg-white p-6 sm:p-10">
+      <div className="order-1 flex items-center justify-center bg-white p-6 sm:p-10 lg:order-2">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-bold text-navy sm:text-3xl">{title}</h2>
           <p className="mt-2 text-muted">{subtitle}</p>
