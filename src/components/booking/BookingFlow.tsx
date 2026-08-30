@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { TIMEZONES } from "@/lib/scheduling/constants";
 import { formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 
@@ -30,7 +30,13 @@ export function BookingFlow({
   eventType: EventType;
 }) {
   const [step, setStep] = useState<BookingStep>("date");
-  const [timezone, setTimezone] = useState("America/New_York");
+  const [timezone, setTimezone] = useState(() => {
+    if (typeof Intl !== "undefined") {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
+    }
+
+    return "America/New_York";
+  });
   const [slotsByDate, setSlotsByDate] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
@@ -44,13 +50,6 @@ export function BookingFlow({
     cancelToken: string;
     startTime: string;
   } | null>(null);
-
-  useEffect(() => {
-    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (detected) {
-      setTimezone(detected);
-    }
-  }, []);
 
   useEffect(() => {
     async function loadSlots() {
@@ -117,8 +116,8 @@ export function BookingFlow({
 
     const booking = await response.json();
     setConfirmation({
-      cancelToken: booking.cancelToken,
-      startTime: booking.startTime,
+      cancelToken: booking.cancelToken ?? booking.cancel_token,
+      startTime: booking.startTime ?? booking.start_time,
     });
     setStep("confirmed");
   }

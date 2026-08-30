@@ -6,6 +6,7 @@ All notable changes to Meetly. Format loosely based on [Keep a Changelog](https:
 
 ### Added
 
+- Phase 6 hardening: guest booking response normalization, username validation, double-booking DB index, hardening checklist
 - Project documentation spine under `docs/` (product, architecture, development, API, operations, decisions, design)
 
 ## [0.1.0] — 2026-08

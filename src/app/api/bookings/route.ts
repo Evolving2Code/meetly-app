@@ -3,6 +3,7 @@ import { addMinutes, isBefore } from "date-fns";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api-utils";
+import { formatGuestBookingResponse } from "@/lib/bookings/format";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "@/lib/google-calendar";
 import { isSlotAvailable } from "@/lib/scheduling/slots";
 
@@ -132,10 +133,17 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "Selected time is no longer available" },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(booking, { status: 201 });
+  return NextResponse.json(formatGuestBookingResponse(booking), { status: 201 });
 }
 
 export async function DELETE(request: NextRequest) {

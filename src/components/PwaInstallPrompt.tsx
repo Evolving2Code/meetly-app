@@ -12,18 +12,29 @@ import {
 
 type PromptMode = "native" | "ios" | null;
 
+function getInitialPromptMode(): PromptMode {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if (isStandaloneApp() || wasInstallPromptDismissed()) {
+    return null;
+  }
+
+  if (isIosSafari()) {
+    return "ios";
+  }
+
+  return null;
+}
+
 export function PwaInstallPrompt({ variant = "banner" }: { variant?: "banner" | "card" }) {
-  const [mode, setMode] = useState<PromptMode>(null);
+  const [mode, setMode] = useState<PromptMode>(getInitialPromptMode);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installing, setInstalling] = useState(false);
 
   useEffect(() => {
-    if (isStandaloneApp() || wasInstallPromptDismissed()) {
-      return;
-    }
-
-    if (isIosSafari()) {
-      setMode("ios");
+    if (mode !== null) {
       return;
     }
 
@@ -41,7 +52,7 @@ export function PwaInstallPrompt({ variant = "banner" }: { variant?: "banner" | 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [mode]);
 
   function handleDismiss() {
     dismissInstallPrompt();
