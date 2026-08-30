@@ -48,6 +48,7 @@ Meetly is a **Calendly-style scheduling app** for hosts who want to share a book
 | Timezone support | ✅ |
 | Booking cancellation (guest token) | ✅ |
 | Host dashboard (mobile-first) | ✅ |
+| Installable PWA (Add to Home Screen) | ✅ |
 | Google Calendar busy blocking + event create/delete | ✅ (when connected) |
 
 ## Explicitly out of scope (for now)
