@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { MicrosoftIcon } from "@/components/icons/BrandIcons";
 
 export function MicrosoftSignInButton({
   label = "Continue with Microsoft",
@@ -24,16 +25,5 @@ export function MicrosoftSignInButton({
       <MicrosoftIcon />
       {label}
     </button>
-  );
-}
-
-function MicrosoftIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#F25022" d="M3 3h8v8H3z" />
-      <path fill="#7FBA00" d="M13 3h8v8h-8z" />
-      <path fill="#00A4EF" d="M3 13h8v8H3z" />
-      <path fill="#FFB900" d="M13 13h8v8h-8z" />
-    </svg>
   );
 }
