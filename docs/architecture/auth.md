@@ -23,7 +23,8 @@ The same Google OAuth Client ID/Secret is used in two places, but **different sc
 
 ## Google login (basic)
 
-**Component:** `src/components/auth/GoogleSignInButton.tsx`
+**Component:** `src/components/auth/GoogleSignInButton.tsx`  
+**Also on:** landing page hero (`HeroAuthPanel`)
 
 ```typescript
 supabase.auth.signInWithOAuth({
@@ -33,6 +34,20 @@ supabase.auth.signInWithOAuth({
 ```
 
 No custom scopes in app code — Supabase requests standard OIDC scopes only. **Do not** add Calendar scopes to the Supabase Google provider.
+
+## Microsoft login
+
+**Component:** `src/components/auth/MicrosoftSignInButton.tsx`  
+**Also on:** landing page hero (`HeroAuthPanel`)
+
+```typescript
+supabase.auth.signInWithOAuth({
+  provider: "azure",
+  options: { redirectTo: `${siteUrl}/auth/callback` },
+});
+```
+
+Requires **Azure provider enabled** in Supabase with Entra ID app registration. Redirect URI: `https://{project-ref}.supabase.co/auth/v1/callback`.
 
 **Callback:** `src/app/auth/callback/route.ts`
 

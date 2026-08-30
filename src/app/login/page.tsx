@@ -5,6 +5,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { AuthDivider } from "@/components/auth/AuthDivider";
+import { MicrosoftSignInButton } from "@/components/auth/MicrosoftSignInButton";
 
 export default async function LoginPage({
   searchParams,
@@ -21,11 +22,11 @@ export default async function LoginPage({
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Sign in with email or Google to manage your schedule."
+      subtitle="Sign in with email, Google, or Microsoft to manage your schedule."
       footer={
         <>
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-semibold text-lime-dark hover:underline">
+          <Link href="/signup" className="font-semibold text-primary hover:underline">
             Sign up
           </Link>
         </>
@@ -39,7 +40,10 @@ export default async function LoginPage({
 
       <EmailAuthForm mode="login" />
       <AuthDivider />
-      <GoogleSignInButton label="Continue with Google" />
+      <div className="space-y-3">
+        <GoogleSignInButton label="Continue with Google" />
+        <MicrosoftSignInButton label="Continue with Microsoft" />
+      </div>
     </AuthShell>
   );
 }
