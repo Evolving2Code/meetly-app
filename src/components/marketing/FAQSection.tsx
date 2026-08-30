@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: "Can I install Meetly on my phone?",
-    a: "Yes. Meetly is a PWA — use Add to Home Screen on iOS or Install app on Android after visiting the site.",
+    a: "Yes. Meetly is a PWA — on Android or desktop Chrome, tap Install app when prompted. On iPhone, open Meetly in Safari and choose Share → Add to Home Screen.",
   },
 ];
 

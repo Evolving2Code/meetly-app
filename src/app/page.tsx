@@ -8,7 +8,9 @@ import { ShowcaseSection } from "@/components/marketing/ShowcaseSection";
 import { PricingSection } from "@/components/marketing/PricingSection";
 import { FAQSection } from "@/components/marketing/FAQSection";
 import { CTASection } from "@/components/marketing/CTASection";
+import { AppInstallSection } from "@/components/marketing/AppInstallSection";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 
 export default async function HomePage() {
   const user = await getSessionUser();
@@ -16,12 +18,14 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <MarketingNav isLoggedIn={Boolean(user)} />
+      <PwaInstallPrompt />
       <main>
         <HeroSection isLoggedIn={Boolean(user)} />
         <IntegrationsSection />
         <HowItWorksSection />
         <FeaturesSection />
         <ShowcaseSection />
+        <AppInstallSection />
         <PricingSection />
         <FAQSection />
         <CTASection isLoggedIn={Boolean(user)} />

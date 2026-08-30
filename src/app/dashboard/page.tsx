@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -62,6 +63,10 @@ export default async function DashboardPage() {
           <h1 className="mt-1 text-3xl font-black text-navy sm:mt-2 sm:text-4xl">Dashboard</h1>
         </div>
         {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
+      </div>
+
+      <div className="mb-8">
+        <PwaInstallPrompt variant="card" />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
