@@ -45,7 +45,7 @@ export default async function SettingsPage({
         calendarStatus={calendarStatus}
       />
 
-      <section className="card mt-6 lg:hidden">
+      <section className="card mt-6">
         <h2 className="text-lg font-black text-navy">Sign out</h2>
         <p className="mt-2 text-sm text-muted">Sign out of Meetly on this device.</p>
         <div className="mt-4">

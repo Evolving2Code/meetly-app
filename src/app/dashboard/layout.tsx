@@ -59,7 +59,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
               </div>
             </div>
             <div className="mt-4">
-              <SignOutButton />
+              <SignOutButton variant="sidebar" />
             </div>
           </div>
         </div>
@@ -74,14 +74,17 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
             </div>
             <span className="text-base font-bold text-navy">Meetly</span>
           </Link>
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt={displayName} className="h-9 w-9 rounded-full" />
-          ) : (
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
-              {displayName.slice(0, 1)}
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <SignOutButton variant="header" />
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt={displayName} className="h-9 w-9 rounded-full" />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+                {displayName.slice(0, 1)}
+              </div>
+            )}
+          </div>
         </header>
 
         <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
