@@ -1,3 +1,5 @@
+import { GoogleIcon, MicrosoftIcon, PwaIcon } from "@/components/icons/BrandIcons";
+
 export function AppInstallSection() {
   return (
     <section className="py-20 sm:py-28">
@@ -37,6 +39,18 @@ export function AppInstallSection() {
                 <p className="text-lg font-bold text-navy">Meetly for mobile</p>
                 <p className="text-sm text-muted">Free · No app store · Works offline shell</p>
               </div>
+            </div>
+            <div className="mt-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+                <PwaIcon size={22} />
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+                <GoogleIcon size={20} />
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+                <MicrosoftIcon size={20} />
+              </div>
+              <span className="text-sm text-muted">Install on any device</span>
             </div>
             <div className="mt-6 space-y-4 rounded-2xl border border-border bg-white p-5">
               <div>

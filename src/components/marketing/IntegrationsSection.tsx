@@ -1,10 +1,12 @@
-const integrations = [
-  { name: "Google Calendar", abbr: "GC" },
-  { name: "Google Meet", abbr: "GM" },
-  { name: "Google Sign-In", abbr: "G" },
-  { name: "Microsoft Sign-In", abbr: "MS" },
-  { name: "Email auth", abbr: "@" },
-  { name: "Mobile PWA", abbr: "PWA" },
+import { BrandIcon, type BrandIconName } from "@/components/icons/BrandIcons";
+
+const integrations: Array<{ name: string; icon: BrandIconName }> = [
+  { name: "Google Calendar", icon: "google-calendar" },
+  { name: "Google Meet", icon: "google-meet" },
+  { name: "Google Sign-In", icon: "google" },
+  { name: "Microsoft Sign-In", icon: "microsoft" },
+  { name: "Email auth", icon: "email" },
+  { name: "Mobile PWA", icon: "pwa" },
 ];
 
 export function IntegrationsSection() {
@@ -18,10 +20,10 @@ export function IntegrationsSection() {
           {integrations.map((item) => (
             <div
               key={item.name}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm"
+              className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm transition hover:border-primary/20 hover:shadow-md"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-light text-xs font-bold text-primary">
-                {item.abbr}
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+                <BrandIcon name={item.icon} size={26} />
               </div>
               <span className="text-sm font-semibold text-navy">{item.name}</span>
             </div>
