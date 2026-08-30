@@ -2,72 +2,55 @@
 
 Calendly-style scheduling app with **Option 5** branding (navy + lime), built for cloud-first development from any device.
 
+**Live app:** https://meetly-evolving.vercel.app
+
+**Full documentation → [`docs/README.md`](docs/README.md)**
+
 ## Stack
 
 - **Next.js** (App Router) + TypeScript + Tailwind CSS
 - **Supabase** (Postgres + Auth + RLS)
 - **Vercel** (hosting + preview deploys)
-- **Google Calendar API** (busy-time blocking + event creation)
+- **Google Calendar API** (optional integration — busy blocking + event sync)
 
 ## MVP features
 
-- Google OAuth sign-in (via Supabase Auth)
-- Google Calendar sync
-- Event types with booking links
+- Email signup and login
+- Google login (profile/email only — no Calendar at signup)
+- Optional Google Calendar connect in Settings
+- Event types with booking links (`/book/{username}/{slug}`)
 - Weekly availability editor
 - Guest booking flow (date → time → details → confirmation)
 - Buffer times, minimum notice, and booking window limits
 - Timezone support
 - Booking cancellation
-- Host dashboard
+- Mobile-first host dashboard
 
-## First-time setup (Option A)
+## Quick start
 
-Follow the step-by-step guide: [`docs/PHASE-0-SETUP.md`](docs/PHASE-0-SETUP.md)
+1. Read [`docs/product/overview.md`](docs/product/overview.md) for context
+2. Follow [`docs/development/setup.md`](docs/development/setup.md) to configure Supabase, Google, and Vercel
+3. Copy `.env.example` → `.env.local` if running locally (see [`docs/development/local-dev.md`](docs/development/local-dev.md))
 
-Quick summary:
-
-1. Create a **Supabase** project and run `supabase/migrations/001_initial.sql` in the SQL Editor
-2. Enable **Google provider** in Supabase Auth
-3. Create **Google OAuth** credentials (Calendar API enabled)
-4. Import this repo to **Vercel** (no subdirectory — app is at repo root)
-5. Add environment variables in Vercel (Production + Preview):
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-```
-
-## Daily workflow (Android-friendly)
+## Daily workflow
 
 ```
 Push branch → Vercel preview deploy → test on your phone → merge → production
 ```
 
-No local database. No SQLite.
-
-## Usage
-
-1. Open your Vercel URL on your phone
-2. **Sign up** with email/password or Google (basic login — no Calendar scopes)
-3. Optionally **Connect Google Calendar** in Settings
-4. Copy your booking link from the dashboard
-5. Share `/book/{username}/{slug}` with guests
+Details: [`docs/development/workflow.md`](docs/development/workflow.md)
 
 ## Project structure
 
 ```
-src/app/              # Pages and API routes
-src/components/       # UI components
-src/lib/supabase/     # Supabase clients (browser, server, admin)
-src/lib/scheduling/   # Slot calculation logic
-supabase/migrations/  # SQL schema (run in Supabase dashboard)
+docs/                 Documentation (start at docs/README.md)
+src/app/              Pages and API routes
+src/components/       UI components
+src/lib/supabase/     Supabase clients (browser, server, admin)
+src/lib/scheduling/   Slot calculation logic
+supabase/migrations/  SQL schema
 ```
 
-## Phase 5 (upcoming)
+## Changelog
 
-Mobile-first UI redesign: bottom nav dashboard, stacked booking layout, touch-optimized controls.
+See [CHANGELOG.md](CHANGELOG.md).
