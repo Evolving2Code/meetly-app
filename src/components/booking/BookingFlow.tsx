@@ -1,5 +1,6 @@
 "use client";
 
+import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import { useEffect, useMemo, useState } from "react";
 import { parseISO } from "date-fns";
 import { TIMEZONES } from "@/lib/scheduling/constants";
@@ -126,9 +127,7 @@ export function BookingFlow({
     <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,420px)_1fr]">
       <aside className="bg-navy p-5 text-white sm:p-8 lg:p-10">
         <div className="mb-6 flex items-center gap-3 lg:mb-10">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
-            M
-          </div>
+          <MeetlyIcon className="h-10 w-10" />
           <span className="text-lg font-bold">Meetly</span>
         </div>
 

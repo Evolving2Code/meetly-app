@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import { requireUser } from "@/lib/auth/session";
 import { ensureUserOnboarded } from "@/lib/auth/onboarding";
 import { createClient } from "@/lib/supabase/server";
@@ -32,9 +33,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
       <aside className="hidden bg-navy text-white lg:block">
         <div className="flex h-full flex-col p-6">
           <Link href="/dashboard" className="mb-10 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lg font-black text-navy">
-              M
-            </div>
+            <MeetlyIcon className="h-10 w-10" />
             <div>
               <p className="text-lg font-bold">Meetly</p>
               <p className="text-xs text-slate-400">Host dashboard</p>
@@ -69,9 +68,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
       <div className="flex min-h-screen min-w-0 flex-col">
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-white px-4 py-3 lg:hidden">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime text-sm font-black text-navy">
-              M
-            </div>
+            <MeetlyIcon className="h-9 w-9" />
             <span className="text-base font-bold text-navy">Meetly</span>
           </Link>
           <div className="flex items-center gap-1">

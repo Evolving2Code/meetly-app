@@ -2,10 +2,10 @@
 
 /* Option 1 (clean SaaS) + Option 3 (soft gradients / warm accents) */
 :root {
-  --primary: #4f46e5;
-  --primary-dark: #4338ca;
-  --primary-light: #eef2ff;
-  --accent: #0ea5e9;
+  --primary: #12385f;
+  --primary-dark: #0c2847;
+  --primary-light: #e8f4f5;
+  --accent: #40a1a8;
   --accent-warm: #f97316;
   --accent-soft: #fdf4ff;
   --navy: #0f172a;

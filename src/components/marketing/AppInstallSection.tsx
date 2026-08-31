@@ -1,4 +1,5 @@
 import { GoogleIcon, MicrosoftIcon, PwaIcon } from "@/components/icons/BrandIcons";
+import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 
 export function AppInstallSection() {
   return (
@@ -32,9 +33,7 @@ export function AppInstallSection() {
 
           <div className="rounded-3xl border border-primary/15 bg-gradient-to-br from-primary-light to-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-lg font-black text-white shadow-md">
-                M
-              </div>
+              <MeetlyIcon className="h-14 w-14 shadow-md" />
               <div>
                 <p className="text-lg font-bold text-navy">Meetly for mobile</p>
                 <p className="text-sm text-muted">Free · No app store · Works offline shell</p>
