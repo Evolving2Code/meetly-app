@@ -1,15 +1,17 @@
+import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
+
 export function MeetlyLogo({
   className = "",
   light = false,
+  iconClassName,
 }: {
   className?: string;
   light?: boolean;
+  iconClassName?: string;
 }) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-sm">
-        <span className="text-sm font-black text-white">M</span>
-      </div>
+      <MeetlyIcon className={iconClassName ?? "h-9 w-9 shadow-sm"} />
       <span className={`text-lg font-bold tracking-tight ${light ? "text-white" : "text-navy"}`}>
         Meetly
       </span>

@@ -26,6 +26,10 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
+    icon: [
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
     apple: "/icons/apple-touch-icon.png",
   },
 };
@@ -34,7 +38,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#4F46E5",
+  themeColor: "#12385F",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

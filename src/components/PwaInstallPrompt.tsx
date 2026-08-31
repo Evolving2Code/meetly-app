@@ -1,5 +1,6 @@
 "use client";
 
+import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import { useEffect, useState } from "react";
 import {
   dismissInstallPrompt,
@@ -84,9 +85,7 @@ export function PwaInstallPrompt({ variant = "banner" }: { variant?: "banner" | 
     <div className={wrapperClass} role="region" aria-label="Install Meetly app">
       <div className={innerClass}>
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-sm font-black text-white shadow-sm">
-            M
-          </div>
+          <MeetlyIcon className="h-11 w-11 shadow-sm" />
           <div>
             <p className="font-semibold text-navy">
               {mode === "ios" ? "Add Meetly to your Home Screen" : "Install the Meetly app"}
