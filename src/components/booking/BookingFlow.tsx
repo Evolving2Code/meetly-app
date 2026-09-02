@@ -1,6 +1,7 @@
 "use client";
 
 import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { parseISO } from "date-fns";
 import { TIMEZONES } from "@/lib/scheduling/constants";
@@ -310,6 +311,16 @@ export function BookingFlow({
                     onChange={(event) => setGuestNotes(event.target.value)}
                   />
                 </label>
+
+                <p className="text-xs leading-relaxed text-muted">
+                  By confirming, you agree that your name, email, and any notes you provide will
+                  be shared with {host.name ?? host.username} for scheduling purposes and processed
+                  by Meetly as described in our{" "}
+                  <Link href="/privacy" className="text-primary hover:underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
 
                 <button
                   type="button"
