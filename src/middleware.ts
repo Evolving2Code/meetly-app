@@ -10,6 +10,8 @@ export const config = {
     "/dashboard/:path*",
     "/login",
     "/signup",
+    "/forgot-password",
     "/auth/callback",
+    "/auth/reset-password",
   ],
 };

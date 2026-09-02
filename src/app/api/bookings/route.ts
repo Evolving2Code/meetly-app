@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addMinutes, isBefore } from "date-fns";
+import { addMinutes } from "date-fns";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api-utils";
+import { cancelBookingByToken } from "@/lib/bookings/cancel";
 import { formatGuestBookingResponse } from "@/lib/bookings/format";
 import {
   buildCancelUrl,
   sendGuestConfirmationEmail,
   sendHostNewBookingEmail,
 } from "@/lib/email/booking-emails";
-import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "@/lib/google-calendar";
+import { createGoogleCalendarEvent } from "@/lib/google-calendar";
 import { getNotificationPreferences } from "@/lib/notifications/preferences";
 import { isSlotAvailable } from "@/lib/scheduling/slots";
 
@@ -185,31 +186,11 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing cancel token" }, { status: 400 });
   }
 
-  const admin = createAdminClient();
+  const result = await cancelBookingByToken(token);
 
-  const { data: booking } = await admin
-    .from("bookings")
-    .select("*")
-    .eq("cancel_token", token)
-    .single();
-
-  if (!booking) {
-    return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+  if (!result.success) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
-
-  if (booking.status === "cancelled") {
-    return NextResponse.json({ success: true });
-  }
-
-  if (isBefore(new Date(booking.start_time), new Date())) {
-    return NextResponse.json({ error: "Past bookings cannot be cancelled" }, { status: 400 });
-  }
-
-  if (booking.google_event_id) {
-    await deleteGoogleCalendarEvent(booking.host_id, booking.google_event_id);
-  }
-
-  await admin.from("bookings").update({ status: "cancelled" }).eq("id", booking.id);
 
   return NextResponse.json({ success: true });
 }

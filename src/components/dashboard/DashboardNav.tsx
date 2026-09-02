@@ -7,7 +7,7 @@ export type NavItem = {
   href: string;
   label: string;
   shortLabel?: string;
-  icon: "overview" | "events" | "availability" | "settings";
+  icon: "overview" | "bookings" | "events" | "availability" | "settings";
 };
 
 const icons = {
@@ -17,6 +17,12 @@ const icons = {
       <rect x="14" y="3" width="7" height="7" rx="1" />
       <rect x="3" y="14" width="7" height="7" rx="1" />
       <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  ),
+  bookings: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M8 7V3m8 4V3M4 11h16M5 21h14a2 2 0 0 0 2-2V7H3v12a2 2 0 0 0 2 2z" />
+      <path d="M8 15h.01M12 15h.01M16 15h.01" />
     </svg>
   ),
   events: (
@@ -50,7 +56,7 @@ export function DashboardNav({
   if (variant === "bottom") {
     return (
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-700 bg-navy pb-[env(safe-area-inset-bottom)] lg:hidden">
-        <div className="mx-auto grid max-w-lg grid-cols-4">
+        <div className="mx-auto grid max-w-lg grid-cols-5">
           {items.map((item) => {
             const active =
               item.href === "/dashboard"
