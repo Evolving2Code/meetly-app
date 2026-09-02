@@ -18,6 +18,7 @@ export default async function LoginPage({
   }
 
   const error = typeof params.error === "string" ? params.error : null;
+  const message = typeof params.message === "string" ? params.message : null;
 
   return (
     <AuthShell
@@ -32,6 +33,12 @@ export default async function LoginPage({
         </>
       }
     >
+      {message === "password-updated" && (
+        <div className="mb-4 rounded-xl border border-lime/30 bg-lime/10 px-4 py-3 text-sm text-lime-dark">
+          Password updated. Sign in with your new password.
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           Sign in failed. Please try again.
@@ -39,6 +46,11 @@ export default async function LoginPage({
       )}
 
       <EmailAuthForm mode="login" />
+      <p className="mt-3 text-right text-sm">
+        <Link href="/forgot-password" className="font-semibold text-primary hover:underline">
+          Forgot password?
+        </Link>
+      </p>
       <AuthDivider />
       <div className="space-y-3">
         <GoogleSignInButton label="Continue with Google" />

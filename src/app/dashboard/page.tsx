@@ -83,7 +83,15 @@ export default async function DashboardPage() {
         <section className="card">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-black">Upcoming meetings</h2>
-            <span className="badge-lime">{upcomingBookings?.length ?? 0} scheduled</span>
+            <div className="flex items-center gap-3">
+              <span className="badge-lime">{upcomingBookings?.length ?? 0} scheduled</span>
+              <Link
+                href="/dashboard/bookings"
+                className="text-sm font-semibold text-lime-dark hover:underline"
+              >
+                View all
+              </Link>
+            </div>
           </div>
 
           {!upcomingBookings?.length ? (
