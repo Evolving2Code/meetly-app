@@ -6,11 +6,16 @@ export async function getNotificationPreferences(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<NotificationPreferences> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("notification_preferences")
     .select("*")
     .eq("user_id", userId)
     .maybeSingle();
+
+  if (error) {
+    console.warn("[notifications] Could not load preferences:", error.message);
+    return defaultNotificationPreferences(userId);
+  }
 
   return data ?? defaultNotificationPreferences(userId);
 }

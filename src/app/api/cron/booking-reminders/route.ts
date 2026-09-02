@@ -1,4 +1,8 @@
 import { addHours, subHours } from "date-fns";
+
+// Vercel Hobby allows one cron invocation per day. This job runs daily and
+// sends any reminders that became due within the last 24 hours.
+const DAILY_CRON_WINDOW_HOURS = 24;
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -38,10 +42,11 @@ export async function GET(request: NextRequest) {
       continue;
     }
 
-    const reminderTarget = subHours(new Date(booking.start_time), preferences.reminder_hours_before);
-    const windowStart = subHours(now, 1);
+    const meetingStart = new Date(booking.start_time);
+    const reminderTarget = subHours(meetingStart, preferences.reminder_hours_before);
+    const windowStart = subHours(now, DAILY_CRON_WINDOW_HOURS);
 
-    if (reminderTarget > now || reminderTarget <= windowStart) {
+    if (reminderTarget > now || reminderTarget <= windowStart || meetingStart <= now) {
       continue;
     }
 

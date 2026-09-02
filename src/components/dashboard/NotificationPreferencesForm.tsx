@@ -56,8 +56,8 @@ export function NotificationPreferencesForm({
     <section className="card">
       <h2 className="text-xl font-black">Notifications</h2>
       <p className="mt-2 text-sm text-muted">
-        Choose which booking emails Meetly sends. Reminders run hourly when email delivery is
-        configured.
+        Choose which booking emails Meetly sends. Reminders are checked once per day when email
+        delivery is configured.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -116,7 +116,8 @@ export function NotificationPreferencesForm({
           <span>
             <span className="block font-semibold text-navy">Send booking reminders</span>
             <span className="mt-1 block text-sm text-muted">
-              Remind you and your guests before upcoming meetings.
+              Remind you and your guests before upcoming meetings. On the free Vercel plan,
+              reminders are sent during the daily check (not at the exact minute).
             </span>
           </span>
         </label>
