@@ -1,29 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TIMEZONES } from "@/lib/scheduling/constants";
 import { ConnectGoogleCalendarButton } from "@/components/auth/ConnectGoogleCalendarButton";
+import { ProfileAvatarEditor } from "@/components/dashboard/ProfileAvatarEditor";
+import {
+  detectBrowserTimezone,
+  formatTimezoneLabel,
+  getTimezoneOptions,
+} from "@/lib/scheduling/timezones";
+import { normalizeUsername } from "@/lib/validation/username";
 
 type SettingsUser = {
   username: string | null;
   timezone: string;
   email: string;
   name: string | null;
+  avatarUrl: string | null;
 } | null;
 
 export function SettingsForm({
   user,
+  siteUrl,
   calendarConnected,
   calendarStatus,
 }: {
   user: SettingsUser;
+  siteUrl: string;
   calendarConnected: boolean;
   calendarStatus?: string | null;
 }) {
   const router = useRouter();
+  const [name, setName] = useState(user?.name ?? "");
   const [username, setUsername] = useState(user?.username ?? "");
   const [timezone, setTimezone] = useState(user?.timezone ?? "America/New_York");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? null);
+  const [detectedTimezone, setDetectedTimezone] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(
     calendarStatus === "connected"
       ? "Google Calendar connected."
@@ -33,6 +45,17 @@ export function SettingsForm({
   );
   const [loading, setLoading] = useState(false);
 
+  const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
+  const normalizedUsername = normalizeUsername(username);
+  const bookingPreviewPath = normalizedUsername
+    ? `/book/${normalizedUsername}/your-event-slug`
+    : "/book/your-username/your-event-slug";
+  const bookingPreviewUrl = `${siteUrl.replace(/\/$/, "")}${bookingPreviewPath}`;
+
+  useEffect(() => {
+    setDetectedTimezone(detectBrowserTimezone());
+  }, []);
+
   async function saveProfile() {
     setLoading(true);
     setMessage(null);
@@ -40,13 +63,14 @@ export function SettingsForm({
     const response = await fetch("/api/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, timezone }),
+      body: JSON.stringify({ name, username, timezone }),
     });
 
     setLoading(false);
 
     if (!response.ok) {
-      setMessage("Could not save settings.");
+      const data = await response.json().catch(() => ({}));
+      setMessage(data.error ?? "Could not save settings.");
       return;
     }
 
@@ -59,35 +83,63 @@ export function SettingsForm({
       <section className="card">
         <h2 className="text-xl font-black">Profile</h2>
         <div className="mt-6 space-y-4">
+          <ProfileAvatarEditor
+            name={name || user?.email || "User"}
+            avatarUrl={avatarUrl}
+            onAvatarChange={setAvatarUrl}
+          />
+
           <label className="block">
             <span className="label">Display name</span>
-            <input className="input" value={user?.name ?? ""} disabled />
+            <input
+              className="input"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Your name"
+            />
           </label>
+
           <label className="block">
             <span className="label">Email</span>
             <input className="input" value={user?.email ?? ""} disabled />
           </label>
+
           <label className="block">
             <span className="label">Booking page username</span>
             <input
               className="input"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
+              placeholder="your-username"
             />
+            <p className="mt-2 text-sm text-muted">
+              Your public booking links look like{" "}
+              <span className="font-medium text-navy">{bookingPreviewUrl}</span>
+            </p>
           </label>
+
           <label className="block">
             <span className="label">Timezone</span>
             <select
               className="input"
-              value={timezone}
+              value={timezoneOptions.includes(timezone) ? timezone : timezoneOptions[0]}
               onChange={(event) => setTimezone(event.target.value)}
             >
-              {TIMEZONES.map((zone) => (
+              {timezoneOptions.map((zone) => (
                 <option key={zone} value={zone}>
-                  {zone}
+                  {formatTimezoneLabel(zone)}
                 </option>
               ))}
             </select>
+            {detectedTimezone && detectedTimezone !== timezone && (
+              <button
+                type="button"
+                className="mt-2 text-sm font-semibold text-primary hover:underline"
+                onClick={() => setTimezone(detectedTimezone)}
+              >
+                Use current timezone ({formatTimezoneLabel(detectedTimezone)})
+              </button>
+            )}
           </label>
 
           <button type="button" className="btn-primary" disabled={loading} onClick={saveProfile}>
@@ -108,8 +160,8 @@ export function SettingsForm({
       <section className="card">
         <h2 className="text-xl font-black">Google Calendar</h2>
         <p className="mt-2 text-sm text-muted">
-          Connect Google Calendar to block busy times and create events when guests book.
-          This is separate from signing in to Meetly.
+          Connect Google Calendar to block busy times and create events when guests book. This is
+          separate from signing in to Meetly.
         </p>
 
         <div className="mt-6 rounded-2xl bg-surface p-5">

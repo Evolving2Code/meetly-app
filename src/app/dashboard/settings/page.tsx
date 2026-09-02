@@ -16,11 +16,13 @@ export default async function SettingsPage({
   const [{ data: profile }, calendarConnected] = await Promise.all([
     supabase
       .from("profiles")
-      .select("username, timezone, name")
+      .select("username, timezone, name, avatar_url")
       .eq("id", user.id)
       .single(),
     isGoogleCalendarConnected(user.id),
   ]);
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   return (
     <div className="p-4 sm:p-6 lg:p-10">
@@ -40,7 +42,9 @@ export default async function SettingsPage({
           timezone: profile?.timezone ?? "America/New_York",
           email: user.email ?? "",
           name: profile?.name ?? null,
+          avatarUrl: profile?.avatar_url ?? user.user_metadata?.avatar_url ?? null,
         }}
+        siteUrl={siteUrl}
         calendarConnected={calendarConnected}
         calendarStatus={calendarStatus}
       />

@@ -4,8 +4,12 @@ import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { parseISO } from "date-fns";
-import { TIMEZONES } from "@/lib/scheduling/constants";
 import { formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
+import {
+  detectBrowserTimezone,
+  formatTimezoneLabel,
+  getTimezoneOptions,
+} from "@/lib/scheduling/timezones";
 
 type Host = {
   name: string | null;
@@ -32,13 +36,8 @@ export function BookingFlow({
   eventType: EventType;
 }) {
   const [step, setStep] = useState<BookingStep>("date");
-  const [timezone, setTimezone] = useState(() => {
-    if (typeof Intl !== "undefined") {
-      return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
-    }
-
-    return "America/New_York";
-  });
+  const [timezone, setTimezone] = useState(() => detectBrowserTimezone());
+  const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
   const [slotsByDate, setSlotsByDate] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
@@ -182,12 +181,12 @@ export function BookingFlow({
               <span className="label">Your timezone</span>
               <select
                 className="input sm:min-w-56"
-                value={timezone}
+                value={timezoneOptions.includes(timezone) ? timezone : timezoneOptions[0]}
                 onChange={(event) => setTimezone(event.target.value)}
               >
-                {TIMEZONES.map((zone) => (
+                {timezoneOptions.map((zone) => (
                   <option key={zone} value={zone}>
-                    {zone}
+                    {formatTimezoneLabel(zone)}
                   </option>
                 ))}
               </select>
