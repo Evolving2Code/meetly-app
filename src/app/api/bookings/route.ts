@@ -4,7 +4,13 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api-utils";
 import { formatGuestBookingResponse } from "@/lib/bookings/format";
+import {
+  buildCancelUrl,
+  sendGuestConfirmationEmail,
+  sendHostNewBookingEmail,
+} from "@/lib/email/booking-emails";
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from "@/lib/google-calendar";
+import { getNotificationPreferences } from "@/lib/notifications/preferences";
 import { isSlotAvailable } from "@/lib/scheduling/slots";
 
 const bookingSchema = z.object({
@@ -141,6 +147,32 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const preferences = await getNotificationPreferences(admin, host.id);
+  const { data: hostAuth } = await admin.auth.admin.getUserById(host.id);
+  const hostEmail = hostAuth.user?.email ?? null;
+  const cancelUrl = buildCancelUrl(siteUrl, booking.cancel_token);
+  const emailContext = {
+    hostName: host.name ?? host.username ?? "Host",
+    hostEmail: hostEmail ?? "",
+    guestName: data.guestName,
+    guestEmail: data.guestEmail,
+    eventTitle: eventType.title,
+    startTime,
+    endTime,
+    timezone: data.timezone,
+    guestNotes: data.guestNotes,
+    cancelUrl,
+  };
+
+  if (hostEmail && preferences.email_on_new_booking) {
+    await sendHostNewBookingEmail(emailContext);
+  }
+
+  if (preferences.email_guest_confirmation) {
+    await sendGuestConfirmationEmail(emailContext);
   }
 
   return NextResponse.json(formatGuestBookingResponse(booking), { status: 201 });

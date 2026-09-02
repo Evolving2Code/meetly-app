@@ -1,7 +1,11 @@
 import { requireUser } from "@/lib/auth/session";
+import { isEmailAuthUser } from "@/lib/auth/providers";
 import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
+import { getNotificationPreferences } from "@/lib/notifications/preferences";
 import { SettingsForm } from "@/components/dashboard/SettingsForm";
+import { NotificationPreferencesForm } from "@/components/dashboard/NotificationPreferencesForm";
+import { PasswordChangeForm } from "@/components/dashboard/PasswordChangeForm";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
 export default async function SettingsPage({
@@ -13,16 +17,18 @@ export default async function SettingsPage({
   const calendarStatus =
     typeof params.calendar === "string" ? params.calendar : null;
 
-  const [{ data: profile }, calendarConnected] = await Promise.all([
+  const [{ data: profile }, calendarConnected, notificationPreferences] = await Promise.all([
     supabase
       .from("profiles")
       .select("username, timezone, name, avatar_url")
       .eq("id", user.id)
       .single(),
     isGoogleCalendarConnected(user.id),
+    getNotificationPreferences(supabase, user.id),
   ]);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const isEmailUser = isEmailAuthUser(user);
 
   return (
     <div className="p-4 sm:p-6 lg:p-10">
@@ -32,7 +38,7 @@ export default async function SettingsPage({
         </p>
         <h1 className="mt-1 text-3xl font-black text-navy sm:mt-2 sm:text-4xl">Settings</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Manage your profile, timezone, and Google Calendar connection.
+          Manage your profile, notifications, timezone, and Google Calendar connection.
         </p>
       </div>
 
@@ -48,6 +54,18 @@ export default async function SettingsPage({
         calendarConnected={calendarConnected}
         calendarStatus={calendarStatus}
       />
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        <NotificationPreferencesForm
+          initialPreferences={{
+            emailOnNewBooking: notificationPreferences.email_on_new_booking,
+            emailGuestConfirmation: notificationPreferences.email_guest_confirmation,
+            emailBookingReminder: notificationPreferences.email_booking_reminder,
+            reminderHoursBefore: notificationPreferences.reminder_hours_before,
+          }}
+        />
+        {isEmailUser && user.email ? <PasswordChangeForm email={user.email} /> : null}
+      </div>
 
       <section className="card mt-6">
         <h2 className="text-lg font-black text-navy">Sign out</h2>
