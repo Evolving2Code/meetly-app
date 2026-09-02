@@ -55,9 +55,20 @@ export type Booking = {
   status: string;
   google_event_id: string | null;
   cancel_token: string;
+  host_reminder_sent_at: string | null;
+  guest_reminder_sent_at: string | null;
   created_at: string;
   updated_at: string;
   event_types?: EventType;
+};
+
+export type NotificationPreferences = {
+  user_id: string;
+  email_on_new_booking: boolean;
+  email_guest_confirmation: boolean;
+  email_booking_reminder: boolean;
+  reminder_hours_before: number;
+  updated_at: string;
 };
 
 export type GoogleTokens = {
