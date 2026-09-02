@@ -106,3 +106,35 @@ body {
 .section-subheading {
   @apply mt-4 max-w-2xl text-lg text-muted;
 }
+
+.legal-prose section + section {
+  @apply mt-8;
+}
+
+.legal-prose h2 {
+  @apply text-xl font-bold text-navy;
+}
+
+.legal-prose h3 {
+  @apply mt-6 text-lg font-semibold text-navy;
+}
+
+.legal-prose p {
+  @apply leading-relaxed;
+}
+
+.legal-prose ul {
+  @apply mt-3 list-disc space-y-2 pl-6;
+}
+
+.legal-prose ul ul {
+  @apply mt-2;
+}
+
+.legal-prose a {
+  @apply text-primary hover:underline;
+}
+
+.legal-prose strong {
+  @apply font-semibold text-navy;
+}
