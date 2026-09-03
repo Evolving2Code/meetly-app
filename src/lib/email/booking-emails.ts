@@ -14,6 +14,7 @@ type BookingEmailContext = {
   timezone: string;
   guestNotes?: string | null;
   cancelUrl: string;
+  rescheduleUrl: string;
 };
 
 function formatBookingWhen(startTime: Date, timezone: string) {
@@ -65,6 +66,7 @@ export async function sendGuestConfirmationEmail(
       `Your meeting with ${context.hostName} is confirmed.`,
       `Event: ${context.eventTitle}`,
       `When: ${when}`,
+      `Reschedule: ${context.rescheduleUrl}`,
       `Cancel: ${context.cancelUrl}`,
       "",
       "— Meetly",
@@ -74,7 +76,7 @@ export async function sendGuestConfirmationEmail(
       <p>Your meeting with <strong>${context.hostName}</strong> is confirmed.</p>
       <p><strong>Event:</strong> ${context.eventTitle}<br />
       <strong>When:</strong> ${when}</p>
-      <p><a href="${context.cancelUrl}">Cancel this booking</a></p>
+      <p><a href="${context.rescheduleUrl}">Reschedule this booking</a> · <a href="${context.cancelUrl}">Cancel</a></p>
       <p>— Meetly</p>
     `,
   });
@@ -129,6 +131,10 @@ export async function sendBookingReminderEmail(params: {
 
 export function buildCancelUrl(siteUrl: string, cancelToken: string) {
   return `${siteUrl.replace(/\/$/, "")}/cancel/${cancelToken}`;
+}
+
+export function buildRescheduleUrl(siteUrl: string, cancelToken: string) {
+  return `${siteUrl.replace(/\/$/, "")}/reschedule/${cancelToken}`;
 }
 
 export function defaultNotificationPreferences(

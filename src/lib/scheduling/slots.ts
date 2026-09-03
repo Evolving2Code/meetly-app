@@ -68,8 +68,9 @@ export async function getAvailableSlots(params: {
   eventType: EventTypeConfig;
   fromDate: Date;
   toDate: Date;
+  excludeBookingId?: string;
 }) {
-  const { hostId, hostTimezone, eventType, fromDate, toDate } = params;
+  const { hostId, hostTimezone, eventType, fromDate, toDate, excludeBookingId } = params;
   const admin = createAdminClient();
   const now = new Date();
   const minBookingTime = addMinutes(now, eventType.min_notice);
@@ -143,13 +144,15 @@ export async function getAvailableSlots(params: {
         if (isWithinRange && meetsNotice) {
           const confirmedBookings = (bookings as Booking[] | null) ?? [];
           const hasConflict =
-            confirmedBookings.some((booking) =>
-              overlaps(
-                meetingStart,
-                meetingEnd,
-                new Date(booking.start_time),
-                new Date(booking.end_time),
-              ),
+            confirmedBookings.some(
+              (booking) =>
+                booking.id !== excludeBookingId &&
+                overlaps(
+                  meetingStart,
+                  meetingEnd,
+                  new Date(booking.start_time),
+                  new Date(booking.end_time),
+                ),
             ) ||
             busyIntervals.some((busy) =>
               overlaps(meetingStart, meetingEnd, busy.start, busy.end),
@@ -173,6 +176,7 @@ export async function isSlotAvailable(params: {
   hostTimezone: string;
   eventType: EventTypeConfig;
   startTime: Date;
+  excludeBookingId?: string;
 }) {
   const { startTime, hostTimezone } = params;
   const { fromDate, toDate } = hostDayBounds(startTime, hostTimezone);

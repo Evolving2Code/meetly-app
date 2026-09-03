@@ -7,6 +7,7 @@ import { cancelBookingByToken } from "@/lib/bookings/cancel";
 import { formatGuestBookingResponse } from "@/lib/bookings/format";
 import {
   buildCancelUrl,
+  buildRescheduleUrl,
   sendGuestConfirmationEmail,
   sendHostNewBookingEmail,
 } from "@/lib/email/booking-emails";
@@ -155,6 +156,7 @@ export async function POST(request: NextRequest) {
   const { data: hostAuth } = await admin.auth.admin.getUserById(host.id);
   const hostEmail = hostAuth.user?.email ?? null;
   const cancelUrl = buildCancelUrl(siteUrl, booking.cancel_token);
+  const rescheduleUrl = buildRescheduleUrl(siteUrl, booking.cancel_token);
   const emailContext = {
     hostName: host.name ?? host.username ?? "Host",
     hostEmail: hostEmail ?? "",
@@ -166,6 +168,7 @@ export async function POST(request: NextRequest) {
     timezone: data.timezone,
     guestNotes: data.guestNotes,
     cancelUrl,
+    rescheduleUrl,
   };
 
   if (hostEmail && preferences.email_on_new_booking) {
