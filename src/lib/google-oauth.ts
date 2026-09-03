@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCalendarOAuthRedirectUri } from "@/lib/site-url";
 
 const CALENDAR_SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
@@ -18,7 +19,7 @@ export function getGoogleOAuthClient(redirectUri: string) {
 }
 
 export function getCalendarRedirectUri(origin: string) {
-  return `${origin}/auth/callback/google-calendar`;
+  return getCalendarOAuthRedirectUri(origin);
 }
 
 export async function createCalendarConnectUrl(userId: string, origin: string) {
