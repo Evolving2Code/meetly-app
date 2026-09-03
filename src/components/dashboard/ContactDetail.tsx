@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type ContactBooking = {
@@ -25,15 +26,18 @@ type ContactDetailData = {
     lastMeeting: string;
     upcomingCount: number;
     notes: string | null;
+    isManual?: boolean;
   };
   bookings: ContactBooking[];
 };
 
 export function ContactDetail({ email }: { email: string }) {
+  const router = useRouter();
   const [data, setData] = useState<ContactDetailData | null>(null);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
@@ -93,6 +97,35 @@ export function ContactDetail({ email }: { email: string }) {
     setSaveMessage("Notes saved.");
   }
 
+  async function deleteContact() {
+    if (!data || data.bookings.length > 0) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete ${data.contact.name} from your contacts?`);
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleting(true);
+    setError(null);
+
+    const response = await fetch(`/api/contacts/${encodeURIComponent(email)}`, {
+      method: "DELETE",
+    });
+
+    setDeleting(false);
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.error ?? "Could not delete contact.");
+      return;
+    }
+
+    router.push("/dashboard/contacts");
+    router.refresh();
+  }
+
   if (loading) {
     return <div className="card text-center text-muted">Loading contact...</div>;
   }
@@ -141,12 +174,25 @@ export function ContactDetail({ email }: { email: string }) {
             <Stat label="Total meetings" value={String(contact.bookingCount)} />
             <Stat label="Upcoming" value={String(contact.upcomingCount)} />
             <Stat
-              label="First met"
+              label={contact.bookingCount > 0 ? "First met" : "Added"}
               value={format(new Date(contact.firstMeeting), "MMM d, yyyy")}
             />
-            <Stat label="Last met" value={format(new Date(contact.lastMeeting), "MMM d, yyyy")} />
+            <Stat
+              label={contact.bookingCount > 0 ? "Last met" : "Last updated"}
+              value={format(new Date(contact.lastMeeting), "MMM d, yyyy")}
+            />
           </div>
         </div>
+        {contact.isManual && bookings.length === 0 && (
+          <button
+            type="button"
+            className="btn-secondary min-h-[44px] text-red-600"
+            disabled={deleting}
+            onClick={deleteContact}
+          >
+            {deleting ? "Deleting..." : "Delete contact"}
+          </button>
+        )}
       </div>
 
       <div className="card">
@@ -186,7 +232,11 @@ export function ContactDetail({ email }: { email: string }) {
       <section className="card">
         <h2 className="mb-4 text-lg font-black text-navy">Meeting history</h2>
         {past.length === 0 ? (
-          <p className="text-sm text-muted">No past meetings yet.</p>
+          <p className="text-sm text-muted">
+            {bookings.length === 0
+              ? "No meetings yet. This contact was added manually."
+              : "No past meetings yet."}
+          </p>
         ) : (
           <div className="space-y-3">
             {past.map((booking) => (

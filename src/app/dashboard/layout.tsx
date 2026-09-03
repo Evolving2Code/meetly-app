@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth/session";
 import { ensureUserOnboarded } from "@/lib/auth/onboarding";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardNav, type NavItem } from "@/components/dashboard/DashboardNav";
-import { SignOutButton } from "@/components/auth/SignOutButton";
+import { UserProfileMenu } from "@/components/dashboard/UserProfileMenu";
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Overview", shortLabel: "Home", icon: "overview" },
@@ -21,14 +21,23 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
   await ensureUserOnboarded(user.id, user.email!, user.user_metadata);
   const supabase = await createClient();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("name, avatar_url")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: eventTypes }] = await Promise.all([
+    supabase.from("profiles").select("name, avatar_url, username").eq("id", user.id).single(),
+    supabase
+      .from("event_types")
+      .select("slug")
+      .eq("user_id", user.id)
+      .eq("active", true)
+      .order("created_at", { ascending: true })
+      .limit(1),
+  ]);
 
   const displayName = profile?.name ?? user.email ?? "User";
   const avatarUrl = profile?.avatar_url ?? user.user_metadata?.avatar_url;
+  const bookingPageUrl =
+    profile?.username && eventTypes?.[0]
+      ? `/book/${profile.username}/${eventTypes[0].slug}`
+      : null;
 
   return (
     <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[260px_1fr]">
@@ -46,23 +55,13 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
           <DashboardNav items={navItems} variant="sidebar" />
 
           <div className="mt-auto rounded-2xl bg-navy-light p-4">
-            <div className="flex items-center gap-3">
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt={displayName} className="h-10 w-10 rounded-full" />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lime font-bold text-navy">
-                  {displayName.slice(0, 1)}
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{displayName}</p>
-                <p className="truncate text-xs text-slate-400">{user.email}</p>
-              </div>
-            </div>
-            <div className="mt-4">
-              <SignOutButton variant="sidebar" />
-            </div>
+            <UserProfileMenu
+              displayName={displayName}
+              email={user.email ?? ""}
+              avatarUrl={avatarUrl}
+              bookingPageUrl={bookingPageUrl}
+              variant="sidebar"
+            />
           </div>
         </div>
       </aside>
@@ -74,17 +73,13 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
             <MeetlyIcon className="h-9 w-9" />
             <span className="text-base font-bold text-navy">Meetly</span>
           </Link>
-          <div className="flex items-center gap-1">
-            <SignOutButton variant="header" />
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className="h-9 w-9 rounded-full" />
-            ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
-                {displayName.slice(0, 1)}
-              </div>
-            )}
-          </div>
+          <UserProfileMenu
+            displayName={displayName}
+            email={user.email ?? ""}
+            avatarUrl={avatarUrl}
+            bookingPageUrl={bookingPageUrl}
+            variant="header"
+          />
         </header>
 
         <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">

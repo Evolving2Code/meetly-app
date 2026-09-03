@@ -18,6 +18,14 @@ export type ContactSummary = {
   lastMeeting: string;
   upcomingCount: number;
   notes: string | null;
+  isManual?: boolean;
+};
+
+export type ManualContactRow = {
+  guest_email: string;
+  name: string | null;
+  notes: string | null;
+  created_at: string;
 };
 
 function normalizeEventType(
@@ -79,6 +87,59 @@ export function buildContactSummaries(
       notes: notesByEmail[contact.email.toLowerCase()] ?? null,
     }))
     .sort((a, b) => new Date(b.lastMeeting).getTime() - new Date(a.lastMeeting).getTime());
+}
+
+export function mergeManualContacts(
+  summaries: ContactSummary[],
+  manualContacts: ManualContactRow[],
+): ContactSummary[] {
+  const contactsMap = new Map(summaries.map((contact) => [contact.email.toLowerCase(), contact]));
+
+  for (const manual of manualContacts) {
+    const emailKey = manual.guest_email.toLowerCase();
+    const existing = contactsMap.get(emailKey);
+
+    if (existing) {
+      if (!existing.name && manual.name) {
+        existing.name = manual.name;
+      }
+
+      if (!existing.notes && manual.notes) {
+        existing.notes = manual.notes;
+      }
+
+      continue;
+    }
+
+    contactsMap.set(emailKey, {
+      email: manual.guest_email,
+      name: manual.name?.trim() || manual.guest_email,
+      bookingCount: 0,
+      firstMeeting: manual.created_at,
+      lastMeeting: manual.created_at,
+      upcomingCount: 0,
+      notes: manual.notes,
+      isManual: true,
+    });
+  }
+
+  return [...contactsMap.values()];
+}
+
+export function buildManualContactSummary(
+  contact: ManualContactRow,
+  notes: string | null = contact.notes,
+): ContactSummary {
+  return {
+    email: contact.guest_email,
+    name: contact.name?.trim() || contact.guest_email,
+    bookingCount: 0,
+    firstMeeting: contact.created_at,
+    lastMeeting: contact.created_at,
+    upcomingCount: 0,
+    notes,
+    isManual: true,
+  };
 }
 
 export function filterContacts(contacts: ContactSummary[], query: string) {
