@@ -162,3 +162,49 @@ export async function isGoogleCalendarConnected(userId: string) {
   const tokens = await getGoogleTokens(userId);
   return Boolean(tokens?.refresh_token || tokens?.access_token);
 }
+
+export type GoogleCalendarEvent = {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  location: string | null;
+  htmlLink: string | null;
+};
+
+export async function listGoogleCalendarEvents(
+  userId: string,
+  timeMin: Date,
+  timeMax: Date,
+): Promise<GoogleCalendarEvent[]> {
+  const calendar = await getGoogleCalendarClient(userId);
+
+  if (!calendar) {
+    return [];
+  }
+
+  try {
+    const response = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: timeMin.toISOString(),
+      timeMax: timeMax.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime",
+      maxResults: 250,
+    });
+
+    return (response.data.items ?? [])
+      .filter((item) => item.start?.dateTime && item.end?.dateTime && item.id)
+      .map((item) => ({
+        id: item.id!,
+        title: item.summary ?? "Busy",
+        start: item.start!.dateTime!,
+        end: item.end!.dateTime!,
+        location: item.location ?? null,
+        htmlLink: item.htmlLink ?? null,
+      }));
+  } catch (error) {
+    console.error("Failed to list Google Calendar events:", error);
+    return [];
+  }
+}
