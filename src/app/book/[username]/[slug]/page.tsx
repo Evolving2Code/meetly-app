@@ -2,10 +2,32 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 
+function normalizePrefill(value: string | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  const decoded = decodeURIComponent(value).trim();
+  return decoded || undefined;
+}
+
+function normalizeEmail(value: string | undefined) {
+  const email = normalizePrefill(value);
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return undefined;
+  }
+
+  return email;
+}
+
 export default async function BookingPage({
   params,
-}: PageProps<"/book/[username]/[slug]">) {
+  searchParams,
+}: PageProps<"/book/[username]/[slug]"> & {
+  searchParams: Promise<{ email?: string; name?: string }>;
+}) {
   const { username, slug } = await params;
+  const query = await searchParams;
   const admin = createAdminClient();
 
   const { data: host } = await admin
@@ -45,6 +67,8 @@ export default async function BookingPage({
         duration: eventType.duration,
         location: eventType.location,
       }}
+      prefilledEmail={normalizeEmail(query.email)}
+      prefilledName={normalizePrefill(query.name)}
     />
   );
 }

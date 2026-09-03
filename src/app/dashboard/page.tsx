@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
+import { DashboardCreateMenu } from "@/components/dashboard/DashboardCreateMenu";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 
 export default async function DashboardPage() {
@@ -62,7 +63,10 @@ export default async function DashboardPage() {
           </p>
           <h1 className="mt-1 text-3xl font-black text-navy sm:mt-2 sm:text-4xl">Dashboard</h1>
         </div>
-        {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
+        <div className="flex flex-wrap items-center gap-3">
+          <DashboardCreateMenu bookingLink={bookingLink} />
+          {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
+        </div>
       </div>
 
       <div className="mb-8">

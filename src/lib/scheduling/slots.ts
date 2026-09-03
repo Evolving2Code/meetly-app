@@ -24,13 +24,42 @@ type AvailabilityRow = {
   end_time: string;
 };
 
-function parseTimeOnDate(date: Date, time: string, timezone: string) {
-  const dateKey = format(date, "yyyy-MM-dd");
+function parseTimeOnDate(hostDay: Date, time: string, timezone: string) {
+  const dateKey = format(hostDay, "yyyy-MM-dd");
   return fromZonedTime(parse(`${dateKey} ${time}`, "yyyy-MM-dd HH:mm", new Date()), timezone);
 }
 
 function overlaps(startA: Date, endA: Date, startB: Date, endB: Date) {
   return startA < endB && endA > startB;
+}
+
+export function eachHostCalendarDay(fromDate: Date, toDate: Date, hostTimezone: string) {
+  const zonedFrom = toZonedTime(fromDate, hostTimezone);
+  const zonedTo = toZonedTime(toDate, hostTimezone);
+  const days: Date[] = [];
+  let cursor = startOfDay(zonedFrom);
+  const end = startOfDay(zonedTo);
+
+  while (cursor <= end) {
+    days.push(cursor);
+    cursor = addDays(cursor, 1);
+  }
+
+  return days;
+}
+
+export function hostDayBounds(date: Date, hostTimezone: string) {
+  const hostDay = toZonedTime(date, hostTimezone);
+
+  return {
+    fromDate: fromZonedTime(startOfDay(hostDay), hostTimezone),
+    toDate: fromZonedTime(endOfDay(hostDay), hostTimezone),
+  };
+}
+
+export function hostStartOfToday(hostTimezone: string, now = new Date()) {
+  const hostDay = toZonedTime(now, hostTimezone);
+  return fromZonedTime(startOfDay(hostDay), hostTimezone);
 }
 
 export async function getAvailableSlots(params: {
@@ -53,8 +82,8 @@ export async function getAvailableSlots(params: {
         .from("date_overrides")
         .select("*")
         .eq("user_id", hostId)
-        .gte("date", format(startOfDay(fromDate), "yyyy-MM-dd"))
-        .lte("date", format(startOfDay(toDate), "yyyy-MM-dd")),
+        .gte("date", format(toZonedTime(fromDate, hostTimezone), "yyyy-MM-dd"))
+        .lte("date", format(toZonedTime(toDate, hostTimezone), "yyyy-MM-dd")),
       admin
         .from("bookings")
         .select("*")
@@ -67,12 +96,10 @@ export async function getAvailableSlots(params: {
   const busyIntervals = await getBusyIntervals(hostId, fromDate, toDate);
 
   const slots: Array<{ start: Date; end: Date }> = [];
-  let cursor = startOfDay(fromDate);
 
-  while (cursor <= toDate) {
-    const hostDate = toZonedTime(cursor, hostTimezone);
-    const dayOfWeek = hostDate.getDay();
-    const dateKey = format(hostDate, "yyyy-MM-dd");
+  for (const hostDay of eachHostCalendarDay(fromDate, toDate, hostTimezone)) {
+    const dayOfWeek = hostDay.getDay();
+    const dateKey = format(hostDay, "yyyy-MM-dd");
 
     const override = (overrides as DateOverride[] | null)?.find(
       (item) => item.date === dateKey,
@@ -82,16 +109,16 @@ export async function getAvailableSlots(params: {
       ? override.available && override.start_time && override.end_time
         ? [
             {
-              start: parseTimeOnDate(hostDate, override.start_time, hostTimezone),
-              end: parseTimeOnDate(hostDate, override.end_time, hostTimezone),
+              start: parseTimeOnDate(hostDay, override.start_time, hostTimezone),
+              end: parseTimeOnDate(hostDay, override.end_time, hostTimezone),
             },
           ]
         : []
       : ((availability as AvailabilityRow[] | null) ?? [])
           .filter((slot) => slot.day_of_week === dayOfWeek)
           .map((slot) => ({
-            start: parseTimeOnDate(hostDate, slot.start_time, hostTimezone),
-            end: parseTimeOnDate(hostDate, slot.end_time, hostTimezone),
+            start: parseTimeOnDate(hostDay, slot.start_time, hostTimezone),
+            end: parseTimeOnDate(hostDay, slot.end_time, hostTimezone),
           }));
 
     for (const window of windows) {
@@ -136,8 +163,6 @@ export async function getAvailableSlots(params: {
         slotStart = addMinutes(slotStart, eventType.duration + eventType.buffer_after);
       }
     }
-
-    cursor = addDays(cursor, 1);
   }
 
   return slots;
@@ -149,11 +174,12 @@ export async function isSlotAvailable(params: {
   eventType: EventTypeConfig;
   startTime: Date;
 }) {
-  const { startTime } = params;
+  const { startTime, hostTimezone } = params;
+  const { fromDate, toDate } = hostDayBounds(startTime, hostTimezone);
   const slots = await getAvailableSlots({
     ...params,
-    fromDate: startOfDay(startTime),
-    toDate: endOfDay(startTime),
+    fromDate,
+    toDate,
   });
 
   return slots.some((slot) => slot.start.getTime() === startTime.getTime());

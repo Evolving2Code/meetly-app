@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addDays, startOfDay } from "date-fns";
+import { addDays } from "date-fns";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { groupSlotsByDate } from "@/lib/scheduling/format";
-import { getAvailableSlots as computeSlots } from "@/lib/scheduling/slots";
+import {
+  getAvailableSlots as computeSlots,
+  hostStartOfToday,
+} from "@/lib/scheduling/slots";
 
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.searchParams.get("username");
@@ -37,7 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
-  const fromDate = startOfDay(new Date());
+  const fromDate = hostStartOfToday(host.timezone);
   const toDate = addDays(fromDate, eventType.max_days_ahead);
 
   const slots = await computeSlots({
