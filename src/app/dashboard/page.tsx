@@ -86,6 +86,12 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-3">
               <span className="badge-lime">{upcomingBookings?.length ?? 0} scheduled</span>
               <Link
+                href="/dashboard/calendar"
+                className="text-sm font-semibold text-lime-dark hover:underline"
+              >
+                Open calendar
+              </Link>
+              <Link
                 href="/dashboard/bookings"
                 className="text-sm font-semibold text-lime-dark hover:underline"
               >
