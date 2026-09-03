@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarWeekView } from "@/components/dashboard/CalendarWeekView";
+import { CalendarView } from "@/components/dashboard/CalendarView";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { requireUser } from "@/lib/auth/session";
 
@@ -26,7 +26,7 @@ export default async function CalendarPage() {
         )}
       </div>
 
-      <CalendarWeekView />
+      <CalendarView />
     </div>
   );
 }

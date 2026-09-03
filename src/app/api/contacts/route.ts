@@ -1,55 +1,54 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/api-utils";
+import {
+  buildContactSummaries,
+  filterContacts,
+  sortContacts,
+  type ContactBookingRow,
+} from "@/lib/contacts/aggregate";
 
-type ContactRow = {
-  guest_name: string;
-  guest_email: string;
-  start_time: string;
-};
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   const { user, supabase, response } = await requireAuth();
   if (response) return response;
 
-  const { data: bookings, error } = await supabase
-    .from("bookings")
-    .select("guest_name, guest_email, start_time")
-    .eq("host_id", user!.id)
-    .eq("status", "confirmed")
-    .order("start_time", { ascending: false });
+  const search = request.nextUrl.searchParams.get("search") ?? "";
+  const sort = request.nextUrl.searchParams.get("sort") ?? "recent";
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!["recent", "name", "meetings"].includes(sort)) {
+    return NextResponse.json({ error: "Invalid sort parameter." }, { status: 400 });
   }
 
-  const contactsMap = new Map<
-    string,
-    { name: string; email: string; bookingCount: number; lastMeeting: string }
-  >();
+  const [{ data: bookings, error: bookingsError }, { data: notes, error: notesError }] =
+    await Promise.all([
+      supabase
+        .from("bookings")
+        .select(
+          "id, guest_name, guest_email, guest_notes, start_time, end_time, timezone, status, event_types(title)",
+        )
+        .eq("host_id", user!.id)
+        .eq("status", "confirmed")
+        .order("start_time", { ascending: false }),
+      supabase.from("contact_notes").select("guest_email, notes").eq("user_id", user!.id),
+    ]);
 
-  for (const booking of (bookings ?? []) as ContactRow[]) {
-    const email = booking.guest_email.toLowerCase();
-    const existing = contactsMap.get(email);
-
-    if (!existing) {
-      contactsMap.set(email, {
-        name: booking.guest_name,
-        email: booking.guest_email,
-        bookingCount: 1,
-        lastMeeting: booking.start_time,
-      });
-      continue;
-    }
-
-    existing.bookingCount += 1;
-    if (new Date(booking.start_time) > new Date(existing.lastMeeting)) {
-      existing.name = booking.guest_name;
-      existing.lastMeeting = booking.start_time;
-    }
+  if (bookingsError) {
+    return NextResponse.json({ error: bookingsError.message }, { status: 500 });
   }
 
-  const contacts = [...contactsMap.values()].sort(
-    (a, b) => new Date(b.lastMeeting).getTime() - new Date(a.lastMeeting).getTime(),
+  if (notesError) {
+    return NextResponse.json({ error: notesError.message }, { status: 500 });
+  }
+
+  const notesByEmail = Object.fromEntries(
+    (notes ?? []).map((row) => [row.guest_email.toLowerCase(), row.notes]),
+  );
+
+  const contacts = sortContacts(
+    filterContacts(
+      buildContactSummaries((bookings ?? []) as ContactBookingRow[], notesByEmail),
+      search,
+    ),
+    sort as "recent" | "name" | "meetings",
   );
 
   return NextResponse.json(contacts);

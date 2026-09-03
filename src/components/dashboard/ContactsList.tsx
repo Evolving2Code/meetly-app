@@ -1,26 +1,40 @@
 "use client";
 
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { contactsToCsv } from "@/lib/contacts/aggregate";
 
 type Contact = {
   name: string;
   email: string;
   bookingCount: number;
+  firstMeeting: string;
   lastMeeting: string;
+  upcomingCount: number;
+  notes: string | null;
 };
+
+type SortOption = "recent" | "name" | "meetings";
 
 export function ContactsList() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<SortOption>("recent");
 
   useEffect(() => {
     async function loadContacts() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/contacts");
+      const params = new URLSearchParams({ sort });
+      if (search.trim()) {
+        params.set("search", search.trim());
+      }
+
+      const response = await fetch(`/api/contacts?${params.toString()}`);
       setLoading(false);
 
       if (!response.ok) {
@@ -32,56 +46,123 @@ export function ContactsList() {
       setContacts(data);
     }
 
-    loadContacts();
-  }, []);
+    const timeout = setTimeout(loadContacts, search ? 250 : 0);
+    return () => clearTimeout(timeout);
+  }, [search, sort]);
 
-  if (loading) {
-    return <div className="card text-center text-muted">Loading contacts...</div>;
-  }
+  const stats = useMemo(() => {
+    return {
+      total: contacts.length,
+      upcoming: contacts.reduce((sum, contact) => sum + contact.upcomingCount, 0),
+      repeatGuests: contacts.filter((contact) => contact.bookingCount > 1).length,
+    };
+  }, [contacts]);
 
-  if (error) {
-    return <div className="card text-center text-red-600">{error}</div>;
-  }
-
-  if (contacts.length === 0) {
-    return (
-      <div className="card text-center">
-        <p className="font-semibold text-navy">No contacts yet</p>
-        <p className="mt-2 text-sm text-muted">
-          Guests who book through your links will appear here automatically.
-        </p>
-      </div>
-    );
+  function exportCsv() {
+    const blob = new Blob([contactsToCsv(contacts)], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `meetly-contacts-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
-    <div className="card">
-      <div className="space-y-3">
-        {contacts.map((contact) => (
-          <div
-            key={contact.email}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-4 py-4"
-          >
-            <div>
-              <p className="font-bold text-navy">{contact.name}</p>
-              <a
-                href={`mailto:${contact.email}`}
-                className="mt-1 block text-sm text-primary hover:underline"
-              >
-                {contact.email}
-              </a>
-            </div>
-            <div className="text-right text-sm">
-              <p className="font-semibold text-navy">
-                {contact.bookingCount} booking{contact.bookingCount === 1 ? "" : "s"}
-              </p>
-              <p className="mt-1 text-muted">
-                Last met {format(new Date(contact.lastMeeting), "MMM d, yyyy")}
-              </p>
-            </div>
-          </div>
-        ))}
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <StatCard label="Contacts" value={stats.total} />
+        <StatCard label="Upcoming meetings" value={stats.upcoming} />
+        <StatCard label="Repeat guests" value={stats.repeatGuests} />
       </div>
+
+      <div className="card">
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            type="search"
+            className="input min-h-[44px] flex-1"
+            placeholder="Search by name, email, or notes..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <select
+            className="input min-h-[44px]"
+            value={sort}
+            onChange={(event) => setSort(event.target.value as SortOption)}
+          >
+            <option value="recent">Most recent</option>
+            <option value="name">Name (A–Z)</option>
+            <option value="meetings">Most meetings</option>
+          </select>
+          <button
+            type="button"
+            className="btn-secondary min-h-[44px]"
+            disabled={contacts.length === 0}
+            onClick={exportCsv}
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="card text-center text-muted">Loading contacts...</div>
+      ) : error ? (
+        <div className="card text-center text-red-600">{error}</div>
+      ) : contacts.length === 0 ? (
+        <div className="card text-center">
+          <p className="font-semibold text-navy">
+            {search ? "No contacts match your search" : "No contacts yet"}
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            {search
+              ? "Try a different name, email, or note keyword."
+              : "Guests who book through your links will appear here automatically."}
+          </p>
+        </div>
+      ) : (
+        <div className="card">
+          <div className="space-y-3">
+            {contacts.map((contact) => (
+              <Link
+                key={contact.email}
+                href={`/dashboard/contacts/${encodeURIComponent(contact.email)}`}
+                className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-4 py-4 transition hover:border-primary/30 hover:bg-primary-light/20"
+              >
+                <div className="min-w-0">
+                  <p className="font-bold text-navy">{contact.name}</p>
+                  <p className="mt-1 truncate text-sm text-muted">{contact.email}</p>
+                  {contact.notes && (
+                    <p className="mt-2 line-clamp-1 text-sm text-muted">{contact.notes}</p>
+                  )}
+                </div>
+                <div className="text-right text-sm">
+                  <p className="font-semibold text-navy">
+                    {contact.bookingCount} meeting{contact.bookingCount === 1 ? "" : "s"}
+                  </p>
+                  {contact.upcomingCount > 0 && (
+                    <p className="mt-1 font-medium text-lime-dark">
+                      {contact.upcomingCount} upcoming
+                    </p>
+                  )}
+                  <p className="mt-1 text-muted">
+                    Last met {format(new Date(contact.lastMeeting), "MMM d, yyyy")}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="card">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-2 text-3xl font-black text-navy">{value}</p>
     </div>
   );
 }
