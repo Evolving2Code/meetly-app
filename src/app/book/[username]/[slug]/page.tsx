@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BookingFlow } from "@/components/booking/BookingFlow";
+import {
+  parseBookingDateParam,
+  parseBookingTimeParam,
+} from "@/lib/scheduling/booking-params";
 
 function normalizePrefill(value: string | undefined) {
   if (!value) {
@@ -24,7 +28,7 @@ export default async function BookingPage({
   params,
   searchParams,
 }: PageProps<"/book/[username]/[slug]"> & {
-  searchParams: Promise<{ email?: string; name?: string }>;
+  searchParams: Promise<{ email?: string; name?: string; date?: string; time?: string }>;
 }) {
   const { username, slug } = await params;
   const query = await searchParams;
@@ -69,6 +73,8 @@ export default async function BookingPage({
       }}
       prefilledEmail={normalizeEmail(query.email)}
       prefilledName={normalizePrefill(query.name)}
+      prefilledDate={parseBookingDateParam(query.date)}
+      prefilledTime={parseBookingTimeParam(query.time)}
     />
   );
 }

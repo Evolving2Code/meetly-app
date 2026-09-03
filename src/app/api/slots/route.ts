@@ -52,6 +52,15 @@ export async function GET(request: NextRequest) {
   });
 
   const grouped = groupSlotsByDate(slots, timezone);
+  const serializedSlots = Object.fromEntries(
+    Object.entries(grouped).map(([dateKey, daySlots]) => [
+      dateKey,
+      daySlots.map((slot) => ({
+        start: slot.start.toISOString(),
+        end: slot.end.toISOString(),
+      })),
+    ]),
+  );
 
   return NextResponse.json({
     host: {
@@ -68,6 +77,6 @@ export async function GET(request: NextRequest) {
       duration: eventType.duration,
       location: eventType.location,
     },
-    slots: grouped,
+    slots: serializedSlots,
   });
 }

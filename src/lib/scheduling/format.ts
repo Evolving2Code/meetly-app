@@ -1,5 +1,5 @@
-import { format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
+import { format, parse } from "date-fns";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export function groupSlotsByDate(
   slots: Array<{ start: Date; end: Date }>,
@@ -19,4 +19,12 @@ export function formatSlotLabel(date: Date, timezone: string) {
 
 export function formatDateLabel(date: Date, timezone: string) {
   return format(toZonedTime(date, timezone), "EEEE, MMMM d");
+}
+
+export function parseDateKey(dateKey: string, timezone: string) {
+  return fromZonedTime(parse(`${dateKey} 12:00`, "yyyy-MM-dd HH:mm", new Date()), timezone);
+}
+
+export function formatDateKeyLabel(dateKey: string, timezone: string) {
+  return formatDateLabel(parseDateKey(dateKey, timezone), timezone);
 }

@@ -30,11 +30,15 @@ export function CalendarMonthView({
   const [error, setError] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 
-  const monthEnd = endOfMonth(monthStart);
+  const monthEnd = useMemo(() => endOfMonth(monthStart), [monthStart]);
   const gridStart = useMemo(() => startOfWeek(monthStart, { weekStartsOn: 1 }), [monthStart]);
   const gridEnd = useMemo(() => endOfWeek(monthEnd, { weekStartsOn: 1 }), [monthEnd]);
   const days = useMemo(
     () => eachDayOfInterval({ start: gridStart, end: gridEnd }),
+    [gridStart, gridEnd],
+  );
+  const rangeKey = useMemo(
+    () => `${gridStart.toISOString()}_${gridEnd.toISOString()}`,
     [gridStart, gridEnd],
   );
 
@@ -62,7 +66,7 @@ export function CalendarMonthView({
     }
 
     loadEvents();
-  }, [monthStart, gridStart, gridEnd]);
+  }, [rangeKey]);
 
   const eventsByDay = useMemo(() => {
     return days.map((day) => ({
@@ -149,7 +153,7 @@ export function CalendarMonthView({
                     key={day.toISOString()}
                     type="button"
                     onClick={() => setSelectedDay(day)}
-                    className={`min-h-[96px] rounded-2xl border p-2 text-left transition ${
+                    className={`aspect-square min-h-0 rounded-2xl border p-2 text-left transition ${
                       isSelected
                         ? "border-primary bg-primary-light/30"
                         : "border-border bg-surface hover:border-primary/20"

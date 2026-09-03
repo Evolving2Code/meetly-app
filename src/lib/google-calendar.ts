@@ -137,6 +137,52 @@ export async function createGoogleCalendarEvent(params: {
   }
 }
 
+export async function updateGoogleCalendarEvent(params: {
+  userId: string;
+  googleEventId: string;
+  summary: string;
+  description: string;
+  startTime: Date;
+  endTime: Date;
+  timezone: string;
+  guestEmail: string;
+  guestName: string;
+  location?: string | null;
+}) {
+  const calendar = await getGoogleCalendarClient(params.userId);
+
+  if (!calendar) {
+    return false;
+  }
+
+  try {
+    await calendar.events.patch({
+      calendarId: "primary",
+      eventId: params.googleEventId,
+      sendUpdates: "all",
+      requestBody: {
+        summary: params.summary,
+        description: params.description,
+        location: params.location ?? undefined,
+        start: {
+          dateTime: params.startTime.toISOString(),
+          timeZone: params.timezone,
+        },
+        end: {
+          dateTime: params.endTime.toISOString(),
+          timeZone: params.timezone,
+        },
+        attendees: [{ email: params.guestEmail, displayName: params.guestName }],
+      },
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Failed to update Google Calendar event:", error);
+    return false;
+  }
+}
+
 export async function deleteGoogleCalendarEvent(
   userId: string,
   googleEventId: string,

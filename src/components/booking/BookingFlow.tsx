@@ -2,9 +2,10 @@
 
 import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { parseISO } from "date-fns";
-import { formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
+import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
+import { findSlotByDateAndTime } from "@/lib/scheduling/booking-params";
 import {
   detectBrowserTimezone,
   formatTimezoneLabel,
@@ -33,17 +34,21 @@ export function BookingFlow({
   eventType,
   prefilledEmail,
   prefilledName,
+  prefilledDate,
+  prefilledTime,
 }: {
   host: Host;
   eventType: EventType;
   prefilledEmail?: string;
   prefilledName?: string;
+  prefilledDate?: string;
+  prefilledTime?: string;
 }) {
   const [step, setStep] = useState<BookingStep>("date");
   const [timezone, setTimezone] = useState(() => detectBrowserTimezone());
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
   const [slotsByDate, setSlotsByDate] = useState<Record<string, Array<{ start: string; end: string }>>>({});
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(prefilledDate ?? null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
   const [guestName, setGuestName] = useState(prefilledName ?? "");
   const [guestEmail, setGuestEmail] = useState(prefilledEmail ?? "");
@@ -55,6 +60,7 @@ export function BookingFlow({
     cancelToken: string;
     startTime: string;
   } | null>(null);
+  const [prefillApplied, setPrefillApplied] = useState(false);
 
   useEffect(() => {
     if (prefilledName) {
@@ -68,37 +74,60 @@ export function BookingFlow({
     }
   }, [prefilledEmail]);
 
-  async function loadSlots() {
-      setLoading(true);
-      setError(null);
+  const loadSlots = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-      const response = await fetch(
-        `/api/slots?username=${encodeURIComponent(host.username)}&slug=${encodeURIComponent(eventType.slug)}&timezone=${encodeURIComponent(timezone)}`,
-      );
+    const response = await fetch(
+      `/api/slots?username=${encodeURIComponent(host.username)}&slug=${encodeURIComponent(eventType.slug)}&timezone=${encodeURIComponent(timezone)}`,
+    );
 
-      setLoading(false);
+    setLoading(false);
 
-      if (!response.ok) {
-        setError("Could not load available times.");
+    if (!response.ok) {
+      setError("Could not load available times.");
+      return null;
+    }
+
+    const data = await response.json();
+    const slots = (data.slots ?? {}) as Record<string, Array<{ start: string; end: string }>>;
+    setSlotsByDate(slots);
+    return slots;
+  }, [host.username, eventType.slug, timezone]);
+
+  useEffect(() => {
+    loadSlots().then((slots) => {
+      if (!slots) {
         return;
       }
 
-      const data = await response.json();
-      setSlotsByDate(data.slots ?? {});
-      setSelectedDate(null);
       setSelectedSlot(null);
+
+      if (!prefillApplied && prefilledDate && slots[prefilledDate]) {
+        setSelectedDate(prefilledDate);
+
+        if (prefilledTime) {
+          const matchedSlot = findSlotByDateAndTime(slots, prefilledDate, prefilledTime, timezone);
+
+          if (matchedSlot) {
+            setSelectedSlot(matchedSlot);
+            setStep(prefilledEmail && prefilledName ? "details" : "time");
+            setPrefillApplied(true);
+            return;
+          }
+        }
+
+        setStep("time");
+        setPrefillApplied(true);
+        return;
+      }
+
+      setSelectedDate(null);
       setStep("date");
-  }
+    });
+  }, [loadSlots, prefilledDate, prefilledTime, prefillApplied, prefilledEmail, prefilledName, timezone]);
 
-  useEffect(() => {
-    loadSlots();
-  }, [host.username, eventType.slug, timezone]);
-
-  const availableDates = useMemo(
-    () => Object.keys(slotsByDate).sort(),
-    [slotsByDate],
-  );
-
+  const availableDates = useMemo(() => Object.keys(slotsByDate).sort(), [slotsByDate]);
   const timesForSelectedDate = selectedDate ? slotsByDate[selectedDate] ?? [] : [];
 
   async function submitBooking() {
@@ -240,25 +269,17 @@ export function BookingFlow({
               {availableDates.length === 0 ? (
                 <p className="mt-4 text-muted">No available dates right now.</p>
               ) : (
-                <div className="mt-6 grid gap-3">
-                  {availableDates.map((dateKey) => (
-                    <button
-                      key={dateKey}
-                      type="button"
-                      className="min-h-[56px] rounded-2xl border border-border px-4 py-4 text-left transition active:scale-[0.99] hover:border-lime hover:bg-lime/5"
-                      onClick={() => {
-                        setSelectedDate(dateKey);
-                        setStep("time");
-                      }}
-                    >
-                      <p className="font-bold text-navy">
-                        {formatDateLabel(parseISO(dateKey), timezone)}
-                      </p>
-                      <p className="mt-1 text-sm text-muted">
-                        {slotsByDate[dateKey]?.length ?? 0} slots available
-                      </p>
-                    </button>
-                  ))}
+                <div className="mt-6">
+                  <BookingDateCalendar
+                    availableDates={availableDates}
+                    timezone={timezone}
+                    selectedDate={selectedDate}
+                    initialMonth={prefilledDate}
+                    onSelectDate={(dateKey) => {
+                      setSelectedDate(dateKey);
+                      setStep("time");
+                    }}
+                  />
                 </div>
               )}
             </section>
@@ -269,19 +290,21 @@ export function BookingFlow({
                 className="mb-4 min-h-[44px] text-sm font-semibold text-lime-dark hover:underline"
                 onClick={() => setStep("date")}
               >
-                ← Back to dates
+                ← Back to calendar
               </button>
               <h2 className="text-xl font-black">
-                {selectedDate
-                  ? formatDateLabel(parseISO(selectedDate), timezone)
-                  : "Select a time"}
+                {selectedDate ? formatDateKeyLabel(selectedDate, timezone) : "Select a time"}
               </h2>
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {timesForSelectedDate.map((slot) => (
                   <button
                     key={slot.start}
                     type="button"
-                    className="min-h-[48px] rounded-xl border border-border px-3 py-3 text-sm font-bold text-navy transition active:scale-[0.98] hover:border-lime hover:bg-lime hover:text-navy"
+                    className={`min-h-[48px] rounded-xl border px-3 py-3 text-sm font-bold transition active:scale-[0.98] ${
+                      selectedSlot?.start === slot.start
+                        ? "border-lime bg-lime text-navy"
+                        : "border-border text-navy hover:border-lime hover:bg-lime"
+                    }`}
                     onClick={() => {
                       setSelectedSlot(slot);
                       setStep("details");
@@ -459,8 +482,21 @@ function ConfirmationPanel({
           {formatSlotLabel(new Date(startTime), timezone)} ({timezone})
         </p>
         <p className="mt-4 text-sm text-muted">
-          A calendar invite has been sent if Google Calendar is connected.
+          A calendar invite has been sent if Google Calendar is connected. You can also add this
+          meeting to your calendar manually.
         </p>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <a
+          href={`/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`}
+          className="btn-secondary min-h-[44px]"
+        >
+          Add to calendar (.ics)
+        </a>
+        <Link href={`/reschedule/${cancelToken}`} className="btn-secondary min-h-[44px]">
+          Reschedule
+        </Link>
       </div>
 
       {!cancelled ? (
