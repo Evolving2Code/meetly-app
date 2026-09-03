@@ -2,8 +2,9 @@
 
 import { format } from "date-fns";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { contactsToCsv } from "@/lib/contacts/aggregate";
+import { AddContactModal } from "./AddContactModal";
 
 type Contact = {
   name: string;
@@ -13,6 +14,7 @@ type Contact = {
   lastMeeting: string;
   upcomingCount: number;
   notes: string | null;
+  isManual?: boolean;
 };
 
 type SortOption = "recent" | "name" | "meetings";
@@ -23,32 +25,48 @@ export function ContactsList() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("recent");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    async function loadContacts() {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams({ sort });
-      if (search.trim()) {
-        params.set("search", search.trim());
-      }
-
-      const response = await fetch(`/api/contacts?${params.toString()}`);
-      setLoading(false);
-
+    async function loadPreferences() {
+      const response = await fetch("/api/contact-preferences");
       if (!response.ok) {
-        setError("Could not load contacts.");
         return;
       }
 
       const data = await response.json();
-      setContacts(data);
+      setSort(data.defaultSort ?? "recent");
     }
 
+    loadPreferences();
+  }, []);
+
+  const loadContacts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    const params = new URLSearchParams({ sort });
+    if (search.trim()) {
+      params.set("search", search.trim());
+    }
+
+    const response = await fetch(`/api/contacts?${params.toString()}`);
+    setLoading(false);
+
+    if (!response.ok) {
+      setError("Could not load contacts.");
+      return;
+    }
+
+    const data = await response.json();
+    setContacts(data);
+  }, [search, sort]);
+
+  useEffect(() => {
     const timeout = setTimeout(loadContacts, search ? 250 : 0);
     return () => clearTimeout(timeout);
-  }, [search, sort]);
+  }, [loadContacts, search, refreshKey]);
 
   const stats = useMemo(() => {
     return {
@@ -96,6 +114,13 @@ export function ContactsList() {
           </select>
           <button
             type="button"
+            className="btn-primary min-h-[44px]"
+            onClick={() => setShowAddModal(true)}
+          >
+            Add contact
+          </button>
+          <button
+            type="button"
             className="btn-secondary min-h-[44px]"
             disabled={contacts.length === 0}
             onClick={exportCsv}
@@ -117,8 +142,17 @@ export function ContactsList() {
           <p className="mt-2 text-sm text-muted">
             {search
               ? "Try a different name, email, or note keyword."
-              : "Guests who book through your links will appear here automatically."}
+              : "Guests who book through your links will appear here automatically, or add someone manually."}
           </p>
+          {!search && (
+            <button
+              type="button"
+              className="btn-primary mt-4 min-h-[44px]"
+              onClick={() => setShowAddModal(true)}
+            >
+              Add your first contact
+            </button>
+          )}
         </div>
       ) : (
         <div className="card">
@@ -130,7 +164,12 @@ export function ContactsList() {
                 className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-4 py-4 transition hover:border-primary/30 hover:bg-primary-light/20"
               >
                 <div className="min-w-0">
-                  <p className="font-bold text-navy">{contact.name}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-bold text-navy">{contact.name}</p>
+                    {contact.isManual && contact.bookingCount === 0 && (
+                      <span className="badge bg-primary-light text-primary-dark">Manual</span>
+                    )}
+                  </div>
                   <p className="mt-1 truncate text-sm text-muted">{contact.email}</p>
                   {contact.notes && (
                     <p className="mt-2 line-clamp-1 text-sm text-muted">{contact.notes}</p>
@@ -146,7 +185,9 @@ export function ContactsList() {
                     </p>
                   )}
                   <p className="mt-1 text-muted">
-                    Last met {format(new Date(contact.lastMeeting), "MMM d, yyyy")}
+                    {contact.bookingCount > 0
+                      ? `Last met ${format(new Date(contact.lastMeeting), "MMM d, yyyy")}`
+                      : `Added ${format(new Date(contact.lastMeeting), "MMM d, yyyy")}`}
                   </p>
                 </div>
               </Link>
@@ -154,6 +195,12 @@ export function ContactsList() {
           </div>
         </div>
       )}
+
+      <AddContactModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onCreated={() => setRefreshKey((current) => current + 1)}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   contactsToCsv,
   filterContacts,
   formatContactBooking,
+  mergeManualContacts,
   sortContacts,
   type ContactBookingRow,
 } from "./aggregate";
@@ -87,6 +88,25 @@ test("formatContactBooking normalizes event type title", () => {
 
   assert.equal(formatted.eventTitle, "Consultation");
   assert.equal(formatted.guestEmail, "alex@example.com");
+});
+
+test("mergeManualContacts adds manual-only contacts", () => {
+  const summaries = buildContactSummaries(bookings.slice(0, 2), {});
+  const merged = mergeManualContacts(summaries, [
+    {
+      guest_email: "manual@example.com",
+      name: "Manual Guest",
+      notes: "Met at conference",
+      created_at: "2026-08-01T10:00:00.000Z",
+    },
+  ]);
+
+  assert.equal(merged.length, 2);
+  const manual = merged.find((contact) => contact.email === "manual@example.com");
+  assert.ok(manual);
+  assert.equal(manual.bookingCount, 0);
+  assert.equal(manual.isManual, true);
+  assert.equal(manual.notes, "Met at conference");
 });
 
 test("contactsToCsv escapes commas and quotes", () => {
