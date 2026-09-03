@@ -11,23 +11,16 @@ import {
 } from "date-fns";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import type { CalendarEvent } from "@/lib/calendar/merge-events";
+import { CalendarEventCard } from "./CalendarEventCard";
 
-type CalendarEvent = {
-  id: string;
-  title: string;
-  start: string;
-  end: string;
-  source: "meetly" | "google";
-  guestName?: string | null;
-  guestEmail?: string | null;
-  htmlLink?: string | null;
-  location?: string | null;
-};
-
-export function CalendarWeekView() {
-  const [weekStart, setWeekStart] = useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-  );
+export function CalendarWeekView({
+  weekStart,
+  onWeekStartChange,
+}: {
+  weekStart: Date;
+  onWeekStartChange: (date: Date) => void;
+}) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [googleConnected, setGoogleConnected] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -76,21 +69,21 @@ export function CalendarWeekView() {
           <button
             type="button"
             className="btn-secondary min-h-[44px] px-4"
-            onClick={() => setWeekStart((current) => subWeeks(current, 1))}
+            onClick={() => onWeekStartChange(subWeeks(weekStart, 1))}
           >
             ←
           </button>
           <button
             type="button"
             className="btn-secondary min-h-[44px] px-4"
-            onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+            onClick={() => onWeekStartChange(startOfWeek(new Date(), { weekStartsOn: 1 }))}
           >
             Today
           </button>
           <button
             type="button"
             className="btn-secondary min-h-[44px] px-4"
-            onClick={() => setWeekStart((current) => addWeeks(current, 1))}
+            onClick={() => onWeekStartChange(addWeeks(weekStart, 1))}
           >
             →
           </button>
@@ -150,46 +143,4 @@ export function CalendarWeekView() {
       )}
     </div>
   );
-}
-
-function CalendarEventCard({ event }: { event: CalendarEvent }) {
-  const content = (
-    <div
-      className={`rounded-2xl border px-4 py-3 ${
-        event.source === "meetly"
-          ? "border-lime/40 bg-lime/10"
-          : "border-primary/20 bg-primary-light/40"
-      }`}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="font-semibold text-navy">{event.title}</p>
-          <p className="mt-1 text-sm text-muted">
-            {format(new Date(event.start), "h:mm a")} – {format(new Date(event.end), "h:mm a")}
-          </p>
-          {event.guestEmail && (
-            <p className="mt-1 text-sm text-muted">{event.guestEmail}</p>
-          )}
-          {event.location && <p className="mt-1 text-sm text-muted">{event.location}</p>}
-        </div>
-        <span
-          className={
-            event.source === "meetly" ? "badge-lime" : "badge bg-primary-light text-primary-dark"
-          }
-        >
-          {event.source === "meetly" ? "Meetly" : "Google"}
-        </span>
-      </div>
-    </div>
-  );
-
-  if (event.source === "google" && event.htmlLink) {
-    return (
-      <a href={event.htmlLink} target="_blank" rel="noreferrer" className="block">
-        {content}
-      </a>
-    );
-  }
-
-  return content;
 }
