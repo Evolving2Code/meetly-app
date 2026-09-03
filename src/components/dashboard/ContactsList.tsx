@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { contactsToCsv } from "@/lib/contacts/aggregate";
 import { AddContactModal } from "./AddContactModal";
@@ -20,6 +21,7 @@ type Contact = {
 type SortOption = "recent" | "name" | "meetings";
 
 export function ContactsList() {
+  const searchParams = useSearchParams();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,12 @@ export function ContactsList() {
   const [sort, setSort] = useState<SortOption>("recent");
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    if (searchParams.get("add") === "1") {
+      setShowAddModal(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     async function loadPreferences() {

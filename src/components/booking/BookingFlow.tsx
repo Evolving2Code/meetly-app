@@ -31,9 +31,13 @@ type BookingStep = "date" | "time" | "details" | "confirmed";
 export function BookingFlow({
   host,
   eventType,
+  prefilledEmail,
+  prefilledName,
 }: {
   host: Host;
   eventType: EventType;
+  prefilledEmail?: string;
+  prefilledName?: string;
 }) {
   const [step, setStep] = useState<BookingStep>("date");
   const [timezone, setTimezone] = useState(() => detectBrowserTimezone());
@@ -41,8 +45,8 @@ export function BookingFlow({
   const [slotsByDate, setSlotsByDate] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
+  const [guestName, setGuestName] = useState(prefilledName ?? "");
+  const [guestEmail, setGuestEmail] = useState(prefilledEmail ?? "");
   const [guestNotes, setGuestNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +57,18 @@ export function BookingFlow({
   } | null>(null);
 
   useEffect(() => {
-    async function loadSlots() {
+    if (prefilledName) {
+      setGuestName(prefilledName);
+    }
+  }, [prefilledName]);
+
+  useEffect(() => {
+    if (prefilledEmail) {
+      setGuestEmail(prefilledEmail);
+    }
+  }, [prefilledEmail]);
+
+  async function loadSlots() {
       setLoading(true);
       setError(null);
 
@@ -73,8 +88,9 @@ export function BookingFlow({
       setSelectedDate(null);
       setSelectedSlot(null);
       setStep("date");
-    }
+  }
 
+  useEffect(() => {
     loadSlots();
   }, [host.username, eventType.slug, timezone]);
 
@@ -111,6 +127,15 @@ export function BookingFlow({
 
     if (!response.ok) {
       const data = await response.json();
+
+      if (response.status === 409) {
+        await loadSlots();
+        setSelectedSlot(null);
+        setStep("time");
+        setError("That time was just booked. Please choose another available slot.");
+        return;
+      }
+
       setError(data.error ?? "Could not complete booking.");
       return;
     }
@@ -289,6 +314,8 @@ export function BookingFlow({
                   <span className="label">Name</span>
                   <input
                     className="input"
+                    name="name"
+                    autoComplete="name"
                     value={guestName}
                     onChange={(event) => setGuestName(event.target.value)}
                   />
@@ -298,9 +325,17 @@ export function BookingFlow({
                   <input
                     className="input"
                     type="email"
+                    name="email"
+                    autoComplete="email"
+                    inputMode="email"
                     value={guestEmail}
                     onChange={(event) => setGuestEmail(event.target.value)}
                   />
+                  {prefilledEmail && guestEmail === prefilledEmail && (
+                    <p className="mt-2 text-xs text-muted">
+                      Prefilled from your booking link. You can edit it if needed.
+                    </p>
+                  )}
                 </label>
                 <label className="block">
                   <span className="label">Notes (optional)</span>

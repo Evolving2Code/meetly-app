@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { ContactsList } from "@/components/dashboard/ContactsList";
 
 export default function ContactsPage() {
@@ -25,7 +26,9 @@ export default function ContactsPage() {
         </Link>
       </div>
 
-      <ContactsList />
+      <Suspense fallback={<div className="card text-center text-muted">Loading contacts...</div>}>
+        <ContactsList />
+      </Suspense>
     </div>
   );
 }
