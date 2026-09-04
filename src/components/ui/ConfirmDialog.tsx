@@ -41,7 +41,7 @@ export function ConfirmDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/40 p-4 sm:items-center">
+    <div className="animate-modal-backdrop fixed inset-0 z-50 flex items-end justify-center bg-navy/40 p-4 sm:items-center">
       <button
         type="button"
         className="absolute inset-0"
@@ -54,7 +54,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
-        className="relative w-full max-w-md rounded-3xl border border-border bg-white p-6 shadow-2xl"
+        className="animate-modal-panel relative w-full max-w-md rounded-3xl border border-border bg-background p-6 shadow-2xl"
       >
         <h2 id="confirm-dialog-title" className="text-xl font-black text-navy">
           {title}

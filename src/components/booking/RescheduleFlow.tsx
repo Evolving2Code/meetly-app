@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
+import { getHostThemeStyle } from "@/lib/branding/colors";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import {
   detectBrowserTimezone,

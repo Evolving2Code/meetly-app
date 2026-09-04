@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidTimezone } from "@/lib/scheduling/timezones";
 import { normalizeDisplayName, validateDisplayName } from "@/lib/validation/profile";
 import { normalizeUsername, validateUsername } from "@/lib/validation/username";
+import { isValidBrandColor, normalizeBrandColor } from "@/lib/branding/colors";
 
 const AVATAR_BUCKET = "avatars";
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
@@ -52,7 +53,7 @@ export async function GET() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, name, username, timezone, avatar_url")
+    .select("id, name, username, timezone, avatar_url, brand_color")
     .eq("id", user!.id)
     .single();
 
@@ -76,6 +77,7 @@ export async function PATCH(request: NextRequest) {
     username?: string;
     name?: string;
     avatar_url?: string | null;
+    brand_color?: string;
   } = {};
 
   if (body.timezone !== undefined) {
@@ -111,6 +113,16 @@ export async function PATCH(request: NextRequest) {
     updates.avatar_url = null;
   }
 
+  if (body.brand_color !== undefined) {
+    const brandColor = String(body.brand_color);
+
+    if (!isValidBrandColor(brandColor)) {
+      return NextResponse.json({ error: "Brand color must be a valid hex code." }, { status: 400 });
+    }
+
+    updates.brand_color = normalizeBrandColor(brandColor);
+  }
+
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No valid fields to update." }, { status: 400 });
   }
@@ -119,7 +131,7 @@ export async function PATCH(request: NextRequest) {
     .from("profiles")
     .update(updates)
     .eq("id", user!.id)
-    .select("id, name, username, timezone, avatar_url")
+    .select("id, name, username, timezone, avatar_url, brand_color")
     .single();
 
   if (error) {
@@ -180,7 +192,7 @@ export async function POST(request: NextRequest) {
     .from("profiles")
     .update({ avatar_url: avatarUrl })
     .eq("id", user!.id)
-    .select("id, name, username, timezone, avatar_url")
+    .select("id, name, username, timezone, avatar_url, brand_color")
     .single();
 
   if (error) {
@@ -203,7 +215,7 @@ export async function DELETE() {
     .from("profiles")
     .update({ avatar_url: null })
     .eq("id", user!.id)
-    .select("id, name, username, timezone, avatar_url")
+    .select("id, name, username, timezone, avatar_url, brand_color")
     .single();
 
   if (error) {

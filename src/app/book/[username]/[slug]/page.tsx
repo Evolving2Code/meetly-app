@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BookingFlow } from "@/components/booking/BookingFlow";
+import { normalizeBrandColor } from "@/lib/branding/colors";
 import {
   parseBookingDateParam,
   parseBookingTimeParam,
@@ -63,6 +64,7 @@ export default async function BookingPage({
         username: host.username!,
         image: host.avatar_url,
         timezone: host.timezone,
+        brandColor: normalizeBrandColor(host.brand_color),
       }}
       eventType={{
         title: eventType.title,

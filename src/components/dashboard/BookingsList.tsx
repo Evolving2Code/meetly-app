@@ -7,6 +7,7 @@ import type { EventType } from "@/lib/supabase/types";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { BookingsEmptyIcon, EmptyState } from "@/components/ui/EmptyState";
 import { BookingsListSkeleton } from "@/components/ui/Skeleton";
+import { TabFilter } from "@/components/ui/TabFilter";
 
 type BookingRow = {
   id: string;
@@ -75,13 +76,15 @@ export function BookingsList() {
   return (
     <>
       <div className="card max-w-4xl">
-      <div className="mb-6 flex flex-wrap gap-2">
-        <TabButton active={tab === "upcoming"} onClick={() => setTab("upcoming")}>
-          Upcoming
-        </TabButton>
-        <TabButton active={tab === "past"} onClick={() => setTab("past")}>
-          Past
-        </TabButton>
+      <div className="mb-6">
+        <TabFilter
+          items={[
+            { id: "upcoming", label: "Upcoming" },
+            { id: "past", label: "Past" },
+          ]}
+          activeId={tab}
+          onChange={(id) => setTab(id as Tab)}
+        />
       </div>
 
       {loading ? (
@@ -171,27 +174,5 @@ export function BookingsList() {
         }}
       />
     </>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`min-h-[44px] rounded-full px-4 py-2 text-sm font-semibold transition ${
-        active ? "bg-navy text-white" : "bg-surface text-muted hover:text-navy"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

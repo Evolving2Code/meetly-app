@@ -27,8 +27,21 @@ export function CopyLinkButton({ path, label }: { path: string; label: string })
   }
 
   return (
-    <button type="button" className="btn-primary min-h-[44px]" onClick={handleShare}>
-      {copied ? "Copied!" : label}
+    <button
+      type="button"
+      className={`btn-primary min-h-[44px] ${copied ? "animate-copy-success" : ""}`}
+      onClick={handleShare}
+    >
+      {copied ? (
+        <span className="inline-flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+            <path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Copied!
+        </span>
+      ) : (
+        label
+      )}
     </button>
   );
 }

@@ -20,6 +20,26 @@
   --foreground: #0f172a;
 }
 
+.dark {
+  --primary: #7cb8e3;
+  --primary-dark: #5b9fd4;
+  --primary-light: #1e293b;
+  --surface: #1e293b;
+  --surface-muted: #334155;
+  --muted: #94a3b8;
+  --border: #334155;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+}
+
+.dark .text-navy {
+  color: var(--foreground);
+}
+
+.dark .bg-white {
+  background-color: var(--background);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -49,26 +69,48 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-primary {
-  @apply inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark active:scale-[0.98];
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98];
 }
 
 .btn-secondary {
-  @apply inline-flex min-h-[44px] items-center justify-center rounded-full border border-border bg-white px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface active:scale-[0.98];
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98];
 }
 
 .btn-oauth {
-  @apply inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border border-border bg-white px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:border-primary/30 hover:bg-primary-light/40 active:scale-[0.98];
+  @apply inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:border-primary/30 hover:bg-primary-light/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98];
 }
 
 .card {
-  @apply rounded-2xl border border-border bg-white p-4 shadow-sm sm:p-6;
+  @apply rounded-2xl border border-border bg-background p-4 shadow-sm transition-colors sm:p-6;
+}
+
+.card-interactive {
+  @apply rounded-2xl border border-border bg-background px-4 py-4 transition hover:-translate-y-0.5 hover:border-lime/40 hover:shadow-md focus-within:border-lime/40 sm:px-5;
+}
+
+.tab-pill {
+  @apply min-h-[44px] rounded-full px-4 py-2 text-sm font-semibold text-muted transition hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30;
+}
+
+.tab-pill-active {
+  @apply bg-navy text-white hover:text-white;
+}
+
+.booking-host-aside {
+  background-color: var(--host-brand, #0f172a);
+  color: #ffffff;
+}
+
+.booking-host-panel {
+  background-color: var(--host-brand-light, #1e293b);
 }
 
 .input {
-  @apply w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-navy outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+  @apply w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-navy outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
 }
 
 .label {
@@ -96,7 +138,15 @@ body {
     radial-gradient(circle at 20% 20%, rgb(238 242 255) 0%, transparent 45%),
     radial-gradient(circle at 80% 10%, rgb(253 244 255) 0%, transparent 40%),
     radial-gradient(circle at 70% 80%, rgb(255 247 237) 0%, transparent 35%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    linear-gradient(180deg, var(--background) 0%, var(--surface) 100%);
+}
+
+.dark .marketing-gradient {
+  background:
+    radial-gradient(circle at 20% 20%, rgb(30 41 59) 0%, transparent 45%),
+    radial-gradient(circle at 80% 10%, rgb(49 46 129) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgb(67 20 90) 0%, transparent 35%),
+    linear-gradient(180deg, var(--background) 0%, var(--surface) 100%);
 }
 
 .section-heading {
@@ -170,4 +220,48 @@ body {
   stroke-dasharray: 24;
   stroke-dashoffset: 24;
   animation: success-check 0.4s ease-out 0.25s forwards;
+}
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modal-backdrop-in 0.2s ease-out both;
+}
+
+.animate-modal-panel {
+  animation: modal-panel-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes copy-success {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-copy-success {
+  animation: copy-success 0.35s ease-out;
 }

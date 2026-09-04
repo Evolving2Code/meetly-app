@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { format, startOfWeek, endOfWeek } from "date-fns";
+import { format, startOfWeek, endOfWeek, subDays } from "date-fns";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
+import { buildBookingTrend, buildEventTypeBreakdown } from "@/lib/analytics/booking-stats";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
 import { DashboardCreateMenu } from "@/components/dashboard/DashboardCreateMenu";
+import { BookingActivityChart } from "@/components/dashboard/BookingActivityChart";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { EmptyState, EventTypeEmptyIcon } from "@/components/ui/EmptyState";
@@ -16,6 +18,7 @@ export default async function DashboardPage() {
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+  const fourteenDaysAgo = subDays(now, 14).toISOString();
 
   const [
     { data: profile },
@@ -24,6 +27,7 @@ export default async function DashboardPage() {
     { count: totalBookings },
     { data: eventTypes },
     { data: availabilitySlots },
+    { data: activityBookings },
     calendarConnected,
   ] = await Promise.all([
     supabase.from("profiles").select("username, timezone").eq("id", user.id).single(),
@@ -54,6 +58,13 @@ export default async function DashboardPage() {
       .eq("active", true)
       .order("created_at", { ascending: true }),
     supabase.from("availability_slots").select("day_of_week, start_time, end_time").eq("user_id", user.id),
+    supabase
+      .from("bookings")
+      .select("created_at, event_types(title)")
+      .eq("host_id", user.id)
+      .eq("status", "confirmed")
+      .gte("created_at", fourteenDaysAgo)
+      .order("created_at", { ascending: true }),
     isGoogleCalendarConnected(user.id),
   ]);
 
@@ -67,6 +78,14 @@ export default async function DashboardPage() {
   const hasEventType = (eventTypes?.length ?? 0) > 0;
   const hasBookingLink = Boolean(bookingLink);
   const hasBooking = (totalBookings ?? 0) > 0;
+  const normalizedActivity = (activityBookings ?? []).map((booking) => ({
+    created_at: booking.created_at as string,
+    event_types: Array.isArray(booking.event_types)
+      ? (booking.event_types[0] as { title: string } | undefined) ?? null
+      : (booking.event_types as { title: string } | null),
+  }));
+  const bookingTrend = buildBookingTrend(normalizedActivity);
+  const eventTypeBreakdown = buildEventTypeBreakdown(normalizedActivity);
 
   return (
     <div className="p-4 sm:p-6 lg:p-10">
@@ -105,6 +124,10 @@ export default async function DashboardPage() {
         <StatCard label="Timezone" value={profile?.timezone ?? "America/New_York"} small />
       </div>
 
+      <div className="mt-8">
+        <BookingActivityChart trend={bookingTrend} breakdown={eventTypeBreakdown} />
+      </div>
+
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <section className="card">
           <div className="mb-6 flex items-center justify-between">
@@ -138,7 +161,7 @@ export default async function DashboardPage() {
               {upcomingBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border px-4 py-4"
+                  className="card-interactive flex flex-wrap items-center justify-between gap-3"
                 >
                   <div>
                     <p className="font-semibold text-navy">{booking.guest_name}</p>
@@ -205,7 +228,7 @@ export default async function DashboardPage() {
             {eventTypes.map((eventType) => (
               <div
                 key={eventType.id}
-                className="rounded-2xl border border-border bg-surface p-5"
+                className="card-interactive bg-surface p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -240,7 +263,7 @@ function StatCard({
   small?: boolean;
 }) {
   return (
-    <div className="card">
+    <div className="card card-interactive">
       <p className="text-sm font-medium text-muted">{label}</p>
       <p
         className={`mt-3 font-black text-navy ${small ? "text-lg" : "text-4xl"} ${
