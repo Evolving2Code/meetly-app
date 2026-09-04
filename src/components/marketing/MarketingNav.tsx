@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MeetlyLogo } from "@/components/marketing/MeetlyLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -14,6 +14,7 @@ const links = [
 
 export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
@@ -27,6 +28,21 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   }, []);
 
   useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!headerRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [menuOpen]);
+
+  useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -34,7 +50,10 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg"
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/">
           <MeetlyLogo />
