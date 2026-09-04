@@ -10,6 +10,7 @@ import {
   getTimezoneOptions,
 } from "@/lib/scheduling/timezones";
 import { normalizeUsername } from "@/lib/validation/username";
+import { BRAND_COLOR_PRESETS, DEFAULT_BRAND_COLOR, normalizeBrandColor } from "@/lib/branding/colors";
 
 type SettingsUser = {
   username: string | null;
@@ -17,6 +18,7 @@ type SettingsUser = {
   email: string;
   name: string | null;
   avatarUrl: string | null;
+  brandColor: string | null;
 } | null;
 
 export function SettingsForm({
@@ -35,6 +37,7 @@ export function SettingsForm({
   const [username, setUsername] = useState(user?.username ?? "");
   const [timezone, setTimezone] = useState(user?.timezone ?? "America/New_York");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? null);
+  const [brandColor, setBrandColor] = useState(user?.brandColor ?? DEFAULT_BRAND_COLOR);
   const [detectedTimezone, setDetectedTimezone] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(
     calendarStatus === "connected"
@@ -63,7 +66,7 @@ export function SettingsForm({
     const response = await fetch("/api/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, username, timezone }),
+      body: JSON.stringify({ name, username, timezone, brand_color: brandColor }),
     });
 
     setLoading(false);
@@ -141,6 +144,41 @@ export function SettingsForm({
               </button>
             )}
           </label>
+
+          <div>
+            <span className="label">Booking page brand color</span>
+            <p className="mb-3 text-sm text-muted">
+              Guests see this color on your booking page sidebar.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {BRAND_COLOR_PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  aria-label={`Use brand color ${preset}`}
+                  className={`h-10 w-10 rounded-full border-2 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                    brandColor.toUpperCase() === preset ? "border-lime scale-105" : "border-transparent"
+                  }`}
+                  style={{ backgroundColor: preset }}
+                  onClick={() => setBrandColor(preset)}
+                />
+              ))}
+            </div>
+            <label className="mt-4 flex items-center gap-3">
+              <input
+                type="color"
+                className="h-11 w-16 cursor-pointer rounded-xl border border-border bg-background"
+                value={normalizeBrandColor(brandColor)}
+                onChange={(event) => setBrandColor(event.target.value.toUpperCase())}
+              />
+              <input
+                className="input max-w-[8rem] font-mono text-sm uppercase"
+                value={brandColor}
+                onChange={(event) => setBrandColor(event.target.value)}
+                placeholder="#12385F"
+              />
+            </label>
+          </div>
 
           <button type="button" className="btn-primary" disabled={loading} onClick={saveProfile}>
             {loading ? "Saving..." : "Save settings"}

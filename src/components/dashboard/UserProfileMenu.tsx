@@ -126,7 +126,7 @@ export function UserProfileMenu({
 
       {open && (
         <div
-          className={`absolute z-50 w-72 overflow-hidden rounded-2xl border border-border bg-white shadow-xl ${
+          className={`absolute z-50 w-72 overflow-hidden rounded-2xl border border-border bg-background shadow-xl ${
             isSidebar ? "bottom-full left-0 mb-3" : "right-0 top-full mt-2"
           }`}
           role="menu"

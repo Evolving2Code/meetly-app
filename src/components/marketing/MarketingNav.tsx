@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MeetlyLogo } from "@/components/marketing/MeetlyLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const links = [
   { href: "#how-it-works", label: "How it works" },
@@ -33,7 +34,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-white/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/">
           <MeetlyLogo />
@@ -62,6 +63,8 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             {menuOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
 
+          <ThemeToggle className="hidden sm:inline-flex" />
+
           {isLoggedIn ? (
             <Link href="/dashboard" className="btn-primary px-5">
               Dashboard
@@ -83,7 +86,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
       </div>
 
       {menuOpen && (
-        <div className="border-t border-border bg-white md:hidden">
+        <div className="border-t border-border bg-background md:hidden">
           <nav className="mx-auto max-w-7xl space-y-1 px-4 py-4">
             {links.map((link) => (
               <a

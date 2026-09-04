@@ -71,7 +71,7 @@ export function DashboardNav({
 
   if (variant === "bottom") {
     return (
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-700 bg-navy pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav className="dashboard-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-slate-700 bg-navy pb-[env(safe-area-inset-bottom)] lg:hidden">
         <div className="mx-auto flex max-w-lg overflow-x-auto">
           {items.map((item) => {
             const active =
@@ -83,11 +83,13 @@ export function DashboardNav({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex min-h-[56px] min-w-[4.75rem] flex-1 flex-col items-center justify-center gap-1 px-2 py-2 text-[10px] font-semibold transition ${
-                  active ? "text-lime" : "text-slate-400"
+                className={`dashboard-bottom-link flex min-h-[56px] min-w-[4.75rem] flex-1 flex-col items-center justify-center gap-1 px-2 py-2 text-[10px] font-semibold transition ${
+                  active ? "dashboard-bottom-link-active" : ""
                 }`}
               >
-                <span className={active ? "text-lime" : "text-slate-400"}>{icons[item.icon]}</span>
+                <span className={`dashboard-nav-icon ${active ? "" : "text-slate-400"}`}>
+                  {icons[item.icon]}
+                </span>
                 <span className="truncate">{item.shortLabel ?? item.label}</span>
               </Link>
             );
@@ -109,13 +111,15 @@ export function DashboardNav({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+            className={`dashboard-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
               active
-                ? "bg-lime text-navy"
+                ? "dashboard-nav-link-active"
                 : "text-slate-300 hover:bg-navy-light hover:text-white"
             }`}
           >
-            <span className={active ? "text-navy" : "text-slate-400"}>{icons[item.icon]}</span>
+            <span className={`dashboard-nav-icon ${active ? "" : "text-slate-400"}`}>
+              {icons[item.icon]}
+            </span>
             {item.label}
           </Link>
         );

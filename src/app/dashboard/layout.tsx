@@ -5,6 +5,7 @@ import { ensureUserOnboarded } from "@/lib/auth/onboarding";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardNav, type NavItem } from "@/components/dashboard/DashboardNav";
 import { UserProfileMenu } from "@/components/dashboard/UserProfileMenu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const sidebarNavItems: NavItem[] = [
   { href: "/dashboard", label: "Overview", shortLabel: "Home", icon: "overview" },
@@ -48,9 +49,9 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
       : null;
 
   return (
-    <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[260px_1fr]">
       {/* Desktop sidebar */}
-      <aside className="hidden bg-navy text-white lg:block">
+      <aside className="dashboard-sidebar hidden bg-navy text-white lg:block">
         <div className="flex h-full flex-col p-6">
           <Link href="/dashboard" className="mb-10 flex items-center gap-3">
             <MeetlyIcon className="h-10 w-10" />
@@ -62,7 +63,10 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
 
           <DashboardNav items={sidebarNavItems} variant="sidebar" />
 
-          <div className="mt-auto rounded-2xl bg-navy-light p-4">
+          <div className="dashboard-sidebar-panel mt-auto rounded-2xl bg-navy-light p-4">
+            <div className="mb-3 hidden lg:block">
+              <ThemeToggle className="w-full" />
+            </div>
             <UserProfileMenu
               displayName={displayName}
               email={user.email ?? ""}
@@ -76,18 +80,21 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
 
       {/* Mobile shell */}
       <div className="flex min-h-screen min-w-0 flex-col">
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-white px-4 py-3 lg:hidden">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background px-4 py-3 lg:hidden">
           <Link href="/dashboard" className="flex items-center gap-2">
             <MeetlyIcon className="h-9 w-9" />
             <span className="text-base font-bold text-navy">Meetly</span>
           </Link>
-          <UserProfileMenu
-            displayName={displayName}
-            email={user.email ?? ""}
-            avatarUrl={avatarUrl}
-            bookingPageUrl={bookingPageUrl}
-            variant="header"
-          />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <UserProfileMenu
+              displayName={displayName}
+              email={user.email ?? ""}
+              avatarUrl={avatarUrl}
+              bookingPageUrl={bookingPageUrl}
+              variant="header"
+            />
+          </div>
         </header>
 
         <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">

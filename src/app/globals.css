@@ -20,6 +20,162 @@
   --foreground: #0f172a;
 }
 
+.dark {
+  --primary: #4c78ff;
+  --primary-dark: #3d63d9;
+  --primary-light: rgba(76, 120, 255, 0.14);
+  --accent: #00d1ff;
+  --accent-warm: #ff9500;
+  --accent-soft: #1b1e29;
+  --navy: #0f1117;
+  --navy-light: #1b1e29;
+  --lime: #4c78ff;
+  --lime-dark: #4c78ff;
+  --surface: #1b1e29;
+  --surface-muted: #252836;
+  --muted: #8a94a6;
+  --border: #252836;
+  --background: #0f1117;
+  --foreground: #ffffff;
+  --sidebar: #1b1e29;
+  --sidebar-elevated: #252836;
+}
+
+.dark .text-navy {
+  color: var(--foreground);
+}
+
+.dark .bg-white {
+  background-color: var(--surface);
+}
+
+.dark .card {
+  border-color: transparent;
+  background-color: var(--surface);
+  box-shadow: none;
+}
+
+.dark .card-interactive {
+  border-color: transparent;
+  background-color: var(--surface);
+}
+
+.dark .card-interactive:hover,
+.dark .card-interactive:focus-within {
+  border-color: rgba(76, 120, 255, 0.35);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.dark .tab-pill:hover {
+  color: var(--foreground);
+}
+
+.dark .tab-pill-active {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.dark .badge-lime {
+  background-color: rgba(0, 209, 255, 0.14);
+  color: var(--accent);
+}
+
+.dark .text-lime-dark {
+  color: var(--primary);
+}
+
+.dark .bg-lime {
+  background-color: var(--primary);
+}
+
+.dark .bg-lime\/20 {
+  background-color: rgba(76, 120, 255, 0.18);
+}
+
+.dark .bg-lime\/10 {
+  background-color: rgba(76, 120, 255, 0.12);
+}
+
+.dark .border-lime\/30 {
+  border-color: rgba(76, 120, 255, 0.3);
+}
+
+.dark .border-lime\/40 {
+  border-color: rgba(76, 120, 255, 0.4);
+}
+
+.dark .border-lime\/20 {
+  border-color: rgba(76, 120, 255, 0.2);
+}
+
+.dark .from-lime\/5 {
+  --tw-gradient-from: rgba(76, 120, 255, 0.08);
+}
+
+.dark .to-white {
+  --tw-gradient-to: var(--surface);
+}
+
+.dark .btn-secondary {
+  border-color: var(--border);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.dark .btn-secondary:hover {
+  background-color: var(--surface);
+}
+
+.dark .input {
+  border-color: var(--border);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.dark .label {
+  color: var(--foreground);
+}
+
+.dark .dashboard-sidebar {
+  background-color: var(--sidebar);
+}
+
+.dark .dashboard-sidebar-panel {
+  background-color: var(--sidebar-elevated);
+}
+
+.dark .dashboard-bottom-nav {
+  background-color: var(--sidebar);
+  border-color: var(--border);
+}
+
+.dark .dashboard-nav-link {
+  color: var(--muted);
+}
+
+.dark .dashboard-nav-link:hover {
+  background-color: var(--sidebar-elevated);
+  color: var(--foreground);
+}
+
+.dark .dashboard-nav-link-active {
+  background-color: rgba(76, 120, 255, 0.14);
+  color: var(--primary);
+}
+
+.dark .dashboard-nav-link-active .dashboard-nav-icon {
+  color: var(--primary);
+}
+
+.dark .dashboard-bottom-link {
+  color: var(--muted);
+}
+
+.dark .dashboard-bottom-link-active,
+.dark .dashboard-bottom-link-active .dashboard-nav-icon {
+  color: var(--primary);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -41,6 +197,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+.dashboard-nav-link-active {
+  background-color: var(--lime);
+  color: var(--navy);
+}
+
+.dashboard-nav-link-active .dashboard-nav-icon {
+  color: var(--navy);
+}
+
+.dashboard-bottom-link-active,
+.dashboard-bottom-link-active .dashboard-nav-icon {
+  color: var(--lime-dark);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -49,26 +219,48 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-primary {
-  @apply inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark active:scale-[0.98];
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98];
 }
 
 .btn-secondary {
-  @apply inline-flex min-h-[44px] items-center justify-center rounded-full border border-border bg-white px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface active:scale-[0.98];
+  @apply inline-flex min-h-[44px] items-center justify-center rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98];
 }
 
 .btn-oauth {
-  @apply inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border border-border bg-white px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:border-primary/30 hover:bg-primary-light/40 active:scale-[0.98];
+  @apply inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-navy shadow-sm transition hover:border-primary/30 hover:bg-primary-light/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98];
 }
 
 .card {
-  @apply rounded-2xl border border-border bg-white p-4 shadow-sm sm:p-6;
+  @apply rounded-2xl border border-border bg-background p-4 shadow-sm transition-colors sm:p-6;
+}
+
+.card-interactive {
+  @apply rounded-2xl border border-border bg-background px-4 py-4 transition hover:-translate-y-0.5 hover:border-lime/40 hover:shadow-md focus-within:border-lime/40 sm:px-5;
+}
+
+.tab-pill {
+  @apply min-h-[44px] rounded-full px-4 py-2 text-sm font-semibold text-muted transition hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30;
+}
+
+.tab-pill-active {
+  @apply bg-navy text-white hover:text-white;
+}
+
+.booking-host-aside {
+  background-color: var(--host-brand, #0f172a);
+  color: #ffffff;
+}
+
+.booking-host-panel {
+  background-color: var(--host-brand-light, #1e293b);
 }
 
 .input {
-  @apply w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-navy outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+  @apply w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-navy outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
 }
 
 .label {
@@ -96,7 +288,15 @@ body {
     radial-gradient(circle at 20% 20%, rgb(238 242 255) 0%, transparent 45%),
     radial-gradient(circle at 80% 10%, rgb(253 244 255) 0%, transparent 40%),
     radial-gradient(circle at 70% 80%, rgb(255 247 237) 0%, transparent 35%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    linear-gradient(180deg, var(--background) 0%, var(--surface) 100%);
+}
+
+.dark .marketing-gradient {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(76, 120, 255, 0.12) 0%, transparent 42%),
+    radial-gradient(circle at 82% 12%, rgba(0, 209, 255, 0.08) 0%, transparent 38%),
+    radial-gradient(circle at 72% 82%, rgba(255, 149, 0, 0.06) 0%, transparent 34%),
+    linear-gradient(180deg, var(--background) 0%, #0b0d12 100%);
 }
 
 .section-heading {
@@ -170,4 +370,48 @@ body {
   stroke-dasharray: 24;
   stroke-dashoffset: 24;
   animation: success-check 0.4s ease-out 0.25s forwards;
+}
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modal-backdrop-in 0.2s ease-out both;
+}
+
+.animate-modal-panel {
+  animation: modal-panel-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes copy-success {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-copy-success {
+  animation: copy-success 0.35s ease-out;
 }

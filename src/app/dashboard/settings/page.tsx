@@ -20,7 +20,7 @@ export default async function SettingsPage({
   const [{ data: profile }, calendarConnected, notificationPreferences] = await Promise.all([
     supabase
       .from("profiles")
-      .select("username, timezone, name, avatar_url")
+      .select("username, timezone, name, avatar_url, brand_color")
       .eq("id", user.id)
       .single(),
     isGoogleCalendarConnected(user.id),
@@ -49,6 +49,7 @@ export default async function SettingsPage({
           email: user.email ?? "",
           name: profile?.name ?? null,
           avatarUrl: profile?.avatar_url ?? user.user_metadata?.avatar_url ?? null,
+          brandColor: profile?.brand_color ?? null,
         }}
         siteUrl={siteUrl}
         calendarConnected={calendarConnected}

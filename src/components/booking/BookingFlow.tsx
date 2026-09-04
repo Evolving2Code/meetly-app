@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { BookingFlowMainSkeleton } from "@/components/ui/Skeleton";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import { findSlotByDateAndTime } from "@/lib/scheduling/booking-params";
+import { getHostThemeStyle } from "@/lib/branding/colors";
 import {
   detectBrowserTimezone,
   formatTimezoneLabel,
@@ -20,6 +21,7 @@ type Host = {
   username: string;
   image: string | null;
   timezone: string;
+  brandColor?: string | null;
 };
 
 type EventType = {
@@ -191,7 +193,10 @@ export function BookingFlow({
 
   return (
     <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,420px)_1fr]">
-      <aside className="flex flex-col bg-navy p-5 text-white sm:p-8 lg:p-10">
+      <aside
+        className="booking-host-aside flex flex-col p-5 text-white sm:p-8 lg:p-10"
+        style={getHostThemeStyle(host.brandColor)}
+      >
         <div className="flex items-center gap-4">
           {host.image ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -223,7 +228,7 @@ export function BookingFlow({
           <p className="mt-6 hidden text-sm leading-6 text-slate-300 sm:block">{eventType.description}</p>
         )}
 
-        <div className="mt-6 rounded-2xl bg-navy-light p-4 sm:mt-10 sm:p-5">
+        <div className="mt-6 rounded-2xl booking-host-panel p-4 sm:mt-10 sm:p-5">
           <StepIndicator step={step} />
         </div>
 

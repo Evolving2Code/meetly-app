@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { PwaRegister } from "@/components/PwaRegister";
+import { ThemeScript } from "@/components/ThemeScript";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,7 +39,10 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#12385F",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#12385F" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F1117" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -47,7 +51,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-white text-navy">
+      <body className="min-h-full bg-background text-foreground">
+        <ThemeScript />
         <PwaRegister />
         {children}
       </body>
