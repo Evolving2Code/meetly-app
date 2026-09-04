@@ -6,13 +6,21 @@ import { createClient } from "@/lib/supabase/server";
 import { DashboardNav, type NavItem } from "@/components/dashboard/DashboardNav";
 import { UserProfileMenu } from "@/components/dashboard/UserProfileMenu";
 
-const navItems: NavItem[] = [
+const sidebarNavItems: NavItem[] = [
   { href: "/dashboard", label: "Overview", shortLabel: "Home", icon: "overview" },
   { href: "/dashboard/calendar", label: "Calendar", shortLabel: "Calendar", icon: "calendar" },
   { href: "/dashboard/bookings", label: "Bookings", shortLabel: "Bookings", icon: "bookings" },
   { href: "/dashboard/contacts", label: "Contacts", shortLabel: "Contacts", icon: "contacts" },
   { href: "/dashboard/event-types", label: "Event Types", shortLabel: "Events", icon: "events" },
   { href: "/dashboard/availability", label: "Availability", shortLabel: "Hours", icon: "availability" },
+  { href: "/dashboard/settings", label: "Settings", shortLabel: "Settings", icon: "settings" },
+];
+
+const bottomNavItems: NavItem[] = [
+  { href: "/dashboard", label: "Overview", shortLabel: "Home", icon: "overview" },
+  { href: "/dashboard/calendar", label: "Calendar", shortLabel: "Calendar", icon: "calendar" },
+  { href: "/dashboard/bookings", label: "Bookings", shortLabel: "Bookings", icon: "bookings" },
+  { href: "/dashboard/contacts", label: "Contacts", shortLabel: "Contacts", icon: "contacts" },
   { href: "/dashboard/settings", label: "Settings", shortLabel: "Settings", icon: "settings" },
 ];
 
@@ -52,7 +60,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
             </div>
           </Link>
 
-          <DashboardNav items={navItems} variant="sidebar" />
+          <DashboardNav items={sidebarNavItems} variant="sidebar" />
 
           <div className="mt-auto rounded-2xl bg-navy-light p-4">
             <UserProfileMenu
@@ -86,7 +94,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
           {children}
         </main>
 
-        <DashboardNav items={navItems} variant="bottom" />
+        <DashboardNav items={bottomNavItems} variant="bottom" />
       </div>
     </div>
   );

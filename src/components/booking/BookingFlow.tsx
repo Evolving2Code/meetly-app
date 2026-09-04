@@ -4,6 +4,7 @@ import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
+import { CalendarActionButtons } from "@/components/booking/CalendarActionButtons";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BookingFlowMainSkeleton } from "@/components/ui/Skeleton";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
@@ -132,6 +133,15 @@ export function BookingFlow({
   const availableDates = useMemo(() => Object.keys(slotsByDate).sort(), [slotsByDate]);
   const timesForSelectedDate = selectedDate ? slotsByDate[selectedDate] ?? [] : [];
 
+  function handleSelectDate(dateKey: string) {
+    setSelectedDate(dateKey);
+    setSelectedSlot(null);
+
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setStep("time");
+    }
+  }
+
   async function submitBooking() {
     if (!selectedSlot) {
       return;
@@ -181,28 +191,24 @@ export function BookingFlow({
 
   return (
     <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,420px)_1fr]">
-      <aside className="bg-navy p-5 text-white sm:p-8 lg:p-10">
-        <div className="mb-6 flex items-center gap-3 lg:mb-10">
-          <MeetlyIcon className="h-10 w-10" />
-          <span className="text-lg font-bold">Meetly</span>
-        </div>
-
+      <aside className="flex flex-col bg-navy p-5 text-white sm:p-8 lg:p-10">
         <div className="flex items-center gap-4">
           {host.image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={host.image}
               alt={host.name ?? host.username}
-              className="h-14 w-14 rounded-full border-2 border-lime sm:h-16 sm:w-16"
+              className="h-16 w-16 rounded-full border-2 border-lime sm:h-20 sm:w-20"
             />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-lime text-xl font-black text-navy sm:h-16 sm:w-16 sm:text-2xl">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-lime text-2xl font-black text-navy sm:h-20 sm:w-20 sm:text-3xl">
               {(host.name ?? host.username).slice(0, 1)}
             </div>
           )}
           <div>
             <p className="text-sm text-slate-400">Book with</p>
-            <p className="text-xl font-black sm:text-2xl">{host.name ?? host.username}</p>
+            <p className="text-2xl font-black sm:text-3xl">{host.name ?? host.username}</p>
+            <p className="mt-1 text-sm font-semibold text-lime">{eventType.title}</p>
           </div>
         </div>
 
@@ -268,6 +274,16 @@ export function BookingFlow({
             )}
           </div>
         )}
+
+        <p className="mt-auto flex items-center gap-2 pt-8 text-xs text-slate-500">
+          <MeetlyIcon className="h-4 w-4 opacity-70" />
+          <span>
+            Powered by{" "}
+            <Link href="/" className="text-slate-400 transition hover:text-white">
+              Meetly
+            </Link>
+          </span>
+        </p>
       </aside>
 
       <main className="flex-1 bg-white p-4 sm:p-6 lg:p-10">
@@ -310,64 +326,75 @@ export function BookingFlow({
               hostName={host.name ?? host.username}
               eventTitle={eventType.title}
               startTime={confirmation.startTime}
+              duration={eventType.duration}
+              location={eventType.location}
               timezone={timezone}
               cancelToken={confirmation.cancelToken}
             />
-          ) : step === "date" ? (
+          ) : step === "date" || step === "time" ? (
             <section className="card">
-              <h2 className="text-xl font-black">Select a date</h2>
-              {availableDates.length === 0 ? (
-                <div className="mt-6">
-                  <EmptyState
-                    title="No times available"
-                    description="There are no open slots in the next 60 days. Please check back later or contact the host."
-                  />
+              <div className="lg:grid lg:grid-cols-2 lg:gap-8">
+                <div className={step === "time" ? "hidden lg:block" : ""}>
+                  <h2 className="text-xl font-black">Select a date</h2>
+                  {availableDates.length === 0 ? (
+                    <div className="mt-6">
+                      <EmptyState
+                        title="No times available"
+                        description="There are no open slots in the next 60 days. Please check back later or contact the host."
+                      />
+                    </div>
+                  ) : (
+                    <div className="mt-6">
+                      <BookingDateCalendar
+                        availableDates={availableDates}
+                        timezone={timezone}
+                        selectedDate={selectedDate}
+                        initialMonth={prefilledDate}
+                        onSelectDate={handleSelectDate}
+                      />
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="mt-6">
-                  <BookingDateCalendar
-                    availableDates={availableDates}
-                    timezone={timezone}
-                    selectedDate={selectedDate}
-                    initialMonth={prefilledDate}
-                    onSelectDate={(dateKey) => {
-                      setSelectedDate(dateKey);
-                      setStep("time");
-                    }}
-                  />
+
+                <div className={step === "date" ? "hidden lg:block" : ""}>
+                  {step === "time" && (
+                    <button
+                      type="button"
+                      className="mb-4 min-h-[44px] text-sm font-semibold text-lime-dark hover:underline lg:hidden"
+                      onClick={() => setStep("date")}
+                    >
+                      ← Back to calendar
+                    </button>
+                  )}
+                  <h2 className="text-xl font-black">
+                    {selectedDate ? formatDateKeyLabel(selectedDate, timezone) : "Select a time"}
+                  </h2>
+                  {!selectedDate ? (
+                    <p className="mt-4 text-sm text-muted">
+                      Choose a date to see available times.
+                    </p>
+                  ) : (
+                    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+                      {timesForSelectedDate.map((slot) => (
+                        <button
+                          key={slot.start}
+                          type="button"
+                          className={`min-h-[48px] rounded-xl border px-3 py-3 text-sm font-bold transition active:scale-[0.98] ${
+                            selectedSlot?.start === slot.start
+                              ? "border-lime bg-lime text-navy"
+                              : "border-border text-navy hover:border-lime hover:bg-lime"
+                          }`}
+                          onClick={() => {
+                            setSelectedSlot(slot);
+                            setStep("details");
+                          }}
+                        >
+                          {formatSlotLabel(new Date(slot.start), timezone)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </section>
-          ) : step === "time" ? (
-            <section className="card">
-              <button
-                type="button"
-                className="mb-4 min-h-[44px] text-sm font-semibold text-lime-dark hover:underline"
-                onClick={() => setStep("date")}
-              >
-                ← Back to calendar
-              </button>
-              <h2 className="text-xl font-black">
-                {selectedDate ? formatDateKeyLabel(selectedDate, timezone) : "Select a time"}
-              </h2>
-              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {timesForSelectedDate.map((slot) => (
-                  <button
-                    key={slot.start}
-                    type="button"
-                    className={`min-h-[48px] rounded-xl border px-3 py-3 text-sm font-bold transition active:scale-[0.98] ${
-                      selectedSlot?.start === slot.start
-                        ? "border-lime bg-lime text-navy"
-                        : "border-border text-navy hover:border-lime hover:bg-lime"
-                    }`}
-                    onClick={() => {
-                      setSelectedSlot(slot);
-                      setStep("details");
-                    }}
-                  >
-                    {formatSlotLabel(new Date(slot.start), timezone)}
-                  </button>
-                ))}
               </div>
             </section>
           ) : (
@@ -530,17 +557,23 @@ function ConfirmationPanel({
   hostName,
   eventTitle,
   startTime,
+  duration,
+  location,
   timezone,
   cancelToken,
 }: {
   hostName: string;
   eventTitle: string;
   startTime: string;
+  duration: number;
+  location?: string | null;
   timezone: string;
   cancelToken: string;
 }) {
   const [cancelled, setCancelled] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const endTime = new Date(new Date(startTime).getTime() + duration * 60_000).toISOString();
+  const icsUrl = `/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`;
 
   async function cancelBooking() {
     setCancelling(true);
@@ -556,11 +589,23 @@ function ConfirmationPanel({
 
   return (
     <section className="card">
-      <div className="rounded-2xl bg-lime/10 p-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-lime-dark">
-          Confirmed
-        </p>
-        <h2 className="mt-2 text-2xl font-black text-navy">
+      <div className="animate-success-pop rounded-2xl bg-lime/10 p-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-lime text-navy">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path
+                className="animate-success-check"
+                d="M5 12l5 5L20 7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-lime-dark">
+            Confirmed
+          </p>
+        </div>
+        <h2 className="mt-4 text-2xl font-black text-navy">
           {eventTitle} with {hostName}
         </h2>
         <p className="mt-3 text-muted">
@@ -568,18 +613,24 @@ function ConfirmationPanel({
           {formatSlotLabel(new Date(startTime), timezone)} ({timezone})
         </p>
         <p className="mt-4 text-sm text-muted">
-          A calendar invite has been sent if Google Calendar is connected. You can also add this
-          meeting to your calendar manually.
+          A calendar invite has been sent if Google Calendar is connected. Add this meeting to your
+          calendar below.
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <a
-          href={`/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`}
-          className="btn-secondary min-h-[44px]"
-        >
-          Add to calendar (.ics)
-        </a>
+      <div className="mt-6">
+        <p className="mb-3 text-sm font-semibold text-navy">Add to calendar</p>
+        <CalendarActionButtons
+          eventTitle={eventTitle}
+          hostName={hostName}
+          startTime={startTime}
+          endTime={endTime}
+          icsUrl={icsUrl}
+          location={location}
+        />
+      </div>
+
+      <div className="mt-6">
         <Link href={`/reschedule/${cancelToken}`} className="btn-secondary min-h-[44px]">
           Reschedule
         </Link>

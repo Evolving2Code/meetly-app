@@ -109,12 +109,13 @@ export function DashboardNav({
           <Link
             key={item.href}
             href={item.href}
-            className={`block rounded-xl px-4 py-3 text-sm font-semibold transition ${
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
               active
                 ? "bg-lime text-navy"
                 : "text-slate-300 hover:bg-navy-light hover:text-white"
             }`}
           >
+            <span className={active ? "text-navy" : "text-slate-400"}>{icons[item.icon]}</span>
             {item.label}
           </Link>
         );

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
 import { DashboardCreateMenu } from "@/components/dashboard/DashboardCreateMenu";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { EmptyState, EventTypeEmptyIcon } from "@/components/ui/EmptyState";
 
@@ -20,7 +21,9 @@ export default async function DashboardPage() {
     { data: profile },
     { data: upcomingBookings },
     { count: weekBookings },
+    { count: totalBookings },
     { data: eventTypes },
+    { data: availabilitySlots },
     calendarConnected,
   ] = await Promise.all([
     supabase.from("profiles").select("username, timezone").eq("id", user.id).single(),
@@ -40,11 +43,17 @@ export default async function DashboardPage() {
       .gte("start_time", weekStart.toISOString())
       .lte("start_time", weekEnd.toISOString()),
     supabase
+      .from("bookings")
+      .select("*", { count: "exact", head: true })
+      .eq("host_id", user.id)
+      .eq("status", "confirmed"),
+    supabase
       .from("event_types")
       .select("*")
       .eq("user_id", user.id)
       .eq("active", true)
       .order("created_at", { ascending: true }),
+    supabase.from("availability_slots").select("day_of_week, start_time, end_time").eq("user_id", user.id),
     isGoogleCalendarConnected(user.id),
   ]);
 
@@ -54,6 +63,10 @@ export default async function DashboardPage() {
       : null;
 
   const availabilityHeatmap = await buildHeatmap(supabase, user.id);
+  const hasAvailability = (availabilitySlots ?? []).some((slot) => slot.start_time !== slot.end_time);
+  const hasEventType = (eventTypes?.length ?? 0) > 0;
+  const hasBookingLink = Boolean(bookingLink);
+  const hasBooking = (totalBookings ?? 0) > 0;
 
   return (
     <div className="p-4 sm:p-6 lg:p-10">
@@ -73,6 +86,14 @@ export default async function DashboardPage() {
       <div className="mb-8">
         <PwaInstallPrompt variant="card" />
       </div>
+
+      <OnboardingChecklist
+        hasAvailability={hasAvailability}
+        hasEventType={hasEventType}
+        calendarConnected={calendarConnected}
+        hasBookingLink={hasBookingLink}
+        hasBooking={hasBooking}
+      />
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Meetings this week" value={String(weekBookings ?? 0)} accent />
