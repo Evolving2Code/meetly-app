@@ -58,7 +58,7 @@ export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
 
       {open && (
         <div
-          className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-white shadow-xl"
+          className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-background shadow-xl"
           role="menu"
         >
           <div className="py-2">

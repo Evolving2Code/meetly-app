@@ -21,15 +21,24 @@
 }
 
 .dark {
-  --primary: #7cb8e3;
-  --primary-dark: #5b9fd4;
-  --primary-light: #1e293b;
-  --surface: #1e293b;
-  --surface-muted: #334155;
-  --muted: #94a3b8;
-  --border: #334155;
-  --background: #0f172a;
-  --foreground: #f8fafc;
+  --primary: #4c78ff;
+  --primary-dark: #3d63d9;
+  --primary-light: rgba(76, 120, 255, 0.14);
+  --accent: #00d1ff;
+  --accent-warm: #ff9500;
+  --accent-soft: #1b1e29;
+  --navy: #0f1117;
+  --navy-light: #1b1e29;
+  --lime: #4c78ff;
+  --lime-dark: #4c78ff;
+  --surface: #1b1e29;
+  --surface-muted: #252836;
+  --muted: #8a94a6;
+  --border: #252836;
+  --background: #0f1117;
+  --foreground: #ffffff;
+  --sidebar: #1b1e29;
+  --sidebar-elevated: #252836;
 }
 
 .dark .text-navy {
@@ -37,7 +46,134 @@
 }
 
 .dark .bg-white {
-  background-color: var(--background);
+  background-color: var(--surface);
+}
+
+.dark .card {
+  border-color: transparent;
+  background-color: var(--surface);
+  box-shadow: none;
+}
+
+.dark .card-interactive {
+  border-color: transparent;
+  background-color: var(--surface);
+}
+
+.dark .card-interactive:hover,
+.dark .card-interactive:focus-within {
+  border-color: rgba(76, 120, 255, 0.35);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.dark .tab-pill:hover {
+  color: var(--foreground);
+}
+
+.dark .tab-pill-active {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.dark .badge-lime {
+  background-color: rgba(0, 209, 255, 0.14);
+  color: var(--accent);
+}
+
+.dark .text-lime-dark {
+  color: var(--primary);
+}
+
+.dark .bg-lime {
+  background-color: var(--primary);
+}
+
+.dark .bg-lime\/20 {
+  background-color: rgba(76, 120, 255, 0.18);
+}
+
+.dark .bg-lime\/10 {
+  background-color: rgba(76, 120, 255, 0.12);
+}
+
+.dark .border-lime\/30 {
+  border-color: rgba(76, 120, 255, 0.3);
+}
+
+.dark .border-lime\/40 {
+  border-color: rgba(76, 120, 255, 0.4);
+}
+
+.dark .border-lime\/20 {
+  border-color: rgba(76, 120, 255, 0.2);
+}
+
+.dark .from-lime\/5 {
+  --tw-gradient-from: rgba(76, 120, 255, 0.08);
+}
+
+.dark .to-white {
+  --tw-gradient-to: var(--surface);
+}
+
+.dark .btn-secondary {
+  border-color: var(--border);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.dark .btn-secondary:hover {
+  background-color: var(--surface);
+}
+
+.dark .input {
+  border-color: var(--border);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.dark .label {
+  color: var(--foreground);
+}
+
+.dark .dashboard-sidebar {
+  background-color: var(--sidebar);
+}
+
+.dark .dashboard-sidebar-panel {
+  background-color: var(--sidebar-elevated);
+}
+
+.dark .dashboard-bottom-nav {
+  background-color: var(--sidebar);
+  border-color: var(--border);
+}
+
+.dark .dashboard-nav-link {
+  color: var(--muted);
+}
+
+.dark .dashboard-nav-link:hover {
+  background-color: var(--sidebar-elevated);
+  color: var(--foreground);
+}
+
+.dark .dashboard-nav-link-active {
+  background-color: rgba(76, 120, 255, 0.14);
+  color: var(--primary);
+}
+
+.dark .dashboard-nav-link-active .dashboard-nav-icon {
+  color: var(--primary);
+}
+
+.dark .dashboard-bottom-link {
+  color: var(--muted);
+}
+
+.dark .dashboard-bottom-link-active,
+.dark .dashboard-bottom-link-active .dashboard-nav-icon {
+  color: var(--primary);
 }
 
 @theme inline {
@@ -59,6 +195,20 @@
   --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+.dashboard-nav-link-active {
+  background-color: var(--lime);
+  color: var(--navy);
+}
+
+.dashboard-nav-link-active .dashboard-nav-icon {
+  color: var(--navy);
+}
+
+.dashboard-bottom-link-active,
+.dashboard-bottom-link-active .dashboard-nav-icon {
+  color: var(--lime-dark);
 }
 
 * {
@@ -143,10 +293,10 @@ body {
 
 .dark .marketing-gradient {
   background:
-    radial-gradient(circle at 20% 20%, rgb(30 41 59) 0%, transparent 45%),
-    radial-gradient(circle at 80% 10%, rgb(49 46 129) 0%, transparent 40%),
-    radial-gradient(circle at 70% 80%, rgb(67 20 90) 0%, transparent 35%),
-    linear-gradient(180deg, var(--background) 0%, var(--surface) 100%);
+    radial-gradient(circle at 18% 18%, rgba(76, 120, 255, 0.12) 0%, transparent 42%),
+    radial-gradient(circle at 82% 12%, rgba(0, 209, 255, 0.08) 0%, transparent 38%),
+    radial-gradient(circle at 72% 82%, rgba(255, 149, 0, 0.06) 0%, transparent 34%),
+    linear-gradient(180deg, var(--background) 0%, #0b0d12 100%);
 }
 
 .section-heading {

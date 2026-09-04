@@ -31,7 +31,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   return (
     <button
       type="button"
-      className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border bg-background text-navy transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${className}`}
+      className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border bg-background text-foreground transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 dark:border-transparent dark:bg-surface-muted dark:hover:bg-surface ${className}`}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       onClick={toggleTheme}
     >

@@ -32,7 +32,7 @@ export function BookingActivityChart({
               <div key={point.date} className="group flex min-w-0 flex-1 flex-col items-center gap-2">
                 <div className="flex h-32 w-full items-end justify-center">
                   <div
-                    className="w-full max-w-10 rounded-t-xl bg-lime transition-all duration-300 group-hover:bg-lime-dark"
+                    className="w-full max-w-10 rounded-t-xl bg-primary transition-all duration-300 group-hover:bg-primary-dark"
                     style={{
                       height: `${Math.max(point.count > 0 ? 12 : 4, (point.count / maxCount) * 100)}%`,
                     }}

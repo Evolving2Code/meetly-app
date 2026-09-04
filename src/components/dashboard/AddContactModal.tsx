@@ -54,7 +54,7 @@ export function AddContactModal({ open, onClose, onCreated }: AddContactModalPro
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-lg rounded-3xl border border-border bg-white p-6 shadow-2xl">
+      <div className="relative w-full max-w-lg rounded-3xl border border-border bg-background p-6 shadow-2xl">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-black text-navy">Add contact</h2>

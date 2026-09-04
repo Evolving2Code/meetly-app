@@ -123,7 +123,7 @@ export function OnboardingChecklist({
               className={`flex items-start gap-3 rounded-2xl border px-4 py-3 transition ${
                 item.complete
                   ? "border-lime/20 bg-lime/5"
-                  : "border-border bg-white hover:border-lime/40 hover:bg-surface"
+                  : "border-border bg-background hover:border-lime/40 hover:bg-surface"
               }`}
             >
               <span

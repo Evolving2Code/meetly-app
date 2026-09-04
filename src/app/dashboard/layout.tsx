@@ -49,9 +49,9 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
       : null;
 
   return (
-    <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[260px_1fr]">
       {/* Desktop sidebar */}
-      <aside className="hidden bg-navy text-white lg:block">
+      <aside className="dashboard-sidebar hidden bg-navy text-white lg:block">
         <div className="flex h-full flex-col p-6">
           <Link href="/dashboard" className="mb-10 flex items-center gap-3">
             <MeetlyIcon className="h-10 w-10" />
@@ -63,7 +63,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
 
           <DashboardNav items={sidebarNavItems} variant="sidebar" />
 
-          <div className="mt-auto rounded-2xl bg-navy-light p-4">
+          <div className="dashboard-sidebar-panel mt-auto rounded-2xl bg-navy-light p-4">
             <div className="mb-3 hidden lg:block">
               <ThemeToggle className="w-full" />
             </div>

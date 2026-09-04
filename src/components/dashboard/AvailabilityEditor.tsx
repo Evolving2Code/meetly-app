@@ -104,7 +104,7 @@ export function AvailabilityEditor({
                 type="button"
                 onClick={() => toggleDay(dayOfWeek)}
                 className={`rounded-xl px-4 py-3 text-left text-sm font-bold ${
-                  enabled ? "bg-lime text-navy" : "bg-white text-muted"
+                  enabled ? "bg-lime text-navy" : "bg-background text-muted"
                 }`}
               >
                 {dayName}
