@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { contactsToCsv } from "@/lib/contacts/aggregate";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ContactsListSkeleton } from "@/components/ui/Skeleton";
 import { AddContactModal } from "./AddContactModal";
 
 type Contact = {
@@ -139,28 +141,26 @@ export function ContactsList() {
       </div>
 
       {loading ? (
-        <div className="card text-center text-muted">Loading contacts...</div>
+        <div className="card">
+          <ContactsListSkeleton />
+        </div>
       ) : error ? (
         <div className="card text-center text-red-600">{error}</div>
       ) : contacts.length === 0 ? (
-        <div className="card text-center">
-          <p className="font-semibold text-navy">
-            {search ? "No contacts match your search" : "No contacts yet"}
-          </p>
-          <p className="mt-2 text-sm text-muted">
-            {search
-              ? "Try a different name, email, or note keyword."
-              : "Guests who book through your links will appear here automatically, or add someone manually."}
-          </p>
-          {!search && (
-            <button
-              type="button"
-              className="btn-primary mt-4 min-h-[44px]"
-              onClick={() => setShowAddModal(true)}
-            >
-              Add your first contact
-            </button>
-          )}
+        <div className="card">
+          <EmptyState
+            title={search ? "No contacts match your search" : "No contacts yet"}
+            description={
+              search
+                ? "Try a different name, email, or note keyword."
+                : "Guests who book through your links will appear here automatically, or add someone manually."
+            }
+            action={
+              search
+                ? undefined
+                : { label: "Add your first contact", onClick: () => setShowAddModal(true) }
+            }
+          />
         </div>
       ) : (
         <div className="card">

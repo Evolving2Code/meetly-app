@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type ContactBooking = {
   id: string;
@@ -38,6 +39,7 @@ export function ContactDetail({ email }: { email: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
@@ -102,11 +104,6 @@ export function ContactDetail({ email }: { email: string }) {
       return;
     }
 
-    const confirmed = window.confirm(`Delete ${data.contact.name} from your contacts?`);
-    if (!confirmed) {
-      return;
-    }
-
     setDeleting(true);
     setError(null);
 
@@ -115,6 +112,7 @@ export function ContactDetail({ email }: { email: string }) {
     });
 
     setDeleting(false);
+    setShowDeleteDialog(false);
 
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
@@ -188,12 +186,23 @@ export function ContactDetail({ email }: { email: string }) {
             type="button"
             className="btn-secondary min-h-[44px] text-red-600"
             disabled={deleting}
-            onClick={deleteContact}
+            onClick={() => setShowDeleteDialog(true)}
           >
-            {deleting ? "Deleting..." : "Delete contact"}
+            Delete contact
           </button>
         )}
       </div>
+
+      <ConfirmDialog
+        open={showDeleteDialog}
+        title="Delete contact?"
+        description={`${contact.name} will be removed from your contacts. This cannot be undone.`}
+        confirmLabel="Delete contact"
+        variant="destructive"
+        loading={deleting}
+        onConfirm={deleteContact}
+        onCancel={() => setShowDeleteDialog(false)}
+      />
 
       <div className="card">
         <h2 className="text-lg font-black text-navy">Private notes</h2>

@@ -6,6 +6,7 @@ import { isGoogleCalendarConnected } from "@/lib/google-calendar";
 import { CopyLinkButton } from "@/components/dashboard/CopyLinkButton";
 import { DashboardCreateMenu } from "@/components/dashboard/DashboardCreateMenu";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { EmptyState, EventTypeEmptyIcon } from "@/components/ui/EmptyState";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -171,27 +172,36 @@ export default async function DashboardPage() {
             Manage all
           </Link>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {eventTypes?.map((eventType) => (
-            <div
-              key={eventType.id}
-              className="rounded-2xl border border-border bg-surface p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-lg font-bold text-navy">{eventType.title}</p>
-                  <p className="mt-1 text-sm text-muted">{eventType.duration} minutes</p>
+        {!eventTypes?.length ? (
+          <EmptyState
+            icon={<EventTypeEmptyIcon />}
+            title="No event types yet"
+            description="Create your first event type so guests can book time with you."
+            action={{ label: "Create event type", href: "/dashboard/event-types" }}
+          />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {eventTypes.map((eventType) => (
+              <div
+                key={eventType.id}
+                className="rounded-2xl border border-border bg-surface p-5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-bold text-navy">{eventType.title}</p>
+                    <p className="mt-1 text-sm text-muted">{eventType.duration} minutes</p>
+                  </div>
+                  <span className="badge-navy">{eventType.slug}</span>
                 </div>
-                <span className="badge-navy">{eventType.slug}</span>
+                {profile?.username && (
+                  <p className="mt-4 truncate text-sm text-muted">
+                    /book/{profile.username}/{eventType.slug}
+                  </p>
+                )}
               </div>
-              {profile?.username && (
-                <p className="mt-4 truncate text-sm text-muted">
-                  /book/{profile.username}/{eventType.slug}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

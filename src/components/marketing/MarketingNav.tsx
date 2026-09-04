@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { MeetlyLogo } from "@/components/marketing/MeetlyLogo";
 
 const links = [
@@ -9,6 +12,26 @@ const links = [
 ];
 
 export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-white/80 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -29,6 +52,16 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-navy transition hover:bg-surface md:hidden"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((current) => !current)}
+          >
+            {menuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
+
           {isLoggedIn ? (
             <Link href="/dashboard" className="btn-primary px-5">
               Dashboard
@@ -48,6 +81,48 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           )}
         </div>
       </div>
+
+      {menuOpen && (
+        <div className="border-t border-border bg-white md:hidden">
+          <nav className="mx-auto max-w-7xl space-y-1 px-4 py-4">
+            {links.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-navy transition hover:bg-surface"
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
+            {!isLoggedIn && (
+              <Link
+                href="/login"
+                className="flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-navy transition hover:bg-surface"
+                onClick={() => setMenuOpen(false)}
+              >
+                Log in
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
   );
 }

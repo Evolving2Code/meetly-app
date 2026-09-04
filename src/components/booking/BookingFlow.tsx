@@ -2,8 +2,10 @@
 
 import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { BookingFlowMainSkeleton } from "@/components/ui/Skeleton";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import { findSlotByDateAndTime } from "@/lib/scheduling/booking-params";
 import {
@@ -218,6 +220,54 @@ export function BookingFlow({
         <div className="mt-6 rounded-2xl bg-navy-light p-4 sm:mt-10 sm:p-5">
           <StepIndicator step={step} />
         </div>
+
+        {(selectedDate || selectedSlot || (step === "details" && (guestName || guestEmail))) && (
+          <div className="mt-6 space-y-3 border-t border-slate-700 pt-6 sm:mt-8">
+            {selectedDate && (
+              <SummaryRow
+                icon={
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                }
+                label="Date"
+                value={formatDateKeyLabel(selectedDate, timezone)}
+              />
+            )}
+            {selectedSlot && (
+              <SummaryRow
+                icon={
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                }
+                label="Time"
+                value={formatSlotLabel(new Date(selectedSlot.start), timezone)}
+              />
+            )}
+            {step === "details" && (guestName || guestEmail) && (
+              <SummaryRow
+                icon={
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                }
+                label="Guest"
+                value={guestName || guestEmail}
+                detail={guestName && guestEmail ? guestEmail : undefined}
+              />
+            )}
+          </div>
+        )}
       </aside>
 
       <main className="flex-1 bg-white p-4 sm:p-6 lg:p-10">
@@ -254,7 +304,7 @@ export function BookingFlow({
           )}
 
           {loading ? (
-            <div className="card text-center text-muted">Loading available times...</div>
+            <BookingFlowMainSkeleton />
           ) : step === "confirmed" && confirmation ? (
             <ConfirmationPanel
               hostName={host.name ?? host.username}
@@ -267,7 +317,12 @@ export function BookingFlow({
             <section className="card">
               <h2 className="text-xl font-black">Select a date</h2>
               {availableDates.length === 0 ? (
-                <p className="mt-4 text-muted">No available dates right now.</p>
+                <div className="mt-6">
+                  <EmptyState
+                    title="No times available"
+                    description="There are no open slots in the next 60 days. Please check back later or contact the host."
+                  />
+                </div>
               ) : (
                 <div className="mt-6">
                   <BookingDateCalendar
@@ -403,6 +458,37 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
         {label}
       </p>
       <p className="mt-1 text-lg font-bold">{value}</p>
+    </div>
+  );
+}
+
+function SummaryRow({
+  icon,
+  label,
+  value,
+  detail,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  detail?: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 text-sm">
+      <svg
+        className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden
+      >
+        {icon}
+      </svg>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+        <p className="mt-0.5 font-semibold text-slate-100">{value}</p>
+        {detail && <p className="truncate text-xs text-slate-400">{detail}</p>}
+      </div>
     </div>
   );
 }
