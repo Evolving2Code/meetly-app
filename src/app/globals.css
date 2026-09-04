@@ -138,3 +138,36 @@ body {
 .legal-prose strong {
   @apply font-semibold text-navy;
 }
+
+@keyframes success-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes success-check {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-success-pop {
+  animation: success-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-success-check {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: success-check 0.4s ease-out 0.25s forwards;
+}

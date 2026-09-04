@@ -1,4 +1,8 @@
-import Image from "next/image";
+import {
+  AvailabilityScreenshot,
+  ConfirmationScreenshot,
+  SignupScreenshot,
+} from "@/components/marketing/ProductScreenshots";
 
 const steps = [
   {
@@ -6,24 +10,21 @@ const steps = [
     title: "Create your account",
     description:
       "Sign up with email, Google, or Microsoft. Connect Google Calendar later — only when you want busy-time blocking and automatic events.",
-    image:
-      "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=800&q=80",
+    preview: <SignupScreenshot />,
   },
   {
     step: "02",
     title: "Set your availability",
     description:
       "Choose your weekly hours, event types, buffers, and booking limits. Meetly generates a personal booking link you can share anywhere.",
-    image:
-      "https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=800&q=80",
+    preview: <AvailabilityScreenshot />,
   },
   {
     step: "03",
     title: "Guests book in seconds",
     description:
       "Invitees pick a date and time, enter their details, and get confirmation — with Google Calendar events and Meet links when you're connected.",
-    image:
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800&q=80",
+    preview: <ConfirmationScreenshot />,
   },
 ];
 
@@ -46,16 +47,11 @@ export function HowItWorksSection() {
               key={item.step}
               className="group overflow-hidden rounded-3xl border border-border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                />
-                <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-primary backdrop-blur">
+              <div className="relative p-4 pb-0">
+                <div className="absolute left-7 top-7 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-primary backdrop-blur">
                   Step {item.step}
                 </div>
+                <div className="transition duration-500 group-hover:scale-[1.02]">{item.preview}</div>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold text-navy">{item.title}</h3>
