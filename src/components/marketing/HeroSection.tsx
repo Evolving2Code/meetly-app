@@ -17,13 +17,13 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
             Meetly helps solo hosts share a booking page, set availability, and let guests
-            pick a time — with optional Google Calendar sync when you&apos;re ready.
+            pick a time. Connect Google Calendar anytime — no pressure at signup.
           </p>
           <ul className="mt-8 space-y-3 text-sm text-navy sm:text-base">
             {[
               "Free for solo hosts — no credit card",
               "Email, Google, or Microsoft sign-in",
-              "Connect Google Calendar later in Settings",
+              "Connect Google Calendar anytime in Settings",
             ].map((item) => (
               <li key={item} className="flex items-start gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs text-primary">

@@ -27,8 +27,8 @@ export function MarketingFooter() {
           <div className="lg:col-span-1">
             <MeetlyLogo light />
             <p className="mt-4 max-w-xs text-sm leading-relaxed">
-              Calendly-style scheduling for solo hosts. Share your link, set your hours, and let
-              guests book time that works.
+              Personal scheduling for solo hosts. Share your link, set your hours, and let guests
+              book time that works.
             </p>
           </div>
 

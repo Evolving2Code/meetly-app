@@ -20,10 +20,8 @@ const plans = [
   {
     name: "Pro",
     price: "Coming soon",
-    description: "Advanced automations, branding, and team features — on the roadmap.",
+    description: "Team scheduling, payments, and intake forms for when solo hosting isn't enough.",
     features: [
-      "Custom branding",
-      "Email reminders",
       "Team scheduling",
       "Payment collection",
       "Routing forms",
@@ -42,7 +40,7 @@ export function PricingSection() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
           <h2 className="section-heading mt-3">Start free. Upgrade when you&apos;re ready.</h2>
           <p className="section-subheading mx-auto">
-            Meetly is free for solo hosts while we&apos;re in MVP. No credit card required.
+            Meetly is free for solo hosts. No credit card required.
           </p>
         </div>
 

@@ -45,7 +45,7 @@ export function FeaturesSection() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Features</p>
           <h2 className="section-heading mt-3">Everything you need to start scheduling</h2>
           <p className="section-subheading mx-auto">
-            Honest MVP features today — polished presentation, no fake enterprise promises.
+            Booking links, availability rules, and calendar sync — everything you need to start taking meetings.
           </p>
         </div>
 

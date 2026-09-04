@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Meetly — Scheduling that stands out",
-  description: "Share your link, let guests book time, and sync with Google Calendar.",
+  description: "Share your link, let guests book time, and keep your calendar in sync.",
   applicationName: "Meetly",
   appleWebApp: {
     capable: true,

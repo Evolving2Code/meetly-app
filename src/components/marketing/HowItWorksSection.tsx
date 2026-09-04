@@ -9,7 +9,7 @@ const steps = [
     step: "01",
     title: "Create your account",
     description:
-      "Sign up with email, Google, or Microsoft. Connect Google Calendar later — only when you want busy-time blocking and automatic events.",
+      "Sign up with email, Google, or Microsoft. Connect Google Calendar anytime in Settings when you want busy-time blocking and automatic events.",
     preview: <SignupScreenshot />,
   },
   {
@@ -36,8 +36,7 @@ export function HowItWorksSection() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">How it works</p>
           <h2 className="section-heading mt-3">From signup to booked meeting in minutes</h2>
           <p className="section-subheading">
-            A Calendly-style flow built for solo hosts who want something polished without the
-            enterprise overhead.
+            Three steps from account to confirmed meeting — built for solo hosts who want a booking page that looks as good as it works.
           </p>
         </div>
 

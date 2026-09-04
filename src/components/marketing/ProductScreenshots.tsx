@@ -35,7 +35,7 @@ export function HeroBookingScreenshot() {
             </div>
             <div>
               <p className="text-[10px] text-slate-400">Book with</p>
-              <p className="text-sm font-bold">Alex Rivera</p>
+              <p className="text-sm font-bold">Your name</p>
             </div>
           </div>
           <div className="mt-4 space-y-2">
@@ -138,7 +138,7 @@ export function AvailabilityScreenshot() {
         </div>
         <div className="mt-4 rounded-xl border border-dashed border-border bg-surface p-3">
           <p className="text-[10px] font-semibold text-muted">Booking link</p>
-          <p className="mt-1 truncate text-xs font-bold text-primary">meetly.app/book/alex/intro</p>
+          <p className="mt-1 truncate text-xs font-bold text-primary">meetly.app/book/you/intro</p>
         </div>
       </div>
     </ScreenshotFrame>
@@ -158,7 +158,7 @@ export function ConfirmationScreenshot() {
             </div>
             <p className="text-xs font-bold uppercase tracking-wide text-lime-dark">Confirmed</p>
           </div>
-          <p className="mt-2 text-sm font-black text-navy">30 Min Intro with Alex</p>
+          <p className="mt-2 text-sm font-black text-navy">30 Min Intro with Guest name</p>
           <p className="mt-1 text-xs text-muted">Thu, Oct 29 · 2:00 PM</p>
         </div>
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -202,7 +202,7 @@ export function DashboardScreenshot() {
           <div className="mt-3 rounded-xl border border-border bg-white p-3">
             <p className="text-[10px] font-semibold text-muted">Upcoming meetings</p>
             <div className="mt-2 space-y-2">
-              {["Jordan Lee · 30 Min Intro", "Sam Park · Discovery"].map((meeting) => (
+              {["Guest name · 30 Min Intro", "Guest name · Discovery"].map((meeting) => (
                 <div key={meeting} className="flex items-center justify-between rounded-lg bg-surface px-2 py-1.5">
                   <p className="text-[10px] font-semibold text-navy">{meeting}</p>
                   <p className="text-[9px] text-muted">Tomorrow</p>
