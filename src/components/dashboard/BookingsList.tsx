@@ -4,6 +4,9 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { EventType } from "@/lib/supabase/types";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { BookingsEmptyIcon, EmptyState } from "@/components/ui/EmptyState";
+import { BookingsListSkeleton } from "@/components/ui/Skeleton";
 
 type BookingRow = {
   id: string;
@@ -26,6 +29,9 @@ export function BookingsList() {
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pendingCancel, setPendingCancel] = useState<{ id: string; guestName: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     async function loadBookings() {
@@ -48,17 +54,13 @@ export function BookingsList() {
   }, [tab]);
 
   async function cancelBooking(bookingId: string, guestName: string) {
-    const confirmed = window.confirm(`Cancel the meeting with ${guestName}?`);
-    if (!confirmed) {
-      return;
-    }
-
     setCancellingId(bookingId);
     setError(null);
 
     const response = await fetch(`/api/bookings/${bookingId}`, { method: "DELETE" });
 
     setCancellingId(null);
+    setPendingCancel(null);
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
@@ -71,7 +73,8 @@ export function BookingsList() {
   }
 
   return (
-    <div className="card max-w-4xl">
+    <>
+      <div className="card max-w-4xl">
       <div className="mb-6 flex flex-wrap gap-2">
         <TabButton active={tab === "upcoming"} onClick={() => setTab("upcoming")}>
           Upcoming
@@ -82,18 +85,22 @@ export function BookingsList() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted">Loading bookings...</p>
+        <BookingsListSkeleton />
       ) : !bookings.length ? (
-        <div className="rounded-2xl bg-surface p-8 text-center">
-          <p className="font-semibold text-navy">
-            {tab === "upcoming" ? "No upcoming bookings" : "No past bookings yet"}
-          </p>
-          <p className="mt-2 text-sm text-muted">
-            {tab === "upcoming"
+        <EmptyState
+          icon={<BookingsEmptyIcon />}
+          title={tab === "upcoming" ? "No upcoming bookings" : "No past bookings yet"}
+          description={
+            tab === "upcoming"
               ? "Share your booking link to start filling your calendar."
-              : "Completed meetings will appear here."}
-          </p>
-        </div>
+              : "Completed meetings will appear here."
+          }
+          action={
+            tab === "upcoming"
+              ? { label: "Manage event types", href: "/dashboard/event-types" }
+              : undefined
+          }
+        />
       ) : (
         <div className="space-y-3">
           {bookings.map((booking) => (
@@ -124,7 +131,9 @@ export function BookingsList() {
                       type="button"
                       className="btn-secondary min-h-[44px]"
                       disabled={cancellingId === booking.id}
-                      onClick={() => cancelBooking(booking.id, booking.guest_name)}
+                      onClick={() =>
+                        setPendingCancel({ id: booking.id, guestName: booking.guest_name })
+                      }
                     >
                       {cancellingId === booking.id ? "Cancelling..." : "Cancel"}
                     </button>
@@ -145,7 +154,23 @@ export function BookingsList() {
       )}
 
       {error && <p className="mt-4 text-sm font-medium text-red-600">{error}</p>}
-    </div>
+      </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingCancel)}
+        title="Cancel this booking?"
+        description={`The meeting with ${pendingCancel?.guestName ?? "this guest"} will be cancelled and removed from your calendar.`}
+        confirmLabel="Cancel booking"
+        variant="destructive"
+        loading={Boolean(cancellingId)}
+        onCancel={() => setPendingCancel(null)}
+        onConfirm={() => {
+          if (pendingCancel) {
+            cancelBooking(pendingCancel.id, pendingCancel.guestName);
+          }
+        }}
+      />
+    </>
   );
 }
 

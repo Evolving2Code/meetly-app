@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { CalendarEvent } from "@/lib/calendar/merge-events";
+import { CalendarSkeleton } from "@/components/ui/Skeleton";
 import { CalendarEventCard } from "./CalendarEventCard";
 
 export function CalendarMonthView({
@@ -130,7 +131,7 @@ export function CalendarMonthView({
       )}
 
       {loading ? (
-        <div className="card text-center text-muted">Loading calendar...</div>
+        <CalendarSkeleton />
       ) : error ? (
         <div className="card text-center text-red-600">{error}</div>
       ) : (

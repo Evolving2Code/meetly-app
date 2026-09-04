@@ -12,6 +12,8 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { CalendarEvent } from "@/lib/calendar/merge-events";
+import { CalendarEmptyIcon, EmptyState } from "@/components/ui/EmptyState";
+import { CalendarSkeleton } from "@/components/ui/Skeleton";
 import { CalendarEventCard } from "./CalendarEventCard";
 
 export function CalendarWeekView({
@@ -61,6 +63,8 @@ export function CalendarWeekView({
       events: events.filter((event) => isSameDay(new Date(event.start), day)),
     }));
   }, [days, events]);
+
+  const totalEvents = events.length;
 
   return (
     <div className="space-y-6">
@@ -116,9 +120,24 @@ export function CalendarWeekView({
       )}
 
       {loading ? (
-        <div className="card text-center text-muted">Loading calendar...</div>
+        <CalendarSkeleton />
       ) : error ? (
         <div className="card text-center text-red-600">{error}</div>
+      ) : totalEvents === 0 ? (
+        <EmptyState
+          icon={<CalendarEmptyIcon />}
+          title="No events this week"
+          description={
+            googleConnected
+              ? "Your calendar is clear for this week."
+              : "Connect Google Calendar or wait for new Meetly bookings to appear here."
+          }
+          action={
+            googleConnected
+              ? undefined
+              : { label: "Connect Google Calendar", href: "/dashboard/settings" }
+          }
+        />
       ) : (
         <div className="space-y-4">
           {eventsByDay.map(({ day, events: dayEvents }) => (

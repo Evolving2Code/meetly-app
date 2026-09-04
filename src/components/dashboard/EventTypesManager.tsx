@@ -7,6 +7,8 @@ import {
   EventTypeForm,
   eventTypeToFormValues,
 } from "@/components/dashboard/EventTypeForm";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { EmptyState, EventTypeEmptyIcon } from "@/components/ui/EmptyState";
 import type { EventType } from "@/lib/supabase/types";
 
 export function EventTypesManager({
@@ -24,6 +26,7 @@ export function EventTypesManager({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<EventType | null>(null);
 
   async function createEventType() {
     setLoading(true);
@@ -112,13 +115,6 @@ export function EventTypesManager({
   }
 
   async function deleteEventType(eventType: EventType) {
-    const confirmed = window.confirm(
-      `Delete "${eventType.title}"? This cannot be undone if the event type has no bookings.`,
-    );
-    if (!confirmed) {
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
@@ -127,6 +123,7 @@ export function EventTypesManager({
     });
 
     setLoading(false);
+    setPendingDelete(null);
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
@@ -142,10 +139,18 @@ export function EventTypesManager({
   }
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
+    <>
+      <div className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
       <section className="card">
         <h2 className="text-xl font-black">Your event types</h2>
         <div className="mt-6 space-y-4">
+          {eventTypes.length === 0 ? (
+            <EmptyState
+              icon={<EventTypeEmptyIcon />}
+              title="No event types yet"
+              description="Create your first booking link so guests can schedule time with you."
+            />
+          ) : null}
           {eventTypes.map((eventType) => (
             <div
               key={eventType.id}
@@ -215,7 +220,7 @@ export function EventTypesManager({
                     <button
                       type="button"
                       className="text-sm font-semibold text-red-600 hover:underline"
-                      onClick={() => deleteEventType(eventType)}
+                      onClick={() => setPendingDelete(eventType)}
                     >
                       Delete
                     </button>
@@ -241,6 +246,22 @@ export function EventTypesManager({
           />
         </div>
       </section>
-    </div>
+      </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title={`Delete "${pendingDelete?.title ?? "event type"}"?`}
+        description="This cannot be undone. Event types with existing bookings cannot be deleted."
+        confirmLabel="Delete event type"
+        variant="destructive"
+        loading={loading}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete) {
+            deleteEventType(pendingDelete);
+          }
+        }}
+      />
+    </>
   );
 }
