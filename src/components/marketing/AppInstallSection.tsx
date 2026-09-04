@@ -36,7 +36,7 @@ export function AppInstallSection() {
               <MeetlyIcon className="h-14 w-14 shadow-md" />
               <div>
                 <p className="text-lg font-bold text-navy">Meetly for mobile</p>
-                <p className="text-sm text-muted">Free · No app store · Works offline shell</p>
+                <p className="text-sm text-muted">Free · No app store · Install from your browser</p>
               </div>
             </div>
             <div className="mt-6 flex items-center gap-3">

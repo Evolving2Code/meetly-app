@@ -17,7 +17,7 @@ export default async function SignupPage() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Sign up with email, Google, or Microsoft. Connect Google Calendar later in Settings."
+      subtitle="Sign up with email, Google, or Microsoft. Connect Google Calendar anytime in Settings."
       footer={
         <>
           Already have an account?{" "}

@@ -75,7 +75,7 @@ export async function ensureUserOnboarded(
       user_id: userId,
       title: "30 Minute Meeting",
       slug: "30-min",
-      description: "A quick 30-minute meeting.",
+      description: "Share this link when someone wants to schedule time with you.",
       duration: 30,
       buffer_before: 0,
       buffer_after: 15,

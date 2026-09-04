@@ -5,7 +5,7 @@ import { useState } from "react";
 const faqs = [
   {
     q: "Is Meetly really free?",
-    a: "Yes. The solo host plan is free during our MVP phase. No credit card required to sign up.",
+    a: "Yes. The solo plan is free. No credit card required to sign up.",
   },
   {
     q: "Do guests need an account?",
@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: "Can I sign up with Microsoft?",
-    a: "Yes. Meetly supports email, Google, and Microsoft sign-in. Calendar sync is Google Calendar only for now.",
+    a: "Yes. Meetly supports email, Google, and Microsoft sign-in. Meetly syncs with Google Calendar today, with Outlook and Apple Calendar support on the roadmap.",
   },
   {
     q: "Can I install Meetly on my phone?",
