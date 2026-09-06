@@ -10,6 +10,7 @@ const links = [
   { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
+  { href: "/help", label: "Help" },
 ];
 
 export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {

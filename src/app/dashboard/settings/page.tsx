@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { isEmailAuthUser } from "@/lib/auth/providers";
 import { createClient } from "@/lib/supabase/server";
@@ -67,6 +68,16 @@ export default async function SettingsPage({
         />
         {isEmailUser && user.email ? <PasswordChangeForm email={user.email} /> : null}
       </div>
+
+      <section className="card mt-6">
+        <h2 className="text-lg font-black text-navy">Help</h2>
+        <p className="mt-2 text-sm text-muted">
+          Setup guides, booking tips, and answers to common host questions.
+        </p>
+        <Link href="/help" className="btn-secondary mt-4 inline-flex min-h-[44px]">
+          Open help center
+        </Link>
+      </section>
 
       <section className="card mt-6">
         <h2 className="text-lg font-black text-navy">Sign out</h2>

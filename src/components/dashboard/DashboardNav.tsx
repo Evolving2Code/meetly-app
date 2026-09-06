@@ -7,7 +7,7 @@ export type NavItem = {
   href: string;
   label: string;
   shortLabel?: string;
-  icon: "overview" | "calendar" | "bookings" | "contacts" | "events" | "availability" | "settings";
+  icon: "overview" | "calendar" | "bookings" | "contacts" | "events" | "availability" | "settings" | "help";
 };
 
 const icons = {
@@ -58,6 +58,13 @@ const icons = {
       <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
     </svg>
   ),
+  help: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.5a2.5 2.5 0 1 1 4.2 1.8c-.9.8-1.2 1.2-1.2 2.2" />
+      <path d="M12 17h.01" />
+    </svg>
+  ),
 };
 
 export function DashboardNav({
@@ -83,14 +90,14 @@ export function DashboardNav({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`dashboard-bottom-link flex min-h-[56px] min-w-[4.75rem] flex-1 flex-col items-center justify-center gap-1 px-2 py-2 text-[10px] font-semibold transition ${
-                  active ? "dashboard-bottom-link-active" : ""
+                className={`dashboard-bottom-link flex min-h-[56px] min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-1 px-1.5 py-2 text-[11px] font-semibold transition ${
+                  active ? "dashboard-bottom-link-active" : "text-slate-400"
                 }`}
               >
                 <span className={`dashboard-nav-icon ${active ? "" : "text-slate-400"}`}>
                   {icons[item.icon]}
                 </span>
-                <span className="truncate">{item.shortLabel ?? item.label}</span>
+                <span className="max-w-full truncate">{item.label}</span>
               </Link>
             );
           })}

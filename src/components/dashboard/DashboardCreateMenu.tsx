@@ -9,9 +9,45 @@ type DashboardCreateMenuProps = {
 
 export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (!open) {
+      setMenuPosition(null);
+      return;
+    }
+
+    function updatePosition() {
+      const button = buttonRef.current;
+      if (!button) {
+        return;
+      }
+
+      const rect = button.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 8,
+        right: Math.max(16, window.innerWidth - rect.right),
+      });
+    }
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
     function handlePointerDown(event: MouseEvent) {
       if (!menuRef.current?.contains(event.target as Node)) {
         setOpen(false);
@@ -31,7 +67,7 @@ export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
       document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, []);
+  }, [open]);
 
   async function copyBookingLink() {
     if (!bookingLink) {
@@ -40,12 +76,15 @@ export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
 
     const url = `${window.location.origin}${bookingLink}`;
     await navigator.clipboard.writeText(url);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
     setOpen(false);
   }
 
   return (
     <div ref={menuRef} className="relative">
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((current) => !current)}
         className="btn-primary min-h-[44px] gap-2"
@@ -56,9 +95,10 @@ export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
         Create
       </button>
 
-      {open && (
+      {open && menuPosition ? (
         <div
-          className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-background shadow-xl"
+          className="fixed z-[100] w-64 overflow-hidden rounded-2xl border border-border bg-background shadow-xl"
+          style={{ top: menuPosition.top, right: menuPosition.right }}
           role="menu"
         >
           <div className="py-2">
@@ -74,7 +114,7 @@ export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
               <ClockIcon />
               Update availability
             </MenuLink>
-            {bookingLink && (
+            {bookingLink ? (
               <button
                 type="button"
                 onClick={copyBookingLink}
@@ -82,12 +122,12 @@ export function DashboardCreateMenu({ bookingLink }: DashboardCreateMenuProps) {
                 role="menuitem"
               >
                 <LinkIcon />
-                Copy booking link
+                {copied ? "Copied!" : "Copy booking link"}
               </button>
-            )}
+            ) : null}
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
