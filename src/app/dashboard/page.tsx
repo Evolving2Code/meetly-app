@@ -96,7 +96,7 @@ export default async function DashboardPage() {
           </p>
           <h1 className="mt-1 text-3xl font-black text-navy sm:mt-2 sm:text-4xl">Dashboard</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 overflow-visible">
           <DashboardCreateMenu bookingLink={bookingLink} />
           {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
         </div>

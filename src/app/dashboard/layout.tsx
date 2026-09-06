@@ -15,14 +15,15 @@ const sidebarNavItems: NavItem[] = [
   { href: "/dashboard/event-types", label: "Event Types", shortLabel: "Events", icon: "events" },
   { href: "/dashboard/availability", label: "Availability", shortLabel: "Hours", icon: "availability" },
   { href: "/dashboard/settings", label: "Settings", shortLabel: "Settings", icon: "settings" },
+  { href: "/help", label: "Help", shortLabel: "Help", icon: "help" },
 ];
 
 const bottomNavItems: NavItem[] = [
-  { href: "/dashboard", label: "Overview", shortLabel: "Home", icon: "overview" },
-  { href: "/dashboard/calendar", label: "Calendar", shortLabel: "Calendar", icon: "calendar" },
-  { href: "/dashboard/bookings", label: "Bookings", shortLabel: "Bookings", icon: "bookings" },
-  { href: "/dashboard/contacts", label: "Contacts", shortLabel: "Contacts", icon: "contacts" },
-  { href: "/dashboard/settings", label: "Settings", shortLabel: "Settings", icon: "settings" },
+  { href: "/dashboard", label: "Overview", icon: "overview" },
+  { href: "/dashboard/calendar", label: "Calendar", icon: "calendar" },
+  { href: "/dashboard/bookings", label: "Bookings", icon: "bookings" },
+  { href: "/dashboard/contacts", label: "Contacts", icon: "contacts" },
+  { href: "/dashboard/settings", label: "Settings", icon: "settings" },
 ];
 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
