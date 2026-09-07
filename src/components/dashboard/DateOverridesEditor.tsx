@@ -121,7 +121,7 @@ export function DateOverridesEditor({
                   className={
                     override.available && override.startTime
                       ? "badge-lime"
-                      : "badge bg-slate-200 text-slate-600"
+                      : "badge badge-muted"
                   }
                 >
                   {override.available && override.startTime ? "Custom hours" : "Blocked"}

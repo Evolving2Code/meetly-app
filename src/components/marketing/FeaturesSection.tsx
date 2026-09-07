@@ -39,11 +39,11 @@ const features: Array<{
 
 const iconThemes = [
   "bg-primary-light text-primary",
-  "bg-[#ecfccb] text-lime-dark dark:bg-accent/10 dark:text-accent",
-  "bg-[#ffedd5] text-accent-warm",
-  "bg-[#e0f2fe] text-primary dark:bg-primary-light dark:text-primary",
-  "bg-[#ecfdf5] text-accent dark:bg-accent/10 dark:text-accent",
-  "bg-surface-muted text-navy dark:text-foreground",
+  "bg-lime/15 text-lime-dark dark:bg-accent/10 dark:text-accent",
+  "bg-accent-warm/15 text-accent-warm",
+  "bg-primary-light text-primary",
+  "bg-accent/10 text-accent",
+  "bg-surface-muted text-foreground",
 ] as const;
 
 export function FeaturesSection() {
@@ -62,14 +62,14 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <article
               key={feature.title}
-              className="group rounded-3xl border border-border bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg"
+              className="group rounded-3xl border border-border bg-surface p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg dark:bg-surface"
             >
               <div
                 className={`flex h-12 w-12 items-center justify-center rounded-2xl transition duration-300 group-hover:scale-105 ${iconThemes[index % iconThemes.length]}`}
               >
                 <FeatureIcon name={feature.icon} size={22} />
               </div>
-              <h3 className="mt-5 text-lg font-bold text-navy">{feature.title}</h3>
+              <h3 className="mt-5 text-lg font-bold text-foreground">{feature.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{feature.description}</p>
             </article>
           ))}

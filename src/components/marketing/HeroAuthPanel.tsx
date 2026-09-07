@@ -19,9 +19,9 @@ export function HeroAuthPanel({ isLoggedIn }: { isLoggedIn: boolean }) {
 
   if (isLoggedIn) {
     return (
-      <div className="rounded-3xl border border-border bg-white p-6 shadow-xl shadow-primary/5 sm:p-8">
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl shadow-primary/5 sm:p-8">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Welcome back</p>
-        <h2 className="mt-2 text-2xl font-bold text-navy">Your dashboard is ready</h2>
+        <h2 className="mt-2 text-2xl font-bold text-foreground">Your dashboard is ready</h2>
         <p className="mt-2 text-sm text-muted">Manage availability, share your link, and view bookings.</p>
         <Link href="/dashboard" className="btn-primary mt-6 w-full px-8 py-3.5 text-base">
           Open dashboard
@@ -31,8 +31,8 @@ export function HeroAuthPanel({ isLoggedIn }: { isLoggedIn: boolean }) {
   }
 
   return (
-    <div className="rounded-3xl border border-border bg-white p-6 shadow-xl shadow-primary/5 sm:p-8">
-      <p className="text-center text-sm font-semibold text-navy">Get started for free</p>
+    <div className="rounded-3xl border border-border bg-surface p-6 shadow-xl shadow-primary/5 sm:p-8">
+      <p className="text-center text-sm font-semibold text-foreground">Get started for free</p>
       <div className="mt-5 space-y-3">
         <button type="button" className="btn-oauth" onClick={() => signInWithProvider("google")}>
           <GoogleIcon />

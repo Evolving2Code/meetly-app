@@ -101,7 +101,7 @@ export function BookingDateCalendar({
                 isSelected
                   ? "border-lime bg-lime text-navy"
                   : isAvailable
-                    ? "border-border bg-white text-navy hover:border-lime hover:bg-lime/10"
+                    ? "border-border bg-background text-foreground hover:border-lime hover:bg-lime/10"
                     : "cursor-not-allowed border-transparent bg-surface text-muted/50"
               } ${inMonth ? "" : "opacity-40"} ${isToday && !isSelected ? "ring-2 ring-primary/30" : ""}`}
             >

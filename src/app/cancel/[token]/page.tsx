@@ -29,7 +29,7 @@ export default async function CancelBookingPage({
   const eventType = booking.event_types as { title: string } | null;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 py-4 sm:px-6">
         <Link href="/">
           <MeetlyLogo />

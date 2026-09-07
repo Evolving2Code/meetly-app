@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
 import { CalendarActionButtons } from "@/components/booking/CalendarActionButtons";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Alert } from "@/components/ui/Alert";
 import { BookingFlowMainSkeleton } from "@/components/ui/Skeleton";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import { findSlotByDateAndTime } from "@/lib/scheduling/booking-params";
@@ -291,7 +292,7 @@ export function BookingFlow({
         </p>
       </aside>
 
-      <main className="flex-1 bg-white p-4 sm:p-6 lg:p-10">
+      <main className="flex-1 bg-background p-4 sm:p-6 lg:p-10">
         <div className="mx-auto max-w-3xl">
           <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
@@ -319,9 +320,9 @@ export function BookingFlow({
           </div>
 
           {error && (
-            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <Alert variant="error" className="mb-6">
               {error}
-            </div>
+            </Alert>
           )}
 
           {loading ? (

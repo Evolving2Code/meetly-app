@@ -3,19 +3,19 @@ import { DashboardScreenshot } from "@/components/marketing/ProductScreenshots";
 
 export function ShowcaseSection() {
   return (
-    <section className="bg-navy py-20 text-white sm:py-28">
+    <section className="marketing-brand-section py-20 sm:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div className="relative">
           <DashboardScreenshot />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-3xl bg-gradient-to-t from-navy/90 via-navy/20 to-transparent p-6 sm:p-8">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-3xl bg-gradient-to-t from-black/60 via-black/20 to-transparent p-6 sm:p-8">
             <p className="text-sm font-semibold text-white/70">Host dashboard</p>
-            <p className="mt-2 text-2xl font-bold">Manage bookings from any device</p>
+            <p className="mt-2 text-2xl font-bold text-white">Manage bookings from any device</p>
           </div>
         </div>
 
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">Built for hosts</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
             A dashboard that feels as polished as your booking page
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-slate-300">
@@ -35,7 +35,7 @@ export function ShowcaseSection() {
               </li>
             ))}
           </ul>
-          <Link href="/signup" className="btn-primary mt-10 inline-flex bg-white px-8 text-navy hover:bg-slate-100">
+          <Link href="/signup" className="btn-inverse mt-10 inline-flex">
             Start for free
           </Link>
         </div>

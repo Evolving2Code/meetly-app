@@ -44,16 +44,16 @@ export function HowItWorksSection() {
           {steps.map((item) => (
             <article
               key={item.step}
-              className="group overflow-hidden rounded-3xl border border-border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              className="group overflow-hidden rounded-3xl border border-border bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="relative p-4 pb-0">
-                <div className="absolute left-7 top-7 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-primary backdrop-blur">
+                <div className="absolute left-7 top-7 z-10 rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold text-primary">
                   Step {item.step}
                 </div>
                 <div className="transition duration-500 group-hover:scale-[1.02]">{item.preview}</div>
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-bold text-navy">{item.title}</h3>
+                <h3 className="text-xl font-bold text-foreground">{item.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{item.description}</p>
               </div>
             </article>

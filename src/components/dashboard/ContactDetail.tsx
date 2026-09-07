@@ -285,7 +285,7 @@ function BookingRow({ booking }: { booking: ContactBooking }) {
           )}
         </div>
         <span
-          className={`badge ${isCancelled ? "bg-red-50 text-red-700" : "badge-lime"}`}
+          className={`badge ${isCancelled ? "badge-danger" : "badge-lime"}`}
         >
           {isCancelled ? "Cancelled" : "Confirmed"}
         </span>

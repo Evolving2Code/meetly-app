@@ -15,7 +15,7 @@ export function AppInstallSection() {
               Install Meetly on your phone for one-tap access to your dashboard, booking links,
               and availability — no App Store download required.
             </p>
-            <ul className="mt-8 space-y-3 text-sm text-navy">
+            <ul className="mt-8 space-y-3 text-sm text-foreground">
               <li className="flex gap-3">
                 <span className="text-primary">✓</span>
                 Android & desktop Chrome: tap <strong>Install app</strong> when prompted
@@ -31,27 +31,27 @@ export function AppInstallSection() {
             </ul>
           </div>
 
-          <div className="rounded-3xl border border-primary/15 bg-gradient-to-br from-primary-light to-white p-6 shadow-sm sm:p-8">
+          <div className="rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
             <div className="flex items-center gap-4">
               <MeetlyIcon className="h-14 w-14 shadow-md" />
               <div>
-                <p className="text-lg font-bold text-navy">Meetly for mobile</p>
+                <p className="text-lg font-bold text-foreground">Meetly for mobile</p>
                 <p className="text-sm text-muted">Free · No app store · Install from your browser</p>
               </div>
             </div>
             <div className="mt-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background shadow-sm">
                 <PwaIcon size={22} />
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background shadow-sm">
                 <GoogleIcon size={20} />
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background shadow-sm">
                 <MicrosoftIcon size={20} />
               </div>
               <span className="text-sm text-muted">Install on any device</span>
             </div>
-            <div className="mt-6 space-y-4 rounded-2xl border border-border bg-white p-5">
+            <div className="mt-6 space-y-4 rounded-2xl border border-border bg-background p-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                   Android / Chrome

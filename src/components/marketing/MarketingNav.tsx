@@ -65,7 +65,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted transition hover:text-navy"
+              className="text-sm font-medium text-muted transition hover:text-foreground"
             >
               {link.label}
             </a>
@@ -75,7 +75,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-navy transition hover:bg-surface md:hidden"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-foreground transition hover:bg-surface md:hidden"
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMenuOpen((current) => !current)}
@@ -83,7 +83,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             {menuOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
 
-          <ThemeToggle className="hidden sm:inline-flex" />
+          <ThemeToggle />
 
           {isLoggedIn ? (
             <Link href="/dashboard" className="btn-primary px-5">
@@ -93,7 +93,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             <>
               <Link
                 href="/login"
-                className="hidden min-h-[44px] items-center rounded-full px-4 text-sm font-semibold text-navy transition hover:bg-surface sm:inline-flex"
+                className="hidden min-h-[44px] items-center rounded-full px-4 text-sm font-semibold text-foreground transition hover:bg-surface sm:inline-flex"
               >
                 Log in
               </Link>
@@ -112,7 +112,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
               <a
                 key={link.href}
                 href={link.href}
-                className="flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-navy transition hover:bg-surface"
+                className="flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-foreground transition hover:bg-surface"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
@@ -121,7 +121,7 @@ export function MarketingNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             {!isLoggedIn && (
               <Link
                 href="/login"
-                className="flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-navy transition hover:bg-surface"
+                className="flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-foreground transition hover:bg-surface"
                 onClick={() => setMenuOpen(false)}
               >
                 Log in

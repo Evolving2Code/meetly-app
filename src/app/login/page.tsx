@@ -6,6 +6,7 @@ import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { AuthDivider } from "@/components/auth/AuthDivider";
 import { MicrosoftSignInButton } from "@/components/auth/MicrosoftSignInButton";
+import { Alert } from "@/components/ui/Alert";
 
 export default async function LoginPage({
   searchParams,
@@ -34,15 +35,15 @@ export default async function LoginPage({
       }
     >
       {message === "password-updated" && (
-        <div className="mb-4 rounded-xl border border-lime/30 bg-lime/10 px-4 py-3 text-sm text-lime-dark">
+        <Alert variant="success" className="mb-4">
           Password updated. Sign in with your new password.
-        </div>
+        </Alert>
       )}
 
       {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <Alert variant="error" className="mb-4">
           Sign in failed. Please try again.
-        </div>
+        </Alert>
       )}
 
       <EmailAuthForm mode="login" />

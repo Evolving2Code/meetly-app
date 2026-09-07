@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
 import { getHostThemeStyle } from "@/lib/branding/colors";
+import { Alert } from "@/components/ui/Alert";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import {
   detectBrowserTimezone,
@@ -115,7 +116,7 @@ export function RescheduleFlow({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 py-4 sm:px-6">
         <Link href="/" className="inline-flex items-center gap-2">
           <MeetlyIcon className="h-9 w-9" />
@@ -154,9 +155,9 @@ export function RescheduleFlow({
         </div>
 
         {error && (
-          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <Alert variant="error" className="mt-6">
             {error}
-          </div>
+          </Alert>
         )}
 
         {loading ? (

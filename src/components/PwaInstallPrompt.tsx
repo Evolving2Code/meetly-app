@@ -84,8 +84,8 @@ export function PwaInstallPrompt({ variant = "banner" }: { variant?: "banner" | 
 
   const wrapperClass =
     variant === "card"
-      ? "rounded-3xl border border-primary/15 bg-gradient-to-br from-primary-light to-white p-5 shadow-sm sm:p-6"
-      : "border-b border-primary/10 bg-gradient-to-r from-primary-light via-white to-accent-soft";
+      ? "rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+      : "border-b border-border bg-surface";
 
   const innerClass =
     variant === "card"
@@ -98,7 +98,7 @@ export function PwaInstallPrompt({ variant = "banner" }: { variant?: "banner" | 
         <div className="flex items-start gap-3">
           <MeetlyIcon className="h-11 w-11 shadow-sm" />
           <div>
-            <p className="font-semibold text-navy">
+            <p className="font-semibold text-foreground">
               {mode === "ios" ? "Add Meetly to your Home Screen" : "Install the Meetly app"}
             </p>
             <p className="mt-1 text-sm text-muted">
@@ -123,11 +123,7 @@ export function PwaInstallPrompt({ variant = "banner" }: { variant?: "banner" | 
           {mode === "ios" && (
             <span className="badge-primary">Share → Add to Home Screen</span>
           )}
-          <button
-            type="button"
-            className="btn-secondary px-5"
-            onClick={handleDismiss}
-          >
+          <button type="button" className="btn-secondary px-5" onClick={handleDismiss}>
             Not now
           </button>
         </div>

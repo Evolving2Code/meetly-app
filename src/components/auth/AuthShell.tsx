@@ -23,7 +23,7 @@ export function AuthShell({
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
             Meetly for solo hosts
           </p>
-          <h1 className="mt-4 text-4xl font-bold leading-tight text-navy">
+          <h1 className="mt-4 text-4xl font-bold leading-tight text-foreground">
             Your calendar,
             <br />
             your brand.
@@ -36,9 +36,9 @@ export function AuthShell({
         <p className="text-sm text-muted">© {new Date().getFullYear()} Meetly</p>
       </div>
 
-      <div className="order-1 flex items-center justify-center bg-white p-6 py-10 sm:p-10 lg:order-2">
+      <div className="order-1 flex items-center justify-center bg-background p-6 py-10 sm:p-10 lg:order-2">
         <div className="w-full max-w-md">
-          <h2 className="text-2xl font-bold text-navy sm:text-3xl">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground sm:text-3xl">{title}</h2>
           <p className="mt-2 text-muted">{subtitle}</p>
           <div className="mt-8">{children}</div>
           <div className="mt-6 text-center text-sm text-muted">{footer}</div>

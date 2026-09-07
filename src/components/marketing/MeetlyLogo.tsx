@@ -13,7 +13,7 @@ export function MeetlyLogo({
     <div className={`flex items-center gap-2.5 ${className}`}>
       <MeetlyIcon className={iconClassName ?? "h-9 w-9 shadow-sm"} />
       <span
-        className={`text-[1.40625rem] font-bold tracking-tight ${light ? "text-white" : "text-navy"}`}
+        className={`text-[1.40625rem] font-bold tracking-tight ${light ? "text-white" : "text-foreground"}`}
       >
         Meetly
       </span>

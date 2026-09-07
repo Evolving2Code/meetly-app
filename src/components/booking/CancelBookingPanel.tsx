@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
+import { Alert } from "@/components/ui/Alert";
 
 export function CancelBookingPanel({
   eventTitle,
@@ -82,9 +83,9 @@ export function CancelBookingPanel({
             </div>
 
             {error && (
-              <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <Alert variant="error" className="mt-4">
                 {error}
-              </p>
+              </Alert>
             )}
 
             <button

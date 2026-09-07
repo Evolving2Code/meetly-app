@@ -9,17 +9,17 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           <p className="inline-flex items-center rounded-full border border-primary/15 bg-primary-light px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             Scheduling made simple
           </p>
-          <h1 className="mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-navy sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             Share your link.
             <span className="block bg-gradient-to-r from-primary via-accent to-accent-warm bg-clip-text text-transparent">
               Fill your calendar.
             </span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+          <p className="section-subheading mt-6 max-w-xl text-lg leading-relaxed">
             Meetly helps solo hosts share a booking page, set availability, and let guests
             pick a time. Connect Google Calendar anytime — no pressure at signup.
           </p>
-          <ul className="mt-8 space-y-3 text-sm text-navy sm:text-base">
+          <ul className="mt-8 space-y-3 text-sm text-foreground sm:text-base">
             {[
               "Free for solo hosts — no credit card",
               "Email, Google, or Microsoft sign-in",
@@ -36,8 +36,8 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         </div>
 
         <div className="relative">
-          <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
-          <div className="absolute -bottom-8 -left-8 h-40 w-40 rounded-full bg-accent-warm/10 blur-3xl" />
+          <div className="absolute -right-8 -top-8 hidden h-40 w-40 rounded-full bg-accent/10 blur-3xl dark:hidden" />
+          <div className="absolute -bottom-8 -left-8 hidden h-40 w-40 rounded-full bg-accent-warm/10 blur-3xl dark:hidden" />
           <div className="relative space-y-5">
             <HeroAuthPanel isLoggedIn={isLoggedIn} />
             <HeroBookingScreenshot />

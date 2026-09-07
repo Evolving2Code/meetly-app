@@ -36,7 +36,7 @@ export function HelpPageShell({
 
       <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Help</p>
-        <h1 className="mt-3 text-4xl font-bold text-navy">Meetly host guide</h1>
+        <h1 className="mt-3 text-4xl font-bold text-foreground">Meetly host guide</h1>
         <p className="mt-4 text-muted">Last updated: {HELP_LAST_UPDATED}</p>
         <div className="legal-prose mt-8 space-y-6 text-muted">{children}</div>
         <Link
