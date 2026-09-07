@@ -27,6 +27,7 @@ export default async function CancelBookingPage({
     .single();
 
   const eventType = booking.event_types as { title: string } | null;
+  const isPast = new Date(booking.start_time) < new Date();
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,6 +43,7 @@ export default async function CancelBookingPage({
         startTime={booking.start_time}
         timezone={booking.timezone}
         cancelToken={token}
+        isPast={isPast}
       />
     </div>
   );

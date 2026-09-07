@@ -11,12 +11,18 @@ const defaultSlots: Array<Pick<AvailabilitySlot, "day_of_week" | "start_time" | 
     end_time: "17:00",
   }));
 
+type SlotRow = {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+};
+
 export function AvailabilityEditor({
   initialSlots,
 }: {
   initialSlots: AvailabilitySlot[];
 }) {
-  const [slots, setSlots] = useState(
+  const [slots, setSlots] = useState<SlotRow[]>(
     initialSlots.length > 0
       ? initialSlots.map(({ day_of_week, start_time, end_time }) => ({
           dayOfWeek: day_of_week,
@@ -38,6 +44,15 @@ export function AvailabilityEditor({
     );
   }, [slots]);
 
+  function findSlotIndex(slot: SlotRow) {
+    return slots.findIndex(
+      (item) =>
+        item.dayOfWeek === slot.dayOfWeek &&
+        item.startTime === slot.startTime &&
+        item.endTime === slot.endTime,
+    );
+  }
+
   function updateSlot(index: number, field: "startTime" | "endTime", value: string) {
     setSlots((current) =>
       current.map((slot, slotIndex) =>
@@ -56,7 +71,25 @@ export function AvailabilityEditor({
       return [
         ...current,
         { dayOfWeek, startTime: "09:00", endTime: "17:00" },
-      ].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+      ].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime));
+    });
+  }
+
+  function addHoursToDay(dayOfWeek: number) {
+    setSlots((current) => [
+      ...current,
+      { dayOfWeek, startTime: "13:00", endTime: "17:00" },
+    ].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime)));
+  }
+
+  function removeSlot(index: number) {
+    setSlots((current) => {
+      const target = current[index];
+      const dayCount = current.filter((slot) => slot.dayOfWeek === target.dayOfWeek).length;
+      if (dayCount <= 1) {
+        return current.filter((slot) => slot.dayOfWeek !== target.dayOfWeek);
+      }
+      return current.filter((_, slotIndex) => slotIndex !== index);
     });
   }
 
@@ -111,36 +144,47 @@ export function AvailabilityEditor({
               </button>
 
               {enabled ? (
-                daySlots.map((slot) => {
-                  const index = slots.findIndex(
-                    (item) =>
-                      item.dayOfWeek === slot.dayOfWeek &&
-                      item.startTime === slot.startTime &&
-                      item.endTime === slot.endTime,
-                  );
+                <div className="space-y-3">
+                  {daySlots.map((slot) => {
+                    const index = findSlotIndex(slot);
 
-                  return (
-                    <div key={`${dayName}-${slot.startTime}`} className="flex flex-wrap items-center gap-3">
-                      <input
-                        type="time"
-                        className="input w-auto"
-                        value={slot.startTime}
-                        onChange={(event) =>
-                          updateSlot(index, "startTime", event.target.value)
-                        }
-                      />
-                      <span className="text-sm text-muted">to</span>
-                      <input
-                        type="time"
-                        className="input w-auto"
-                        value={slot.endTime}
-                        onChange={(event) =>
-                          updateSlot(index, "endTime", event.target.value)
-                        }
-                      />
-                    </div>
-                  );
-                })
+                    return (
+                      <div key={`${dayName}-${slot.startTime}-${slot.endTime}`} className="flex flex-wrap items-center gap-3">
+                        <input
+                          type="time"
+                          className="input w-auto"
+                          value={slot.startTime}
+                          onChange={(event) =>
+                            updateSlot(index, "startTime", event.target.value)
+                          }
+                        />
+                        <span className="text-sm text-muted">to</span>
+                        <input
+                          type="time"
+                          className="input w-auto"
+                          value={slot.endTime}
+                          onChange={(event) =>
+                            updateSlot(index, "endTime", event.target.value)
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="text-sm font-semibold text-primary hover:underline"
+                          onClick={() => removeSlot(index)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    className="text-sm font-semibold text-primary hover:underline"
+                    onClick={() => addHoursToDay(dayOfWeek)}
+                  >
+                    Add hours
+                  </button>
+                </div>
               ) : (
                 <p className="self-center text-sm text-muted">Unavailable</p>
               )}

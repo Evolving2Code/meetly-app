@@ -72,6 +72,7 @@ export default async function DashboardPage() {
     profile?.username && eventTypes?.[0]
       ? `/book/${profile.username}/${eventTypes[0].slug}`
       : null;
+  const hostBookingPage = profile?.username ? `/book/${profile.username}` : null;
 
   const availabilityHeatmap = await buildHeatmap(supabase, user.id);
   const hasAvailability = (availabilitySlots ?? []).some((slot) => slot.start_time !== slot.end_time);
@@ -99,6 +100,9 @@ export default async function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3 overflow-visible">
           <DashboardCreateMenu bookingLink={bookingLink} />
           {bookingLink && <CopyLinkButton path={bookingLink} label="Copy booking link" />}
+          {hostBookingPage && (
+            <CopyLinkButton path={hostBookingPage} label="Copy host page" />
+          )}
         </div>
       </div>
 
@@ -115,13 +119,14 @@ export default async function DashboardPage() {
       />
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Meetings this week" value={String(weekBookings ?? 0)} accent />
-        <StatCard label="Active event types" value={String(eventTypes?.length ?? 0)} />
+        <StatCard href="/dashboard/bookings" label="Meetings this week" value={String(weekBookings ?? 0)} accent />
+        <StatCard href="/dashboard/event-types" label="Active event types" value={String(eventTypes?.length ?? 0)} />
         <StatCard
+          href="/dashboard/settings"
           label="Google Calendar"
           value={calendarConnected ? "Connected" : "Not connected"}
         />
-        <StatCard label="Timezone" value={profile?.timezone ?? "America/New_York"} small />
+        <StatCard href="/dashboard/settings" label="Timezone" value={profile?.timezone ?? "America/New_York"} small />
       </div>
 
       <div className="mt-8">
@@ -159,8 +164,9 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {upcomingBookings.map((booking) => (
-                <div
+                <Link
                   key={booking.id}
+                  href={`/dashboard/bookings/${booking.id}`}
                   className="card-interactive flex flex-wrap items-center justify-between gap-3"
                 >
                   <div>
@@ -176,13 +182,13 @@ export default async function DashboardPage() {
                       {format(new Date(booking.end_time), "h:mm a")}
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
         </section>
 
-        <section className="card">
+        <Link href="/dashboard/availability" className="card block transition hover:border-primary/20">
           <h2 className="text-xl font-black">Availability heatmap</h2>
           <p className="mt-2 text-sm text-muted">Your weekly open hours at a glance.</p>
           <div className="mt-6 grid grid-cols-7 gap-2">
@@ -203,7 +209,7 @@ export default async function DashboardPage() {
               </div>
             ))}
           </div>
-        </section>
+        </Link>
       </div>
 
       <section className="card mt-8">
@@ -226,21 +232,32 @@ export default async function DashboardPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {eventTypes.map((eventType) => (
-              <div
-                key={eventType.id}
-                className="card-interactive bg-surface p-5"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-lg font-bold text-navy">{eventType.title}</p>
-                    <p className="mt-1 text-sm text-muted">{eventType.duration} minutes</p>
+              <div key={eventType.id} className="grid gap-2">
+                <Link
+                  href={`/dashboard/event-types?id=${eventType.id}`}
+                  className="card-interactive bg-surface p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-lg font-bold text-navy">{eventType.title}</p>
+                      <p className="mt-1 text-sm text-muted">{eventType.duration} minutes</p>
+                    </div>
+                    <span className="badge-navy">{eventType.slug}</span>
                   </div>
-                  <span className="badge-navy">{eventType.slug}</span>
-                </div>
+                </Link>
                 {profile?.username && (
-                  <p className="mt-4 truncate text-sm text-muted">
-                    /book/{profile.username}/{eventType.slug}
-                  </p>
+                  <div className="flex flex-wrap gap-2 px-1">
+                    <Link
+                      href={`/book/${profile.username}/${eventType.slug}`}
+                      target="_blank"
+                      className="text-sm font-semibold text-primary hover:underline"
+                    >
+                      Preview page
+                    </Link>
+                    <span className="text-sm text-muted">
+                      /book/{profile.username}/{eventType.slug}
+                    </span>
+                  </div>
                 )}
               </div>
             ))}
@@ -252,18 +269,20 @@ export default async function DashboardPage() {
 }
 
 function StatCard({
+  href,
   label,
   value,
   accent = false,
   small = false,
 }: {
+  href: string;
   label: string;
   value: string;
   accent?: boolean;
   small?: boolean;
 }) {
   return (
-    <div className="card card-interactive">
+    <Link href={href} className="card card-interactive block">
       <p className="text-sm font-medium text-muted">{label}</p>
       <p
         className={`mt-3 font-black text-navy ${small ? "text-lg" : "text-4xl"} ${
@@ -272,7 +291,7 @@ function StatCard({
       >
         {value}
       </p>
-    </div>
+    </Link>
   );
 }
 

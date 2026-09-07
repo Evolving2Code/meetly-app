@@ -2,7 +2,7 @@ import { BrandIcon, type BrandIconName } from "@/components/icons/BrandIcons";
 
 const integrations: Array<{ name: string; icon: BrandIconName }> = [
   { name: "Google Calendar", icon: "google-calendar" },
-  { name: "Google Meet", icon: "google-meet" },
+  { name: "Google Meet (via Calendar)", icon: "google-meet" },
   { name: "Google Sign-In", icon: "google" },
   { name: "Microsoft Sign-In", icon: "microsoft" },
   { name: "Email auth", icon: "email" },

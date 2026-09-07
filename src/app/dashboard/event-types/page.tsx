@@ -2,9 +2,14 @@ import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { EventTypesManager } from "@/components/dashboard/EventTypesManager";
 
-export default async function EventTypesPage() {
+export default async function EventTypesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string }>;
+}) {
   const user = await requireUser();
   const supabase = await createClient();
+  const query = await searchParams;
 
   const [{ data: eventTypes }, { data: profile }] = await Promise.all([
     supabase
@@ -30,6 +35,7 @@ export default async function EventTypesPage() {
       <EventTypesManager
         initialEventTypes={eventTypes ?? []}
         username={profile?.username ?? null}
+        initialEditId={query.id ?? null}
       />
     </div>
   );

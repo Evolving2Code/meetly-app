@@ -42,7 +42,7 @@ export function OnboardingChecklist({
       {
         id: "event-type",
         label: "Create an event type",
-        description: "Add duration, buffers, and booking limits.",
+        description: "Add duration, buffers, and booking window.",
         href: "/dashboard/event-types",
         complete: hasEventType,
       },
@@ -55,9 +55,9 @@ export function OnboardingChecklist({
       },
       {
         id: "link",
-        label: "Share your booking link",
-        description: "Copy your link and send it to guests.",
-        href: "/dashboard/event-types",
+        label: "Review your booking link",
+        description: "Copy your link from the dashboard and share it.",
+        href: "/dashboard",
         complete: hasBookingLink,
       },
       {

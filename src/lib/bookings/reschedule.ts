@@ -1,10 +1,16 @@
 import { addMinutes } from "date-fns";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { buildBookingEmailContext } from "@/lib/bookings/email-context";
+import {
+  sendGuestRescheduleEmail,
+  sendHostRescheduleEmail,
+} from "@/lib/email/booking-emails";
 import {
   createGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
   updateGoogleCalendarEvent,
 } from "@/lib/google-calendar";
+import { getNotificationPreferences } from "@/lib/notifications/preferences";
 import { isSlotAvailable } from "@/lib/scheduling/slots";
 import type { Booking, EventType } from "@/lib/supabase/types";
 
@@ -15,6 +21,28 @@ export async function rescheduleBookingByToken(token: string, startTime: Date, t
     .from("bookings")
     .select("*, event_types(*)")
     .eq("cancel_token", token)
+    .single();
+
+  if (error || !booking) {
+    return { success: false as const, error: "Booking not found", status: 404 };
+  }
+
+  return rescheduleBookingRecord(booking as Booking & { event_types: EventType }, startTime, timezone);
+}
+
+export async function rescheduleBookingById(
+  bookingId: string,
+  hostId: string,
+  startTime: Date,
+  timezone: string,
+) {
+  const admin = createAdminClient();
+
+  const { data: booking, error } = await admin
+    .from("bookings")
+    .select("*, event_types(*)")
+    .eq("id", bookingId)
+    .eq("host_id", hostId)
     .single();
 
   if (error || !booking) {
@@ -142,6 +170,19 @@ async function rescheduleBookingRecord(
     }
 
     return { success: false as const, error: updateError.message, status: 500 };
+  }
+
+  const emailContext = await buildBookingEmailContext(
+    updatedBooking as Booking & { event_types: EventType | null },
+  );
+  if (emailContext) {
+    const preferences = await getNotificationPreferences(admin, booking.host_id);
+    if (preferences.email_on_new_booking) {
+      await sendHostRescheduleEmail(emailContext);
+    }
+    if (preferences.email_guest_confirmation) {
+      await sendGuestRescheduleEmail(emailContext);
+    }
   }
 
   return { success: true as const, booking: updatedBooking };

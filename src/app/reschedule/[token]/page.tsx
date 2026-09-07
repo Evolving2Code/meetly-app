@@ -35,6 +35,8 @@ export default async function RescheduleBookingPage({
     notFound();
   }
 
+  const isPast = new Date(booking.start_time) < new Date();
+
   return (
     <RescheduleFlow
       cancelToken={token}
@@ -51,7 +53,9 @@ export default async function RescheduleBookingPage({
         location: eventType.location,
       }}
       currentStartTime={booking.start_time}
+      currentEndTime={booking.end_time}
       guestTimezone={booking.timezone}
+      isPast={isPast}
     />
   );
 }

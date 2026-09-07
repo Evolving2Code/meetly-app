@@ -14,15 +14,31 @@ import type { EventType } from "@/lib/supabase/types";
 export function EventTypesManager({
   initialEventTypes,
   username,
+  initialEditId,
 }: {
   initialEventTypes: EventType[];
   username: string | null;
+  initialEditId?: string | null;
 }) {
   const [eventTypes, setEventTypes] = useState(initialEventTypes);
   const [createForm, setCreateForm] = useState(emptyEventTypeForm);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState(emptyEventTypeForm);
-  const [originalSlug, setOriginalSlug] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(() => {
+    if (!initialEditId) {
+      return null;
+    }
+
+    return initialEventTypes.some((eventType) => eventType.id === initialEditId)
+      ? initialEditId
+      : null;
+  });
+  const [editForm, setEditForm] = useState(() => {
+    const eventType = initialEventTypes.find((item) => item.id === initialEditId);
+    return eventType ? eventTypeToFormValues(eventType) : emptyEventTypeForm;
+  });
+  const [originalSlug, setOriginalSlug] = useState<string | null>(() => {
+    const eventType = initialEventTypes.find((item) => item.id === initialEditId);
+    return eventType?.slug ?? null;
+  });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -154,6 +170,7 @@ export function EventTypesManager({
           {eventTypes.map((eventType) => (
             <div
               key={eventType.id}
+              id={`event-type-${eventType.id}`}
               className="rounded-2xl border border-border bg-surface p-5"
             >
               {editingId === eventType.id ? (
