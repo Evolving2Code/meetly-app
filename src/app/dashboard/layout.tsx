@@ -57,7 +57,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
           <Link href="/dashboard" className="mb-10 flex items-center gap-3">
             <MeetlyIcon className="h-10 w-10" />
             <div>
-              <p className="text-lg font-bold">Meetly</p>
+              <p className="text-[1.40625rem] font-bold">Meetly</p>
               <p className="text-xs text-slate-400">Host dashboard</p>
             </div>
           </Link>
@@ -84,7 +84,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background px-4 py-3 lg:hidden">
           <Link href="/dashboard" className="flex items-center gap-2">
             <MeetlyIcon className="h-9 w-9" />
-            <span className="text-base font-bold text-navy">Meetly</span>
+            <span className="text-xl font-bold text-navy">Meetly</span>
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
