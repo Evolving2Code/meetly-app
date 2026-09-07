@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MeetlyIcon } from "@/components/marketing/MeetlyIcon";
 import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
-import { getHostThemeStyle } from "@/lib/branding/colors";
+import { CalendarActionButtons } from "@/components/booking/CalendarActionButtons";
 import { Alert } from "@/components/ui/Alert";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import {
@@ -28,7 +28,9 @@ type RescheduleFlowProps = {
     location: string | null;
   };
   currentStartTime: string;
+  currentEndTime: string;
   guestTimezone: string;
+  isPast?: boolean;
 };
 
 export function RescheduleFlow({
@@ -36,7 +38,9 @@ export function RescheduleFlow({
   host,
   eventType,
   currentStartTime,
+  currentEndTime,
   guestTimezone,
+  isPast = false,
 }: RescheduleFlowProps) {
   const [timezone, setTimezone] = useState(guestTimezone || detectBrowserTimezone());
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
@@ -44,12 +48,18 @@ export function RescheduleFlow({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
   const [step, setStep] = useState<"date" | "time" | "confirmed">("date");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isPast);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [calendarSyncWarning, setCalendarSyncWarning] = useState(false);
   const [confirmedStartTime, setConfirmedStartTime] = useState<string | null>(null);
+  const [confirmedEndTime, setConfirmedEndTime] = useState<string | null>(null);
 
   const loadSlots = useCallback(async () => {
+    if (isPast) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -66,7 +76,8 @@ export function RescheduleFlow({
 
     const data = await response.json();
     setSlotsByDate(data.slots ?? {});
-  }, [host.username, eventType.slug, timezone]);
+    setCalendarSyncWarning(Boolean(data.calendarSyncWarning));
+  }, [host.username, eventType.slug, timezone, isPast]);
 
   useEffect(() => {
     loadSlots();
@@ -112,6 +123,7 @@ export function RescheduleFlow({
 
     const booking = await response.json();
     setConfirmedStartTime(booking.startTime ?? booking.start_time);
+    setConfirmedEndTime(booking.endTime ?? booking.end_time ?? selectedSlot.end);
     setStep("confirmed");
   }
 
@@ -137,22 +149,28 @@ export function RescheduleFlow({
           {formatSlotLabel(new Date(currentStartTime), timezone)}
         </p>
 
-        <div className="mt-6">
-          <label className="block max-w-sm">
-            <span className="label">Your timezone</span>
-            <select
-              className="input"
-              value={timezoneOptions.includes(timezone) ? timezone : timezoneOptions[0]}
-              onChange={(event) => setTimezone(event.target.value)}
-            >
-              {timezoneOptions.map((zone) => (
-                <option key={zone} value={zone}>
-                  {formatTimezoneLabel(zone)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        {isPast ? (
+          <Alert variant="info" className="mt-6">
+            This meeting has already passed and can no longer be rescheduled.
+          </Alert>
+        ) : (
+          <div className="mt-6">
+            <label className="block max-w-sm">
+              <span className="label">Your timezone</span>
+              <select
+                className="input"
+                value={timezoneOptions.includes(timezone) ? timezone : timezoneOptions[0]}
+                onChange={(event) => setTimezone(event.target.value)}
+              >
+                {timezoneOptions.map((zone) => (
+                  <option key={zone} value={zone}>
+                    {formatTimezoneLabel(zone)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
 
         {error && (
           <Alert variant="error" className="mt-6">
@@ -160,9 +178,22 @@ export function RescheduleFlow({
           </Alert>
         )}
 
-        {loading ? (
+        {calendarSyncWarning && !isPast && (
+          <Alert variant="info" className="mt-6">
+            Google Calendar could not be checked for conflicts. Some times shown may already be busy
+            on the host&apos;s calendar.
+          </Alert>
+        )}
+
+        {isPast ? (
+          <section className="card mt-6">
+            <Link href={`/cancel/${cancelToken}`} className="btn-secondary min-h-[44px]">
+              Back to manage booking
+            </Link>
+          </section>
+        ) : loading ? (
           <div className="card mt-6 text-center text-muted">Loading available times...</div>
-        ) : step === "confirmed" && confirmedStartTime ? (
+        ) : step === "confirmed" && confirmedStartTime && confirmedEndTime ? (
           <section className="card mt-6">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-lime-dark">
               Updated
@@ -171,13 +202,18 @@ export function RescheduleFlow({
               {formatDateLabel(new Date(confirmedStartTime), timezone)} at{" "}
               {formatSlotLabel(new Date(confirmedStartTime), timezone)}
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href={`/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`}
-                className="btn-secondary min-h-[44px]"
-              >
-                Add to calendar (.ics)
-              </a>
+            <div className="mt-6">
+              <p className="mb-3 text-sm font-semibold text-navy">Add to calendar</p>
+              <CalendarActionButtons
+                eventTitle={eventType.title}
+                hostName={host.name ?? host.username}
+                startTime={confirmedStartTime}
+                endTime={confirmedEndTime}
+                icsUrl={`/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`}
+                location={eventType.location}
+              />
+            </div>
+            <div className="mt-6">
               <Link href={`/cancel/${cancelToken}`} className="btn-secondary min-h-[44px]">
                 Manage booking
               </Link>

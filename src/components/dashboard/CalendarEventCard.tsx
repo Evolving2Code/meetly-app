@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { format } from "date-fns";
 import type { CalendarEvent } from "@/lib/calendar/merge-events";
 
@@ -35,6 +36,14 @@ export function CalendarEventCard({ event }: { event: CalendarEvent }) {
       <a href={event.htmlLink} target="_blank" rel="noreferrer" className="block">
         {content}
       </a>
+    );
+  }
+
+  if (event.source === "meetly" && event.bookingId) {
+    return (
+      <Link href={`/dashboard/bookings/${event.bookingId}`} className="block">
+        {content}
+      </Link>
     );
   }
 

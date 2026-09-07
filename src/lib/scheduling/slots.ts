@@ -94,7 +94,11 @@ export async function getAvailableSlots(params: {
         .gt("end_time", fromDate.toISOString()),
     ]);
 
-  const busyIntervals = await getBusyIntervals(hostId, fromDate, toDate);
+  const { intervals: busyIntervals, fetchFailed: calendarSyncWarning } = await getBusyIntervals(
+    hostId,
+    fromDate,
+    toDate,
+  );
 
   const slots: Array<{ start: Date; end: Date }> = [];
 
@@ -168,7 +172,7 @@ export async function getAvailableSlots(params: {
     }
   }
 
-  return slots;
+  return { slots, calendarSyncWarning };
 }
 
 export async function isSlotAvailable(params: {
@@ -180,7 +184,7 @@ export async function isSlotAvailable(params: {
 }) {
   const { startTime, hostTimezone } = params;
   const { fromDate, toDate } = hostDayBounds(startTime, hostTimezone);
-  const slots = await getAvailableSlots({
+  const { slots } = await getAvailableSlots({
     ...params,
     fromDate,
     toDate,

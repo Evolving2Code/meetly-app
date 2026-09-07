@@ -7,6 +7,7 @@ import { BookingDateCalendar } from "@/components/booking/BookingDateCalendar";
 import { CalendarActionButtons } from "@/components/booking/CalendarActionButtons";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Alert } from "@/components/ui/Alert";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { BookingFlowMainSkeleton } from "@/components/ui/Skeleton";
 import { formatDateKeyLabel, formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import { findSlotByDateAndTime } from "@/lib/scheduling/booking-params";
@@ -42,6 +43,7 @@ export function BookingFlow({
   prefilledName,
   prefilledDate,
   prefilledTime,
+  invalidPrefillParams = [],
 }: {
   host: Host;
   eventType: EventType;
@@ -49,10 +51,15 @@ export function BookingFlow({
   prefilledName?: string;
   prefilledDate?: string;
   prefilledTime?: string;
+  invalidPrefillParams?: string[];
 }) {
   const [step, setStep] = useState<BookingStep>("date");
   const [timezone, setTimezone] = useState(() => detectBrowserTimezone());
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
+  const displayTimezoneOptions = useMemo(
+    () => (timezoneOptions.includes(timezone) ? timezoneOptions : [timezone, ...timezoneOptions]),
+    [timezone, timezoneOptions],
+  );
   const [slotsByDate, setSlotsByDate] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(prefilledDate ?? null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
@@ -67,6 +74,8 @@ export function BookingFlow({
     startTime: string;
   } | null>(null);
   const [prefillApplied, setPrefillApplied] = useState(false);
+  const [prefillWarning, setPrefillWarning] = useState<string | null>(null);
+  const [calendarSyncWarning, setCalendarSyncWarning] = useState(false);
 
   useEffect(() => {
     if (prefilledName) {
@@ -98,6 +107,7 @@ export function BookingFlow({
     const data = await response.json();
     const slots = (data.slots ?? {}) as Record<string, Array<{ start: string; end: string }>>;
     setSlotsByDate(slots);
+    setCalendarSyncWarning(Boolean(data.calendarSyncWarning));
     return slots;
   }, [host.username, eventType.slug, timezone]);
 
@@ -121,11 +131,18 @@ export function BookingFlow({
             setPrefillApplied(true);
             return;
           }
+
+          setPrefillWarning("The time from your link is no longer available. Please choose another slot.");
         }
 
         setStep("time");
         setPrefillApplied(true);
         return;
+      }
+
+      if (!prefillApplied && prefilledDate && !slots[prefilledDate]) {
+        setPrefillWarning("The date from your link is no longer available. Please choose a new date.");
+        setPrefillApplied(true);
       }
 
       setSelectedDate(null);
@@ -222,11 +239,11 @@ export function BookingFlow({
           <InfoBlock label="Meeting" value={eventType.title} />
           <InfoBlock label="Duration" value={`${eventType.duration} min`} />
           <InfoBlock label="Location" value={eventType.location ?? "Video call"} />
-          <InfoBlock label="Timezone" value={host.timezone} />
+          <InfoBlock label="Host timezone" value={formatTimezoneLabel(host.timezone)} />
         </div>
 
         {eventType.description && (
-          <p className="mt-6 hidden text-sm leading-6 text-slate-300 sm:block">{eventType.description}</p>
+          <p className="mt-6 text-sm leading-6 text-slate-300 sm:mt-8">{eventType.description}</p>
         )}
 
         <div className="mt-6 rounded-2xl booking-host-panel p-4 sm:mt-10 sm:p-5">
@@ -307,10 +324,10 @@ export function BookingFlow({
               <span className="label">Your timezone</span>
               <select
                 className="input sm:min-w-56"
-                value={timezoneOptions.includes(timezone) ? timezone : timezoneOptions[0]}
+                value={timezone}
                 onChange={(event) => setTimezone(event.target.value)}
               >
-                {timezoneOptions.map((zone) => (
+                {displayTimezoneOptions.map((zone) => (
                   <option key={zone} value={zone}>
                     {formatTimezoneLabel(zone)}
                   </option>
@@ -318,6 +335,26 @@ export function BookingFlow({
               </select>
             </label>
           </div>
+
+          {invalidPrefillParams.length > 0 && (
+            <Alert variant="info" className="mb-6">
+              Some link parameters were invalid ({invalidPrefillParams.join(", ")}). Please complete
+              the form below.
+            </Alert>
+          )}
+
+          {prefillWarning && (
+            <Alert variant="info" className="mb-6">
+              {prefillWarning}
+            </Alert>
+          )}
+
+          {calendarSyncWarning && (
+            <Alert variant="info" className="mb-6">
+              Google Calendar could not be checked for conflicts. Some times shown may already be
+              busy on the host&apos;s calendar.
+            </Alert>
+          )}
 
           {error && (
             <Alert variant="error" className="mb-6">
@@ -578,19 +615,27 @@ function ConfirmationPanel({
 }) {
   const [cancelled, setCancelled] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const endTime = new Date(new Date(startTime).getTime() + duration * 60_000).toISOString();
   const icsUrl = `/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`;
 
   async function cancelBooking() {
     setCancelling(true);
+    setCancelError(null);
     const response = await fetch(`/api/bookings?token=${encodeURIComponent(cancelToken)}`, {
       method: "DELETE",
     });
     setCancelling(false);
+    setShowCancelConfirm(false);
 
     if (response.ok) {
       setCancelled(true);
+      return;
     }
+
+    const data = await response.json().catch(() => ({}));
+    setCancelError(data.error ?? "Could not cancel booking. Please try again.");
   }
 
   return (
@@ -647,13 +692,30 @@ function ConfirmationPanel({
           type="button"
           className="btn-secondary mt-6"
           disabled={cancelling}
-          onClick={cancelBooking}
+          onClick={() => setShowCancelConfirm(true)}
         >
-          {cancelling ? "Cancelling..." : "Cancel booking"}
+          Cancel booking
         </button>
       ) : (
         <p className="mt-6 text-sm font-semibold text-red-600">This booking has been cancelled.</p>
       )}
+
+      {cancelError && (
+        <Alert variant="error" className="mt-4">
+          {cancelError}
+        </Alert>
+      )}
+
+      <ConfirmDialog
+        open={showCancelConfirm}
+        title="Cancel this booking?"
+        description="This will remove the meeting from the host's calendar."
+        confirmLabel="Cancel booking"
+        variant="destructive"
+        loading={cancelling}
+        onCancel={() => setShowCancelConfirm(false)}
+        onConfirm={cancelBooking}
+      />
     </section>
   );
 }

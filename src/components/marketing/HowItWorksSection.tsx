@@ -16,7 +16,7 @@ const steps = [
     step: "02",
     title: "Set your availability",
     description:
-      "Choose your weekly hours, event types, buffers, and booking limits. Meetly generates a personal booking link you can share anywhere.",
+      "Choose your weekly hours, event types, buffers, and booking window. Meetly generates a personal booking link you can share anywhere.",
     preview: <AvailabilityScreenshot />,
   },
   {

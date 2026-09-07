@@ -57,6 +57,17 @@ export default async function BookingPage({
     notFound();
   }
 
+  const invalidPrefillParams: string[] = [];
+  if (query.email && !normalizeEmail(query.email)) {
+    invalidPrefillParams.push("email");
+  }
+  if (query.date && !parseBookingDateParam(query.date)) {
+    invalidPrefillParams.push("date");
+  }
+  if (query.time && !parseBookingTimeParam(query.time)) {
+    invalidPrefillParams.push("time");
+  }
+
   return (
     <BookingFlow
       host={{
@@ -77,6 +88,7 @@ export default async function BookingPage({
       prefilledName={normalizePrefill(query.name)}
       prefilledDate={parseBookingDateParam(query.date)}
       prefilledTime={parseBookingTimeParam(query.time)}
+      invalidPrefillParams={invalidPrefillParams}
     />
   );
 }

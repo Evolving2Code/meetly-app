@@ -9,7 +9,8 @@ export default function BookingsPage() {
         </p>
         <h1 className="mt-1 text-3xl font-black text-navy sm:mt-2 sm:text-4xl">Bookings</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          View upcoming and past meetings, cancel bookings, and share guest cancel links.
+          View upcoming and past meetings, open booking details, reschedule, cancel, and share guest
+          manage links.
         </p>
       </div>
 

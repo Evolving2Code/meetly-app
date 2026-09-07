@@ -25,7 +25,7 @@ export function ShowcaseSection() {
           <ul className="mt-8 space-y-4">
             {[
               "Overview with upcoming meetings and shareable links",
-              "Event types with duration, buffers, and booking limits",
+              "Event types with duration, buffers, and booking window",
               "Weekly availability editor with timezone support",
               "Install as a PWA on your phone",
             ].map((item) => (

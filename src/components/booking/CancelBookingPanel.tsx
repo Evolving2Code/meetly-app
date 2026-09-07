@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDateLabel, formatSlotLabel } from "@/lib/scheduling/format";
 import { Alert } from "@/components/ui/Alert";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export function CancelBookingPanel({
   eventTitle,
@@ -12,17 +13,20 @@ export function CancelBookingPanel({
   startTime,
   timezone,
   cancelToken,
+  isPast = false,
 }: {
   eventTitle: string;
   hostName: string;
   startTime: string;
   timezone: string;
   cancelToken: string;
+  isPast?: boolean;
 }) {
   const router = useRouter();
   const [cancelled, setCancelled] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   async function cancelBooking() {
     setCancelling(true);
@@ -33,6 +37,7 @@ export function CancelBookingPanel({
     });
 
     setCancelling(false);
+    setShowCancelConfirm(false);
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
@@ -70,10 +75,23 @@ export function CancelBookingPanel({
               {formatSlotLabel(new Date(startTime), timezone)} ({timezone})
             </p>
 
+            {isPast && (
+              <Alert variant="info" className="mt-4">
+                This meeting has already passed. Rescheduling and cancellation are no longer
+                available.
+              </Alert>
+            )}
+
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href={`/reschedule/${cancelToken}`} className="btn-primary min-h-[44px]">
-                Reschedule
-              </Link>
+              {isPast ? (
+                <span className="btn-primary min-h-[44px] cursor-not-allowed opacity-50">
+                  Reschedule
+                </span>
+              ) : (
+                <Link href={`/reschedule/${cancelToken}`} className="btn-primary min-h-[44px]">
+                  Reschedule
+                </Link>
+              )}
               <a
                 href={`/api/bookings/ics?token=${encodeURIComponent(cancelToken)}`}
                 className="btn-secondary min-h-[44px]"
@@ -88,17 +106,30 @@ export function CancelBookingPanel({
               </Alert>
             )}
 
-            <button
-              type="button"
-              className="btn-secondary mt-6"
-              disabled={cancelling}
-              onClick={cancelBooking}
-            >
-              {cancelling ? "Cancelling..." : "Cancel booking"}
-            </button>
+            {!isPast && (
+              <button
+                type="button"
+                className="btn-secondary mt-6"
+                disabled={cancelling}
+                onClick={() => setShowCancelConfirm(true)}
+              >
+                Cancel booking
+              </button>
+            )}
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={showCancelConfirm}
+        title="Cancel this booking?"
+        description={`Your meeting with ${hostName} will be cancelled.`}
+        confirmLabel="Cancel booking"
+        variant="destructive"
+        loading={cancelling}
+        onCancel={() => setShowCancelConfirm(false)}
+        onConfirm={cancelBooking}
+      />
     </div>
   );
 }

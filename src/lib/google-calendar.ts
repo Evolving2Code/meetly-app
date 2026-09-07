@@ -56,11 +56,14 @@ export async function getBusyIntervals(
   userId: string,
   timeMin: Date,
   timeMax: Date,
-): Promise<Array<{ start: Date; end: Date }>> {
+): Promise<{
+  intervals: Array<{ start: Date; end: Date }>;
+  fetchFailed: boolean;
+}> {
   const calendar = await getGoogleCalendarClient(userId);
 
   if (!calendar) {
-    return [];
+    return { intervals: [], fetchFailed: false };
   }
 
   try {
@@ -74,15 +77,18 @@ export async function getBusyIntervals(
 
     const busy = response.data.calendars?.primary?.busy ?? [];
 
-    return busy
-      .filter((interval) => interval.start && interval.end)
-      .map((interval) => ({
-        start: new Date(interval.start!),
-        end: new Date(interval.end!),
-      }));
+    return {
+      intervals: busy
+        .filter((interval) => interval.start && interval.end)
+        .map((interval) => ({
+          start: new Date(interval.start!),
+          end: new Date(interval.end!),
+        })),
+      fetchFailed: false,
+    };
   } catch (error) {
     console.error("Failed to fetch Google Calendar busy times:", error);
-    return [];
+    return { intervals: [], fetchFailed: true };
   }
 }
 

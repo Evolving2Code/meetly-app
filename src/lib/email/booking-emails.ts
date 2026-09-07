@@ -3,7 +3,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { sendEmail } from "@/lib/email/send";
 import type { NotificationPreferences } from "@/lib/supabase/types";
 
-type BookingEmailContext = {
+export type BookingEmailContext = {
   hostName: string;
   hostEmail: string;
   guestName: string;
@@ -77,6 +77,113 @@ export async function sendGuestConfirmationEmail(
       <p><strong>Event:</strong> ${context.eventTitle}<br />
       <strong>When:</strong> ${when}</p>
       <p><a href="${context.rescheduleUrl}">Reschedule this booking</a> · <a href="${context.cancelUrl}">Cancel</a></p>
+      <p>— Meetly</p>
+    `,
+  });
+}
+
+export async function sendGuestRescheduleEmail(
+  context: BookingEmailContext,
+): Promise<{ sent: boolean; error?: string }> {
+  const when = formatBookingWhen(context.startTime, context.timezone);
+
+  return sendEmail({
+    to: context.guestEmail,
+    subject: `Updated: ${context.eventTitle} with ${context.hostName}`,
+    text: [
+      `Hi ${context.guestName},`,
+      "",
+      `Your meeting with ${context.hostName} has been rescheduled.`,
+      `Event: ${context.eventTitle}`,
+      `New time: ${when}`,
+      `Reschedule: ${context.rescheduleUrl}`,
+      `Cancel: ${context.cancelUrl}`,
+      "",
+      "— Meetly",
+    ].join("\n"),
+    html: `
+      <p>Hi ${context.guestName},</p>
+      <p>Your meeting with <strong>${context.hostName}</strong> has been rescheduled.</p>
+      <p><strong>Event:</strong> ${context.eventTitle}<br />
+      <strong>New time:</strong> ${when}</p>
+      <p><a href="${context.rescheduleUrl}">Reschedule again</a> · <a href="${context.cancelUrl}">Cancel</a></p>
+      <p>— Meetly</p>
+    `,
+  });
+}
+
+export async function sendHostRescheduleEmail(
+  context: BookingEmailContext,
+): Promise<{ sent: boolean; error?: string }> {
+  const when = formatBookingWhen(context.startTime, context.timezone);
+
+  return sendEmail({
+    to: context.hostEmail,
+    subject: `Rescheduled: ${context.eventTitle} with ${context.guestName}`,
+    text: [
+      `Hi ${context.hostName},`,
+      "",
+      `${context.guestName}'s booking for ${context.eventTitle} was rescheduled.`,
+      `New time: ${when}`,
+      "",
+      "— Meetly",
+    ].join("\n"),
+    html: `
+      <p>Hi ${context.hostName},</p>
+      <p><strong>${context.guestName}</strong>'s booking for <strong>${context.eventTitle}</strong> was rescheduled.</p>
+      <p><strong>New time:</strong> ${when}</p>
+      <p>— Meetly</p>
+    `,
+  });
+}
+
+export async function sendGuestCancellationEmail(
+  context: BookingEmailContext,
+): Promise<{ sent: boolean; error?: string }> {
+  const when = formatBookingWhen(context.startTime, context.timezone);
+
+  return sendEmail({
+    to: context.guestEmail,
+    subject: `Cancelled: ${context.eventTitle} with ${context.hostName}`,
+    text: [
+      `Hi ${context.guestName},`,
+      "",
+      `Your meeting with ${context.hostName} has been cancelled.`,
+      `Event: ${context.eventTitle}`,
+      `Was scheduled for: ${when}`,
+      "",
+      "— Meetly",
+    ].join("\n"),
+    html: `
+      <p>Hi ${context.guestName},</p>
+      <p>Your meeting with <strong>${context.hostName}</strong> has been cancelled.</p>
+      <p><strong>Event:</strong> ${context.eventTitle}<br />
+      <strong>Was scheduled for:</strong> ${when}</p>
+      <p>— Meetly</p>
+    `,
+  });
+}
+
+export async function sendHostCancellationEmail(
+  context: BookingEmailContext,
+): Promise<{ sent: boolean; error?: string }> {
+  const when = formatBookingWhen(context.startTime, context.timezone);
+
+  return sendEmail({
+    to: context.hostEmail,
+    subject: `Cancelled: ${context.eventTitle} with ${context.guestName}`,
+    text: [
+      `Hi ${context.hostName},`,
+      "",
+      `The booking with ${context.guestName} for ${context.eventTitle} was cancelled.`,
+      `Was scheduled for: ${when}`,
+      "",
+      "— Meetly",
+    ].join("\n"),
+    html: `
+      <p>Hi ${context.hostName},</p>
+      <p>The booking with <strong>${context.guestName}</strong> for <strong>${context.eventTitle}</strong> was cancelled.</p>
+      <p><strong>Was scheduled for:</strong> ${when}</p>
       <p>— Meetly</p>
     `,
   });

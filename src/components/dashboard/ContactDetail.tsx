@@ -35,6 +35,7 @@ type ContactDetailData = {
 export function ContactDetail({ email }: { email: string }) {
   const router = useRouter();
   const [data, setData] = useState<ContactDetailData | null>(null);
+  const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -58,13 +59,14 @@ export function ContactDetail({ email }: { email: string }) {
 
       const payload = (await response.json()) as ContactDetailData;
       setData(payload);
+      setName(payload.contact.name);
       setNotes(payload.contact.notes ?? "");
     }
 
     loadContact();
   }, [email]);
 
-  async function saveNotes() {
+  async function saveContact() {
     if (!data) {
       return;
     }
@@ -76,14 +78,14 @@ export function ContactDetail({ email }: { email: string }) {
     const response = await fetch(`/api/contacts/${encodeURIComponent(email)}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notes }),
+      body: JSON.stringify({ name, notes }),
     });
 
     setSaving(false);
 
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
-      setError(payload.error ?? "Could not save notes.");
+      setError(payload.error ?? "Could not save contact.");
       return;
     }
 
@@ -92,11 +94,15 @@ export function ContactDetail({ email }: { email: string }) {
       current
         ? {
             ...current,
-            contact: { ...current.contact, notes: payload.notes },
+            contact: { ...current.contact, name: payload.name ?? name, notes: payload.notes },
           }
         : current,
     );
-    setSaveMessage("Notes saved.");
+    setSaveMessage("Contact saved.");
+  }
+
+  async function saveNotes() {
+    await saveContact();
   }
 
   async function deleteContact() {
@@ -205,7 +211,22 @@ export function ContactDetail({ email }: { email: string }) {
       />
 
       <div className="card">
-        <h2 className="text-lg font-black text-navy">Private notes</h2>
+        <h2 className="text-lg font-black text-navy">Contact details</h2>
+        <label className="label mt-4">
+          Name
+          <input
+            className="input mt-1"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </label>
+        <p className="mt-4 text-sm text-muted">
+          Email:{" "}
+          <a href={`mailto:${contact.email}`} className="font-semibold text-primary hover:underline">
+            {contact.email}
+          </a>
+        </p>
+        <h3 className="mt-6 text-sm font-semibold text-foreground">Private notes</h3>
         <p className="mt-1 text-sm text-muted">Only you can see these notes about this contact.</p>
         <textarea
           className="input mt-4 min-h-[120px] resize-y"
@@ -220,7 +241,7 @@ export function ContactDetail({ email }: { email: string }) {
             disabled={saving}
             onClick={saveNotes}
           >
-            {saving ? "Saving..." : "Save notes"}
+            {saving ? "Saving..." : "Save contact"}
           </button>
           {saveMessage && <p className="text-sm font-medium text-lime-dark">{saveMessage}</p>}
           {error && <p className="text-sm font-medium text-red-600">{error}</p>}
@@ -271,7 +292,10 @@ function BookingRow({ booking }: { booking: ContactBooking }) {
   const isCancelled = booking.status === "cancelled";
 
   return (
-    <div className="rounded-2xl border border-border bg-surface px-4 py-4">
+    <Link
+      href={`/dashboard/bookings/${booking.id}`}
+      className="block rounded-2xl border border-border bg-surface px-4 py-4 transition hover:border-primary/20"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-navy">{booking.eventTitle}</p>
@@ -290,6 +314,6 @@ function BookingRow({ booking }: { booking: ContactBooking }) {
           {isCancelled ? "Cancelled" : "Confirmed"}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }

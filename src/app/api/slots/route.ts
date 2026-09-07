@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
   const fromDate = hostStartOfToday(host.timezone);
   const toDate = addDays(fromDate, eventType.max_days_ahead);
 
-  const slots = await computeSlots({
+  const { slots, calendarSyncWarning } = await computeSlots({
     hostId: host.id,
     hostTimezone: host.timezone,
     eventType,
@@ -78,5 +78,6 @@ export async function GET(request: NextRequest) {
       location: eventType.location,
     },
     slots: serializedSlots,
+    calendarSyncWarning,
   });
 }
