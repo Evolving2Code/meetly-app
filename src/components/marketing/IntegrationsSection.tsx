@@ -11,7 +11,7 @@ const integrations: Array<{ name: string; icon: BrandIconName }> = [
 
 export function IntegrationsSection() {
   return (
-    <section className="border-y border-border bg-white py-12">
+    <section className="border-y border-border bg-surface py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-center text-sm font-medium text-muted">
           Works with the tools you already use
@@ -22,10 +22,10 @@ export function IntegrationsSection() {
               key={item.name}
               className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm transition hover:border-primary/20 hover:shadow-md"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-border">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background shadow-sm">
                 <BrandIcon name={item.icon} size={26} />
               </div>
-              <span className="text-sm font-semibold text-navy">{item.name}</span>
+              <span className="text-sm font-semibold text-foreground">{item.name}</span>
             </div>
           ))}
         </div>

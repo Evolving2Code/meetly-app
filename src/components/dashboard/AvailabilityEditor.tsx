@@ -145,7 +145,7 @@ export function AvailabilityEditor({
                 <p className="self-center text-sm text-muted">Unavailable</p>
               )}
 
-              <span className={`self-center badge ${enabled ? "badge-lime" : "bg-slate-200 text-slate-600"}`}>
+              <span className={`self-center badge ${enabled ? "badge-lime" : "badge-muted"}`}>
                 {enabled ? "Open" : "Closed"}
               </span>
             </div>

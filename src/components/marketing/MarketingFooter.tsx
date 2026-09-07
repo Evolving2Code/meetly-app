@@ -22,12 +22,12 @@ const legalLinks = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-border bg-navy text-slate-300">
+    <footer className="marketing-brand-section border-t border-white/10">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
             <MeetlyLogo light />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-300">
               Personal scheduling for solo hosts. Share your link, set your hours, and let guests
               book time that works.
             </p>

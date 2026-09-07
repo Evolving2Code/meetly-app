@@ -7,6 +7,7 @@ import {
   validatePassword,
   validatePasswordConfirmation,
 } from "@/lib/validation/password";
+import { Alert } from "@/components/ui/Alert";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -76,11 +77,7 @@ export function ResetPasswordForm() {
         />
       </label>
 
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error">{error}</Alert>}
 
       <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
         {loading ? "Updating..." : "Update password"}

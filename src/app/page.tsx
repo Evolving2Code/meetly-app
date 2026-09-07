@@ -16,7 +16,7 @@ export default async function HomePage() {
   const user = await getSessionUser();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <MarketingNav isLoggedIn={Boolean(user)} />
       <PwaInstallPrompt />
       <main>

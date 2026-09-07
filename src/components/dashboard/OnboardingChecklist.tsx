@@ -88,7 +88,7 @@ export function OnboardingChecklist({
   }
 
   return (
-    <section className="card mb-8 border-lime/30 bg-gradient-to-br from-lime/5 to-white">
+    <section className="card mb-8 border-lime/30 bg-surface">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lime-dark">

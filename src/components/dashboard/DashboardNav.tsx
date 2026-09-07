@@ -78,7 +78,7 @@ export function DashboardNav({
 
   if (variant === "bottom") {
     return (
-      <nav className="dashboard-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-slate-700 bg-navy pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav className="dashboard-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t pb-[env(safe-area-inset-bottom)] lg:hidden">
         <div className="mx-auto flex max-w-lg overflow-x-auto">
           {items.map((item) => {
             const active =
@@ -91,12 +91,10 @@ export function DashboardNav({
                 key={item.href}
                 href={item.href}
                 className={`dashboard-bottom-link flex min-h-[56px] min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-1 px-1.5 py-2 text-[11px] font-semibold transition ${
-                  active ? "dashboard-bottom-link-active" : "text-slate-400"
+                  active ? "dashboard-bottom-link-active" : ""
                 }`}
               >
-                <span className={`dashboard-nav-icon ${active ? "" : "text-slate-400"}`}>
-                  {icons[item.icon]}
-                </span>
+                <span className="dashboard-nav-icon">{icons[item.icon]}</span>
                 <span className="max-w-full truncate">{item.label}</span>
               </Link>
             );
@@ -121,12 +119,10 @@ export function DashboardNav({
             className={`dashboard-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
               active
                 ? "dashboard-nav-link-active"
-                : "text-slate-300 hover:bg-navy-light hover:text-white"
+                : "hover:bg-navy-light/80"
             }`}
           >
-            <span className={`dashboard-nav-icon ${active ? "" : "text-slate-400"}`}>
-              {icons[item.icon]}
-            </span>
+            <span className="dashboard-nav-icon">{icons[item.icon]}</span>
             {item.label}
           </Link>
         );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Alert } from "@/components/ui/Alert";
 
 type Mode = "login" | "signup";
 
@@ -107,17 +108,9 @@ export function EmailAuthForm({ mode }: { mode: Mode }) {
         />
       </label>
 
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error">{error}</Alert>}
 
-      {message && (
-        <div className="rounded-xl border border-lime/30 bg-lime/10 px-4 py-3 text-sm text-lime-dark">
-          {message}
-        </div>
-      )}
+      {message && <Alert variant="success">{message}</Alert>}
 
       <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
         {loading

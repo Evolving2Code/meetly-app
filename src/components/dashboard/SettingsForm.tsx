@@ -212,7 +212,7 @@ export function SettingsForm({
                   : "Not connected yet. You can still accept bookings without this."}
               </p>
             </div>
-            <span className={calendarConnected ? "badge-lime" : "badge bg-slate-200 text-slate-600"}>
+            <span className={calendarConnected ? "badge-lime" : "badge badge-muted"}>
               {calendarConnected ? "Connected" : "Optional"}
             </span>
           </div>

@@ -59,14 +59,14 @@ export function CalendarActionButtons({
         href={googleUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface active:scale-[0.98]"
+        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition hover:bg-surface active:scale-[0.98]"
       >
         <GoogleCalendarIcon size={18} />
         Google Calendar
       </a>
       <a
         href={icsUrl}
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface active:scale-[0.98]"
+        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition hover:bg-surface active:scale-[0.98]"
       >
         <AppleCalendarIcon />
         Apple Calendar
@@ -75,7 +75,7 @@ export function CalendarActionButtons({
         href={outlookUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy shadow-sm transition hover:bg-surface active:scale-[0.98]"
+        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition hover:bg-surface active:scale-[0.98]"
       >
         <MicrosoftIcon size={18} />
         Outlook

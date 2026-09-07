@@ -71,7 +71,7 @@ export function BookingFlowSkeleton() {
           ))}
         </div>
       </aside>
-      <main className="flex-1 bg-white p-4 sm:p-6 lg:p-10">
+      <main className="flex-1 bg-background p-4 sm:p-6 lg:p-10">
         <div className="mx-auto max-w-3xl">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="mt-3 h-9 w-48" />

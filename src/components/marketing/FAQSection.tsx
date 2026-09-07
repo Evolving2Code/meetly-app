@@ -40,13 +40,13 @@ export function FAQSection() {
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
-              <div key={faq.q} className="overflow-hidden rounded-2xl border border-border bg-white">
+              <div key={faq.q} className="overflow-hidden rounded-2xl border border-border bg-surface">
                 <button
                   type="button"
                   className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                 >
-                  <span className="font-semibold text-navy">{faq.q}</span>
+                  <span className="font-semibold text-foreground">{faq.q}</span>
                   <span className="text-primary">{isOpen ? "−" : "+"}</span>
                 </button>
                 {isOpen && (

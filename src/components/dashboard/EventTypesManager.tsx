@@ -190,7 +190,7 @@ export function EventTypesManager({
                       type="button"
                       onClick={() => toggleActive(eventType)}
                       className={
-                        eventType.active ? "badge-lime" : "badge bg-slate-200 text-slate-600"
+                        eventType.active ? "badge-lime" : "badge badge-muted"
                       }
                     >
                       {eventType.active ? "Active" : "Inactive"}

@@ -50,17 +50,17 @@ export function PricingSection() {
               key={plan.name}
               className={`rounded-3xl border p-8 ${
                 plan.highlighted
-                  ? "border-primary bg-white shadow-xl shadow-primary/10"
-                  : "border-border bg-white shadow-sm"
+                  ? "border-primary bg-surface shadow-xl shadow-primary/10"
+                  : "border-border bg-surface shadow-sm"
               }`}
             >
               {plan.highlighted && <span className="badge-primary">Most popular</span>}
-              <h3 className="mt-4 text-2xl font-bold text-navy">{plan.name}</h3>
+              <h3 className="mt-4 text-2xl font-bold text-foreground">{plan.name}</h3>
               <p className="mt-2 text-4xl font-bold text-primary">{plan.price}</p>
               <p className="mt-3 text-sm text-muted">{plan.description}</p>
               <ul className="mt-8 space-y-3">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-sm text-navy">
+                  <li key={feature} className="flex items-start gap-3 text-sm text-foreground">
                     <span className="text-primary">✓</span>
                     {feature}
                   </li>
